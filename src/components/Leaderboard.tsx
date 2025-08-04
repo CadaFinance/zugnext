@@ -1,84 +1,28 @@
 'use client'
 
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
+
+interface User {
+  id: string;
+  twitter_id: string;
+  username: string;
+  display_name: string;
+  profile_image_url: string;
+  created_at: string;
+  updated_at: string;
+}
 
 interface LeaderboardEntry {
-  rank: string;
+  rank: number;
   user: string;
   handle: string;
-  points: string;
+  points: number;
   usda: string;
   isCurrentUser?: boolean;
   profileImage?: string;
+  id: string;
 }
-
-const leaderboardData: LeaderboardEntry[] = [
-  {
-    rank: "#1587",
-    user: "Bblip Protocol",
-    handle: "@BblipProtocol",
-    points: "600",
-    usda: "1.5",
-    isCurrentUser: true,
-    profileImage: "/profile-bblip.png"
-  },
-  {
-    rank: "#1",
-    user: "小刷子",
-    handle: "@Oxbrush_bots",
-    points: "1,749,650",
-    usda: "5,014.85",
-    profileImage: "/profile-boy.png"
-  },
-  {
-    rank: "#2",
-    user: "moli (焦虑版)",
-    handle: "@Oxmoernon",
-    points: "1,685,200",
-    usda: "4,895.45",
-    profileImage: "/profile-moli.png"
-  },
-  {
-    rank: "#3",
-    user: "ADD+",
-    handle: "@add_infofi",
-    points: "1,530,200",
-    usda: "4,605.91",
-    profileImage: "/profile-add.png"
-  },
-  {
-    rank: "#4",
-    user: "Nazim",
-    handle: "@shahrianazim6",
-    points: "1,448,250",
-    usda: "4,451.36",
-    profileImage: "/profile-nazim.png"
-  },
-  {
-    rank: "#5",
-    user: "Tonys♦Tucker",
-    handle: "@Baby__BTC",
-    points: "1,440,450",
-    usda: "4,436.6",
-    profileImage: "/profile-tonys.png"
-  },
-  {
-    rank: "#6",
-    user: "Sandy",
-    handle: "@sandyXBT",
-    points: "1,337,400",
-    usda: "4,240.57",
-    profileImage: "/profile-sandy.png"
-  },
-  {
-    rank: "#7",
-    user: "HuntΞr",
-    handle: "@KingsEcheeh",
-    points: "1,290,650",
-    usda: "4,151.03",
-    profileImage: "/profile-hunter.png"
-  }
-];
 
 // Function to abbreviate numbers
 function abbreviateNumber(num: string): string {
@@ -98,6 +42,48 @@ function truncateText(text: string, maxLength: number): string {
 }
 
 export default function Leaderboard() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        // Check authentication status via API
+        const response = await fetch('/api/auth/check');
+        const data = await response.json();
+        
+        if (data.authenticated && data.user) {
+          setCurrentUser(data.user);
+        }
+        
+        // Get leaderboard data
+        const leaderboardResponse = await fetch('/api/leaderboard');
+        const leaderboardData = await leaderboardResponse.json();
+        
+        // Transform data to match our interface
+        const transformedData = leaderboardData.leaderboard.map((user: any) => ({
+          rank: user.rank,
+          user: user.display_name || user.username,
+          handle: `@${user.username}`,
+          points: user.totalPoints,
+          usda: user.totalUsda,
+          profileImage: user.profile_image_url,
+          id: user.id,
+          isCurrentUser: currentUser?.id === user.id
+        }));
+        
+        setLeaderboardData(transformedData);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, [currentUser?.id]);
+
   return (
     <div className=" rounded-lg   mt-10 ">
       {/* Header */}
@@ -126,16 +112,16 @@ export default function Leaderboard() {
             let bgColor = 'bg-transparent';
             if (entry.isCurrentUser) {
               bgColor = 'bg-gray-800';
-            } else if (entry.rank === "#1") {
+            } else if (entry.rank === 1) {
               bgColor = 'bg-[#f0f8f0]';
-            } else if (entry.rank === "#2") {
+            } else if (entry.rank === 2) {
               bgColor = 'bg-[#e8f5e8]';
-            } else if (entry.rank === "#3") {
+            } else if (entry.rank === 3) {
               bgColor = 'bg-[#f0f8f0]';
             }
 
             // Determine if this is a top 3 entry (excluding current user)
-            const isTop3 = !entry.isCurrentUser && (entry.rank === "#1" || entry.rank === "#2" || entry.rank === "#3");
+            const isTop3 = !entry.isCurrentUser && (entry.rank === 1 || entry.rank === 2 || entry.rank === 3);
 
             return (
               <div 
@@ -148,19 +134,33 @@ export default function Leaderboard() {
                   <div className={`w-14 sm:w-16 text-xs sm:text-sm font-semibold flex-shrink-0 ${
                     entry.isCurrentUser ? 'text-[#D6E14E]' : 'text-gray-800'
                   }`}>
-                    {entry.rank}
+                    #{entry.rank}
                   </div>
                   <div className="flex-1 flex items-center min-w-0">
                     <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
-                      <div className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center ${
-                        entry.isCurrentUser ? 'bg-gray-600' : 'bg-gray-300'
-                      }`}>
-                        <span className={`text-xs sm:text-sm font-medium ${
-                          entry.isCurrentUser ? 'text-white' : 'text-gray-700'
+                      {entry.profileImage ? (
+                        <div className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden ${
+                          entry.isCurrentUser ? 'ring-2 ring-[#D6E14E]' : ''
                         }`}>
-                          {entry.user.charAt(0)}
-                        </span>
-                      </div>
+                          <Image
+                            src={entry.profileImage}
+                            alt={entry.user}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center ${
+                          entry.isCurrentUser ? 'bg-gray-600' : 'bg-gray-300'
+                        }`}>
+                          <span className={`text-xs sm:text-sm font-medium ${
+                            entry.isCurrentUser ? 'text-white' : 'text-gray-700'
+                          }`}>
+                            {entry.user.charAt(0)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="ml-2 sm:ml-3 min-w-0 flex-1">
                       <div className={`text-xs sm:text-sm font-semibold truncate ${
@@ -180,10 +180,10 @@ export default function Leaderboard() {
                   }`}>
                     {isTop3 ? (
                       <span className="bg-[#D6E14E] text-black px-1 py-0.5 rounded inline-block">
-                        {abbreviateNumber(entry.points)}
+                        {abbreviateNumber(entry.points.toString())}
                       </span>
                     ) : (
-                      abbreviateNumber(entry.points)
+                      abbreviateNumber(entry.points.toString())
                     )}
                   </div>
                   <div className={`w-20 sm:w-24 text-xs sm:text-sm font-semibold text-right flex-shrink-0 flex items-center justify-end ${
