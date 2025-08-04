@@ -80,7 +80,14 @@ export default function Leaderboard() {
           isCurrentUser: currentUser?.id === user.id
         }));
         
-        setLeaderboardData(transformedData);
+        // Sort data to put current user at the top
+        const sortedData = transformedData.sort((a: LeaderboardEntry, b: LeaderboardEntry) => {
+          if (a.isCurrentUser && !b.isCurrentUser) return -1;
+          if (!a.isCurrentUser && b.isCurrentUser) return 1;
+          return a.rank - b.rank;
+        });
+        
+        setLeaderboardData(sortedData);
               } catch (error) {
           console.error('Error loading data:', error);
         }
