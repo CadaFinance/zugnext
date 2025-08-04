@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Get all users with their total points
     const { data: usersWithPoints, error } = await supabase
@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
     
     // Calculate total points for each user
     const usersWithTotalPoints = usersWithPoints?.map(user => {
-      const totalPoints = user.user_points?.reduce((sum: number, point: any) => sum + point.points, 0) || 0
-      const totalUsda = user.user_points?.reduce((sum: number, point: any) => sum + parseFloat(point.usda_amount), 0) || 0
+      const totalPoints = user.user_points?.reduce((sum: number, point: { points: number; usda_amount: string }) => sum + point.points, 0) || 0
+      const totalUsda = user.user_points?.reduce((sum: number, point: { points: number; usda_amount: string }) => sum + parseFloat(point.usda_amount), 0) || 0
       
       return {
         id: user.id,

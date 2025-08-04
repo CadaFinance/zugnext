@@ -44,7 +44,6 @@ function truncateText(text: string, maxLength: number): string {
 export default function Leaderboard() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
@@ -62,7 +61,15 @@ export default function Leaderboard() {
         const leaderboardData = await leaderboardResponse.json();
         
         // Transform data to match our interface
-        const transformedData = leaderboardData.leaderboard.map((user: any) => ({
+        const transformedData = leaderboardData.leaderboard.map((user: { 
+          rank: number; 
+          display_name: string; 
+          username: string; 
+          totalPoints: number; 
+          totalUsda: string; 
+          profile_image_url: string; 
+          id: string; 
+        }) => ({
           rank: user.rank,
           user: user.display_name || user.username,
           handle: `@${user.username}`,
@@ -74,12 +81,10 @@ export default function Leaderboard() {
         }));
         
         setLeaderboardData(transformedData);
-      } catch (error) {
-        console.error('Error loading data:', error);
-      } finally {
-        setLoading(false);
+              } catch (error) {
+          console.error('Error loading data:', error);
+        }
       }
-    }
 
     loadData();
   }, [currentUser?.id]);
