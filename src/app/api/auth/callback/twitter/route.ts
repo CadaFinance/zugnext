@@ -1,69 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Validate environment variables
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-  throw new Error('NEXT_PUBLIC_SUPABASE_URL is required')
-}
-
-if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error('SUPABASE_SERVICE_ROLE_KEY is required')
-}
-
-if (!process.env.TWITTER_CLIENT_ID) {
-  throw new Error('TWITTER_CLIENT_ID is required')
-}
-
-if (!process.env.TWITTER_CLIENT_SECRET) {
-  throw new Error('TWITTER_CLIENT_SECRET is required')
-}
-
-if (!process.env.TWITTER_CALLBACK_URL) {
-  throw new Error('TWITTER_CALLBACK_URL is required')
-}
-
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const code = searchParams.get('code')
+  const state = searchParams.get('state')
+  
+  // Get stored state, referrer ID, and code verifier from cookies
+  const storedState = request.cookies.get('oauth_state')?.value
+  const referrerId = request.cookies.get('referrer_id')?.value
+  const codeVerifier = request.cookies.get('code_verifier')?.value
+  
+  // Validate state parameter
+  if (!state || !storedState || state !== storedState) {
+    return NextResponse.redirect('/error?message=Invalid state parameter')
+  }
+  
+  if (!code) {
+    return NextResponse.redirect('/error?message=No authorization code received')
+  }
+  
+  if (!codeVerifier) {
+    return NextResponse.redirect('/error?message=No code verifier found')
+  }
+  
   try {
-    const searchParams = request.nextUrl.searchParams
-    const code = searchParams.get('code')
-    const state = searchParams.get('state')
-    
-    console.log('OAuth callback received:', { code: !!code, state: !!state })
-    
-    // Get stored state, referrer ID, and code verifier from cookies
-    const storedState = request.cookies.get('oauth_state')?.value
-    const referrerId = request.cookies.get('referrer_id')?.value
-    const codeVerifier = request.cookies.get('code_verifier')?.value
-    
-    console.log('Stored cookies:', { 
-      storedState: !!storedState, 
-      referrerId: !!referrerId, 
-      codeVerifier: !!codeVerifier 
-    })
-    
-    // Validate state parameter
-    if (!state || !storedState || state !== storedState) {
-      console.error('State validation failed:', { state, storedState })
-      return NextResponse.redirect('/error?message=Invalid state parameter')
-    }
-    
-    if (!code) {
-      console.error('No authorization code received')
-      return NextResponse.redirect('/error?message=No authorization code received')
-    }
-    
-    if (!codeVerifier) {
-      console.error('No code verifier found')
-      return NextResponse.redirect('/error?message=No code verifier found')
-    }
-    
-    console.log('Starting token exchange...')
-    
     // Exchange code for access token
     const tokenResponse = await fetch('https://api.twitter.com/2/oauth2/token', {
       method: 'POST',
@@ -80,14 +46,11 @@ export async function GET(request: NextRequest) {
     })
     
     const tokenData = await tokenResponse.json()
-    console.log('Token response status:', tokenResponse.status)
     
     if (!tokenResponse.ok) {
       console.error('Token exchange failed:', tokenData)
       return NextResponse.redirect('/error?message=Token exchange failed')
     }
-    
-    console.log('Token exchange successful, getting user data...')
     
     // Get user info from Twitter
     const userResponse = await fetch('https://api.twitter.com/2/users/me', {
@@ -97,7 +60,6 @@ export async function GET(request: NextRequest) {
     })
     
     const userData = await userResponse.json()
-    console.log('User data response status:', userResponse.status)
     
     if (!userResponse.ok) {
       console.error('Failed to get user data:', userData)
@@ -105,22 +67,15 @@ export async function GET(request: NextRequest) {
     }
     
     const twitterUser = userData.data
-    console.log('Twitter user:', { id: twitterUser.id, username: twitterUser.username })
     
     // Check if user already exists
-    const { data: existingUser, error: existingUserError } = await supabase
+    const { data: existingUser } = await supabase
       .from('users')
       .select('*')
       .eq('twitter_id', twitterUser.id)
       .single()
     
-    if (existingUserError && existingUserError.code !== 'PGRST116') {
-      console.error('Error checking existing user:', existingUserError)
-      return NextResponse.redirect('/error?message=Database error')
-    }
-    
     if (existingUser) {
-      console.log('User already exists, redirecting to dashboard')
       // User already exists, just log in
       const response = NextResponse.redirect('/dashboard')
       response.cookies.delete('oauth_state')
@@ -128,8 +83,6 @@ export async function GET(request: NextRequest) {
       response.cookies.delete('code_verifier')
       return response
     }
-    
-    console.log('Creating new user...')
     
     // Create new user
     const { data: newUser, error: userError } = await supabase
@@ -149,8 +102,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect('/error?message=Failed to create user')
     }
     
-    console.log('User created successfully:', newUser.id)
-    
     // Add points to new user
     const { error: pointsError } = await supabase
       .from('user_points')
@@ -164,22 +115,17 @@ export async function GET(request: NextRequest) {
     
     if (pointsError) {
       console.error('Error adding points to new user:', pointsError)
-    } else {
-      console.log('Points added to new user')
     }
     
     // If there's a referrer, add points to them
     if (referrerId) {
-      console.log('Processing referrer:', referrerId)
-      const { data: referrer, error: referrerError } = await supabase
+      const { data: referrer } = await supabase
         .from('users')
         .select('*')
         .eq('username', referrerId)
         .single()
       
-      if (referrerError) {
-        console.error('Error finding referrer:', referrerError)
-      } else if (referrer) {
+      if (referrer) {
         const { error: referrerPointsError } = await supabase
           .from('user_points')
           .insert({
@@ -193,13 +139,9 @@ export async function GET(request: NextRequest) {
         
         if (referrerPointsError) {
           console.error('Error adding points to referrer:', referrerPointsError)
-        } else {
-          console.log('Points added to referrer')
         }
       }
     }
-    
-    console.log('OAuth flow completed successfully')
     
     // Clear cookies and redirect
     const response = NextResponse.redirect('/dashboard')
