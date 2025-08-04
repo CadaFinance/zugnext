@@ -1,12 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+// Remove supabase client - we'll use API endpoint instead
 
 interface User {
   id: string;
@@ -44,20 +40,17 @@ export default function BoostPage({ params }: PageProps) {
     async function checkReferrer() {
       try {
         console.log('Checking for username:', username)
-        const { data, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('username', username)
-          .single()
+        const response = await fetch(`/api/user/${username}`)
+        const data = await response.json()
 
-        console.log('Supabase response:', { data, error })
+        console.log('API response:', data)
 
-        if (error) {
-          console.error('Error fetching referrer:', error)
+        if (data.error) {
+          console.error('Error fetching referrer:', data.error)
           setReferrer(null)
         } else {
-          console.log('Referrer found:', data)
-          setReferrer(data)
+          console.log('Referrer found:', data.user)
+          setReferrer(data.user)
         }
       } catch (error) {
         console.error('Error:', error)
