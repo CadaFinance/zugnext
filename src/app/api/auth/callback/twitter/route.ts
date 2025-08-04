@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Get user info from Twitter
-    const userResponse = await fetch('https://api.twitter.com/2/users/me', {
+    const userResponse = await fetch('https://api.twitter.com/2/users/me?user.fields=profile_image_url', {
       headers: {
         'Authorization': `Bearer ${tokenData.access_token}`
       }
@@ -69,6 +69,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${baseUrl}/error?message=Failed to get user data`)
     }
     
+    console.log('Twitter API response:', userData)
     const twitterUser = userData.data
     
     // Check if user already exists
@@ -108,7 +109,7 @@ export async function GET(request: NextRequest) {
         twitter_id: twitterUser.id,
         username: twitterUser.username,
         display_name: twitterUser.name,
-        profile_image_url: twitterUser.profile_image_url,
+        profile_image_url: twitterUser.profile_image_url || null,
         created_at: new Date().toISOString()
       })
       .select()
