@@ -143,7 +143,7 @@ export default function Leaderboard() {
                   </div>
                   <div className="flex-1 flex items-center min-w-0">
                     <div className="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
-                      {entry.profileImage ? (
+                      {entry.profileImage && entry.profileImage !== 'null' ? (
                         <div className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden ${
                           entry.isCurrentUser ? 'ring-2 ring-[#D6E14E]' : ''
                         }`}>
@@ -153,7 +153,22 @@ export default function Leaderboard() {
                             width={40}
                             height={40}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback to avatar if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.nextElementSibling?.classList.remove('hidden');
+                            }}
                           />
+                          <div className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center ${
+                            entry.isCurrentUser ? 'bg-gray-600' : 'bg-gray-300'
+                          } hidden`}>
+                            <span className={`text-xs sm:text-sm font-medium ${
+                              entry.isCurrentUser ? 'text-white' : 'text-gray-700'
+                            }`}>
+                              {entry.user.charAt(0)}
+                            </span>
+                          </div>
                         </div>
                       ) : (
                         <div className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center ${
