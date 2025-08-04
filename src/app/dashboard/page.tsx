@@ -8,9 +8,29 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+interface User {
+  id: string;
+  twitter_id: string;
+  username: string;
+  display_name: string;
+  profile_image_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface UserPoint {
+  id: string;
+  user_id: string;
+  points: number;
+  usda_amount: string;
+  source: string;
+  referred_user_id?: string;
+  created_at: string;
+}
+
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null)
-  const [points, setPoints] = useState<any[]>([])
+  const [user, setUser] = useState<User | null>(null)
+  const [points, setPoints] = useState<UserPoint[]>([])
   const [totalPoints, setTotalPoints] = useState(0)
   const [totalUsda, setTotalUsda] = useState(0)
   const [loading, setLoading] = useState(true)

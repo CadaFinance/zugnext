@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link'
+import Image from 'next/image'
 
 const navigation = [
   { name: 'HOW TO BUY', href: '/#how-to-buy' },
@@ -51,6 +53,7 @@ const generateTransactionData = () => {
 export default function Header({ fullWidth = false, showBothButtons = false, showOnlyX = false }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [transactionData, setTransactionData] = useState<string>('')
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const generateTransactions = () => {
@@ -64,19 +67,40 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
     generateTransactions();
   }, []);
 
+  useEffect(() => {
+    const scrollElement = scrollRef.current;
+    if (!scrollElement) return;
+
+    let animationId: number;
+    let position = 0;
+    const speed = 50; // pixels per second
+
+    const animate = () => {
+      position -= speed / 60; // 60fps
+      
+      // Reset position when content has scrolled completely
+      const containerWidth = scrollElement.parentElement?.offsetWidth || 0;
+      const contentWidth = scrollElement.offsetWidth;
+      
+      if (position <= -contentWidth) {
+        position = containerWidth;
+      }
+      
+      scrollElement.style.transform = `translateX(${position}px)`;
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animationId = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [transactionData]);
+
   return (
     <>
-      <style jsx>{`
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .scroll-animation {
-          animation: scroll 10s linear infinite;
-          display: flex;
-        }
-      `}</style>
-      
       {/* Scrolling Ticker Bar */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 overflow-hidden">
         <div className="flex items-center">
@@ -84,7 +108,16 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
             LATEST PURCHASES
           </span>
           <div className="flex-1 overflow-hidden">
-            <div className="scroll-animation whitespace-nowrap">
+            <div 
+              ref={scrollRef}
+              className="whitespace-nowrap flex" 
+              style={{ 
+                transform: 'translateX(0px)'
+              }}
+            >
+              <span className="inline-block px-4">
+                {transactionData}
+              </span>
               <span className="inline-block px-4">
                 {transactionData}
               </span>
@@ -100,14 +133,16 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
       <div className={`mx-auto px-6 lg:px-8 ${fullWidth ? '' : 'max-w-7xl'}`}>
         <nav aria-label="Global" className="flex items-center justify-between py-4">
           <div className="flex lg:flex-1">
-            <a href="/" className="-m-1.5 p-1.5 flex items-center">
-              <img
+            <Link href="/" className="-m-1.5 p-1.5 flex items-center">
+              <Image
                 alt="Logo"
                 src="/Group 5195.png"
+                width={32}
+                height={32}
                 className="h-8 w-auto mr-2"
               />
               <span className="text-xl font-bold text-gray-900">ZUG</span>
-            </a>
+            </Link>
           </div>
           <div className="flex lg:hidden items-center gap-2">
             {!showOnlyX && (
@@ -131,9 +166,9 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
           </div>
           <div className="hidden lg:flex lg:gap-x-8">
             {navigation.map((item) => (
-              <a key={item.name} href={item.href} className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">
+              <Link key={item.name} href={item.href} className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">
                 {item.name}
-              </a>
+              </Link>
             ))}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-3">
@@ -154,15 +189,17 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
         <div className="fixed inset-0 z-50" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
-            <a href="/" className="-m-1.5 p-1.5 flex items-center">
+            <Link href="/" className="-m-1.5 p-1.5 flex items-center">
               <span className="sr-only">Your Company</span>
-              <img
+              <Image
                 alt="Logo"
                 src="/Group 5195.png"
+                width={32}
+                height={32}
                 className="h-8 w-auto mr-2"
               />
               <span className="text-xl font-bold text-gray-900">ZUG</span>
-            </a>
+            </Link>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
@@ -176,13 +213,13 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
             <div className="-my-6 divide-y divide-gray-500/10">
               <div className="space-y-2 py-6">
                 {navigation.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
                     href={item.href}
                     className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
               </div>
               <div className="py-6 space-y-3">

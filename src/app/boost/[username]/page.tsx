@@ -8,6 +8,16 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+interface User {
+  id: string;
+  twitter_id: string;
+  username: string;
+  display_name: string;
+  profile_image_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface BoostPageProps {
   params: {
     username: string
@@ -15,7 +25,7 @@ interface BoostPageProps {
 }
 
 export default function BoostPage({ params }: BoostPageProps) {
-  const [referrer, setReferrer] = useState<any>(null)
+  const [referrer, setReferrer] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
