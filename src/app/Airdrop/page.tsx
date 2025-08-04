@@ -22,28 +22,48 @@ interface User {
 }
 
 export default function MindsharePage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [milestoneData, setMilestoneData] = useState({
+    totalUsers: 0,
+    targetUsers: 100,
+    progressPercentage: 0,
+    currentReward: '0',
+    nextReward: '141,750',
+    currentTier: 'TOP 1 - 100',
+    nextTier: 'TOP 1 - 100',
+    totalDistributedReward: '0'
+  })
 
   useEffect(() => {
     async function checkUserAuth() {
       try {
-        // Check authentication status via API
-        const response = await fetch('/api/auth/check');
-        const data = await response.json();
+        const response = await fetch('/api/auth/check')
+        const data = await response.json()
         
         if (data.authenticated && data.user) {
-          setUser(data.user);
+          setUser(data.user)
         }
       } catch (error) {
-        console.error('Error checking user auth:', error);
+        console.error('Error checking auth:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    checkUserAuth();
-  }, []);
+    async function loadMilestoneData() {
+      try {
+        const response = await fetch('/api/milestone')
+        const data = await response.json()
+        setMilestoneData(data)
+      } catch (error) {
+        console.error('Error loading milestone data:', error)
+      }
+    }
+
+    checkUserAuth()
+    loadMilestoneData()
+  }, [])
 
   const handleConnectTwitter = () => {
     // Redirect to OAuth
@@ -90,7 +110,7 @@ export default function MindsharePage() {
                           TOP 1 - 100
                         </p>
                       <div className="bg-[#D6E14E] text-black px-6 py-3 rounded-lg mb-2">
-                        <span className="font-bold text-2xl sm:text-5xl">141,750 $USDA</span>
+                        <span className="font-bold text-2xl sm:text-5xl">350,000 $USDA</span>
                       </div>
                                               <p className="text-gray-600 text-center text-sm sm:text-xl">
                           35% Rewards
@@ -109,7 +129,7 @@ export default function MindsharePage() {
                           TOP 101 - 1000
                         </p>
                       <div className="bg-[#D6E14E] text-black px-6 py-3 rounded-lg mb-2">
-                        <span className="font-bold text-2xl sm:text-5xl">101,250 $USDA</span>
+                        <span className="font-bold text-2xl sm:text-5xl">250,000 $USDA</span>
                       </div>
                                               <p className="text-gray-600 text-center text-sm sm:text-xl">
                           25% Rewards
@@ -128,11 +148,11 @@ export default function MindsharePage() {
                     <div className="absolute inset-px rounded-lg bg-[#e6ed94]" />
                     <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
                       <div className="px-4 pt-4 sm:px-6 sm:pt-6 flex flex-col items-center justify-center h-full">
-                        <p className="text-sm sm:text-xl tracking-tight text-black text-center">TOP 7,500 - 10,000</p>
+                        <p className="text-sm sm:text-xl tracking-tight text-black text-center">TOP 1,001 - 2,000</p>
                         <div className="text-black px-3 py-2 mb-2">
-                          <span className="font-bold text-lg sm:text-4xl">15,750 $USDA</span>
+                          <span className="font-bold text-lg sm:text-4xl">150,000 $USDA</span>
                         </div>
-                        <p className="text-sm sm:text-2xl text-gray-600 text-center">4% Rewards</p>
+                        <p className="text-sm sm:text-2xl text-gray-600 text-center">15% Rewards</p>
                       </div>
                     </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
@@ -144,30 +164,30 @@ export default function MindsharePage() {
                   {/* TOP 1,001 - 2,000 */}
                   <div className="relative flex-1">
                     <div className="absolute inset-px rounded-lg bg-[#dae45f]" />
-                    <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
-                      <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
-                        <p className="text-xs sm:text-lg tracking-tight text-black text-center ">TOP 1,001 - 2,000</p>
-                        <div className="text-black px-2 py-1 mb-1">
-                          <span className="font-bold text-sm sm:text-3xl">60,750 $USDA</span>
+                                          <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
+                        <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
+                          <p className="text-xs sm:text-lg tracking-tight text-black text-center ">TOP 2,001 - 5,000</p>
+                          <div className="text-black px-2 py-1 mb-1">
+                            <span className="font-bold text-sm sm:text-3xl">120,000 $USDA</span>
+                          </div>
+                          <p className="text-xs sm:text-lg text-gray-600 text-center">12% Rewards</p>
                         </div>
-                        <p className="text-xs sm:text-lg text-gray-600 text-center">15% Rewards</p>
                       </div>
-                    </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
                   </div>
 
                   {/* TOP 2,100 - 5,000 */}
                   <div className="relative flex-1">
                 <div className="absolute inset-px rounded-lg bg-[#dae45f]" />
-                    <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
-                      <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
-                        <p className="text-xs sm:text-lg tracking-tight text-black text-center ">TOP 2,100 - 5,000</p>
-                        <div className="text-black px-2 py-1 mb-1">
-                          <span className="font-bold text-sm sm:text-3xl">40,500 $USDA</span>
+                                          <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
+                        <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
+                          <p className="text-xs sm:text-lg tracking-tight text-black text-center ">TOP 5,100 - 10,000</p>
+                          <div className="text-black px-2 py-1 mb-1">
+                            <span className="font-bold text-sm sm:text-3xl">100,000 $USDA</span>
+                          </div>
+                          <p className="text-xs sm:text-lg text-gray-600 text-center">10% Rewards</p>
                         </div>
-                        <p className="text-xs sm:text-lg text-gray-600 text-center">10% Rewards</p>
                       </div>
-                    </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
                   </div>
                 </div>
@@ -179,41 +199,41 @@ export default function MindsharePage() {
                     <div className="absolute inset-px rounded-lg bg-[#f2f6c9]" />
                     <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
                       <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
-                        <p className="text-xs sm:text-sm tracking-tight text-black text-center ">TOP 5,100 - 10,000</p>
+                        <p className="text-xs sm:text-sm tracking-tight text-black text-center ">TOP 10,001 - 20,000</p>
                         <div className="text-black px-2 py-1 mb-1">
-                          <span className="font-bold text-xs sm:text-2xl">28,350 $USDA</span>
+                          <span className="font-bold text-xs sm:text-2xl">80,000 $USDA</span>
                         </div>
-                        <p className="text-xs text-gray-600 text-center">7% Rewards</p>
+                        <p className="text-xs text-gray-600 text-center">8% Rewards</p>
                       </div>
                     </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
                   </div>
 
-                  {/* TOP 10,001 - 20,000 */}
+                  {/* TOP 20,001 - 50,000 */}
                   <div className="relative flex-1">
                     <div className="absolute inset-px rounded-lg bg-[#f2f6c9]" />
                     <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
                       <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
-                        <p className="text-xs sm:text-sm tracking-tight text-black text-center ">TOP 10,001 - 20,000</p>
+                        <p className="text-xs sm:text-sm tracking-tight text-black text-center ">TOP 20,001 - 50,000</p>
                         <div className="text-black px-2 py-1 mb-1">
-                          <span className="font-bold text-xs sm:text-2xl">20,250 $USDA</span>
+                          <span className="font-bold text-xs sm:text-2xl">60,000 $USDA</span>
                         </div>
-                        <p className="text-xs text-gray-600 text-center">5% Rewards</p>
+                        <p className="text-xs text-gray-600 text-center">6% Rewards</p>
                       </div>
                     </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
                   </div>
 
-                  {/* TOP 20,001 - 100,000 */}
+                  {/* TOP 50,001 - 100,000 */}
                   <div className="relative flex-1 col-span-2 lg:col-span-1">
                     <div className="absolute inset-px rounded-lg bg-[#f2f6c9]" />
                     <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)]">
                       <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
-                        <p className="text-xs sm:text-sm font-medium tracking-tight text-black text-center ">TOP 20,001 - 100,000</p>
+                        <p className="text-xs sm:text-sm font-medium tracking-tight text-black text-center ">TOP 50,001 - 100,000</p>
                         <div className="text-black px-2 py-1 mb-1">
-                          <span className="font-bold text-xs sm:text-2xl">12,150 $USDA</span>
+                          <span className="font-bold text-xs sm:text-2xl">50,000 $USDA</span>
                         </div>
-                        <p className="text-xs text-gray-600 text-center">3% Rewards</p>
+                        <p className="text-xs text-gray-600 text-center">5% Rewards</p>
                       </div>
                     </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
@@ -225,14 +245,14 @@ export default function MindsharePage() {
 
           {/* Right Column - Season Rewards & Milestone (20% width) */}
           <div className="lg:col-span-1 space-y-8">
-            {/* Season 2 Rewards */}
-            <div className="Season 2 Rewards rounded-lg  ">
+            {/* Season 1 Rewards */}
+            <div className="Season 1 Rewards rounded-lg  ">
               <div className="flex items-center mb-0">
               <div className="w-3 h-3 bg-[#D6E14E] rounded-full mr-3"></div>
 
-                <h3 className="text-lg font-bold text-left text-black">Season 2 Rewards</h3>
+                <h3 className="text-lg font-bold text-left text-black">Season 1 Rewards</h3>
               </div>
-                              <div className="text-5xl sm:text-5xl mt-2 font-bold text-black mb-6 text-left">390,000 $USDA</div>
+                              <div className="text-5xl sm:text-5xl mt-2 font-bold text-black mb-6 text-left">1,100,000 $USDA</div>
               
               {/* Rewards Character */}
               <div className="relative h-48 flex items-center justify-center">
@@ -246,6 +266,8 @@ export default function MindsharePage() {
               </div>
             </div>
 
+        
+
             {/* Milestone */}
             <div className=" rounded-lg  ">
               <div className="flex items-center mb-4">
@@ -254,22 +276,22 @@ export default function MindsharePage() {
               </div>
               
               {/* Progress Bar */}
-                              <div className="w-full bg-gray-200 rounded h-6 mb-4 relative">
-                  <div 
-                    className="bg-[#D6E14E] h-6 p-2 rounded"
-                    style={{ width: '69%' }}
-                  >
-                  </div>
-                  <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">
-                    113,804/115,000 Users
-                  </span>
+              <div className="w-full bg-gray-200 rounded h-6 mb-4 relative">
+                <div 
+                  className="bg-[#D6E14E] h-6 p-2 rounded"
+                  style={{ width: `${milestoneData.progressPercentage}%` }}
+                >
                 </div>
+                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">
+                  {milestoneData.totalUsers.toLocaleString()}/{milestoneData.targetUsers.toLocaleString()} Users
+                </span>
+              </div>
               
               <div className="flex justify-between text-sm font-semibold text-black">
-                <span>390,000 $USDA</span>
-                <span className="bg-[#D6E14E] px-2 py-1 rounded">405,000 $USDA</span>
+                <span>{milestoneData.currentReward} $USDA</span>
+                <span className="bg-[#D6E14E] px-2 py-1 rounded">{milestoneData.nextReward} $USDA</span>
               </div>
-            </div>
+            </div> 
 
             {/* Invite Friends */}
             <div className=" rounded-lg  ">

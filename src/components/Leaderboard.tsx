@@ -24,6 +24,35 @@ interface LeaderboardEntry {
   id: string;
 }
 
+// Define milestone tiers for calculation
+const MILESTONE_TIERS = [
+  { target: 100, reward: 350000, percentage: 35, name: 'TOP 1 - 100' },
+  { target: 1000, reward: 250000, percentage: 25, name: 'TOP 101 - 1000' },
+  { target: 2000, reward: 150000, percentage: 15, name: 'TOP 1,001 - 2,000' },
+  { target: 5000, reward: 120000, percentage: 12, name: 'TOP 2,001 - 5,000' },
+  { target: 10000, reward: 100000, percentage: 10, name: 'TOP 5,001 - 10,000' },
+  { target: 20000, reward: 80000, percentage: 8, name: 'TOP 10,001 - 20,000' },
+  { target: 50000, reward: 60000, percentage: 6, name: 'TOP 20,001 - 50,000' },
+  { target: 100000, reward: 50000, percentage: 5, name: 'TOP 50,001 - 100,000' }
+]
+
+// Function to calculate tier rewards based on rank
+function calculateTierRewards(rank: number): { additionalUsda: number } {
+  let additionalUsda = 0
+  
+  // Find which tier the user belongs to based on rank
+  for (const tier of MILESTONE_TIERS) {
+    if (rank <= tier.target) {
+      // Calculate reward per user in this tier (direct USDA amount)
+      const rewardPerUser = tier.reward / tier.target
+      additionalUsda = rewardPerUser // Direct USDA amount, no multiplication
+      break
+    }
+  }
+  
+  return { additionalUsda }
+}
+
 // Function to abbreviate numbers
 function abbreviateNumber(num: string): string {
   const number = parseInt(num.replace(/,/g, ''));
@@ -60,7 +89,7 @@ export default function Leaderboard() {
         const leaderboardResponse = await fetch('/api/leaderboard');
         const leaderboardData = await leaderboardResponse.json();
         
-        // Transform data to match our interface
+        // Transform data to match our interface and add tier rewards
         const transformedData = leaderboardData.leaderboard.map((user: { 
           rank: number; 
           display_name: string; 
@@ -69,16 +98,24 @@ export default function Leaderboard() {
           totalUsda: string; 
           profile_image_url: string; 
           id: string; 
-        }) => ({
-          rank: user.rank,
-          user: user.display_name || user.username,
-          handle: `@${user.username}`,
-          points: user.totalPoints,
-          usda: user.totalUsda,
-          profileImage: user.profile_image_url,
-          id: user.id,
-          isCurrentUser: currentUser?.id === user.id
-        }));
+        }) => {
+          // Calculate tier rewards based on rank
+          const { additionalUsda } = calculateTierRewards(user.rank)
+          
+          // Add tier rewards only to USDA (not points)
+          const totalUsdaWithTier = parseFloat(user.totalUsda) + additionalUsda
+          
+          return {
+            rank: user.rank,
+            user: user.display_name || user.username,
+            handle: `@${user.username}`,
+            points: user.totalPoints, // Keep original points
+            usda: totalUsdaWithTier.toFixed(2),
+            profileImage: user.profile_image_url,
+            id: user.id,
+            isCurrentUser: currentUser?.id === user.id
+          }
+        });
         
         // Sort data to put current user at the top
         const sortedData = transformedData.sort((a: LeaderboardEntry, b: LeaderboardEntry) => {
