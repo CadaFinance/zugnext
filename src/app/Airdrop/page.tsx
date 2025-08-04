@@ -28,20 +28,12 @@ export default function MindsharePage() {
   useEffect(() => {
     async function checkUserAuth() {
       try {
-        // Check if user is authenticated with Supabase
-        const { data: { user: authUser } } = await supabase.auth.getUser();
+        // Check authentication status via API
+        const response = await fetch('/api/auth/check');
+        const data = await response.json();
         
-        if (authUser) {
-          // Get user data from our users table
-          const { data: userData } = await supabase
-            .from('users')
-            .select('*')
-            .eq('twitter_id', authUser.id)
-            .single();
-
-          if (userData) {
-            setUser(userData);
-          }
+        if (data.authenticated && data.user) {
+          setUser(data.user);
         }
       } catch (error) {
         console.error('Error checking user auth:', error);

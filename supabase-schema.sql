@@ -5,6 +5,7 @@ CREATE TABLE users (
   username TEXT UNIQUE NOT NULL,
   display_name TEXT,
   profile_image_url TEXT,
+  session_token TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

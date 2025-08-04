@@ -80,10 +80,24 @@ export async function GET(request: NextRequest) {
     
     if (existingUser) {
       // User already exists, just log in
-      const response = NextResponse.redirect(`${baseUrl}/dashboard`)
+      const response = NextResponse.redirect(`${baseUrl}/Airdrop`)
       response.cookies.delete('oauth_state')
       response.cookies.delete('referrer_id')
       response.cookies.delete('code_verifier')
+      // Set session token
+      response.cookies.set('session_token', existingUser.id, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7 // 7 days
+      })
+      
+      // Update session token in database
+      await supabase
+        .from('users')
+        .update({ session_token: existingUser.id })
+        .eq('id', existingUser.id)
+      
       return response
     }
     
@@ -147,10 +161,23 @@ export async function GET(request: NextRequest) {
     }
     
     // Clear cookies and redirect
-    const response = NextResponse.redirect(`${baseUrl}/dashboard`)
+    const response = NextResponse.redirect(`${baseUrl}/Airdrop`)
     response.cookies.delete('oauth_state')
     response.cookies.delete('referrer_id')
     response.cookies.delete('code_verifier')
+    // Set session token
+    response.cookies.set('session_token', newUser.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    })
+    
+    // Update session token in database
+    await supabase
+      .from('users')
+      .update({ session_token: newUser.id })
+      .eq('id', newUser.id)
     
     return response
     
