@@ -16,17 +16,20 @@ export async function GET(request: NextRequest) {
   const referrerId = request.cookies.get('referrer_id')?.value
   const codeVerifier = request.cookies.get('code_verifier')?.value
   
+  // Get the base URL for absolute redirects
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${request.headers.get('host')}`
+  
   // Validate state parameter
   if (!state || !storedState || state !== storedState) {
-    return NextResponse.redirect('/error?message=Invalid state parameter')
+    return NextResponse.redirect(`${baseUrl}/error?message=Invalid state parameter`)
   }
   
   if (!code) {
-    return NextResponse.redirect('/error?message=No authorization code received')
+    return NextResponse.redirect(`${baseUrl}/error?message=No authorization code received`)
   }
   
   if (!codeVerifier) {
-    return NextResponse.redirect('/error?message=No code verifier found')
+    return NextResponse.redirect(`${baseUrl}/error?message=No code verifier found`)
   }
   
   try {
@@ -49,7 +52,7 @@ export async function GET(request: NextRequest) {
     
     if (!tokenResponse.ok) {
       console.error('Token exchange failed:', tokenData)
-      return NextResponse.redirect('/error?message=Token exchange failed')
+      return NextResponse.redirect(`${baseUrl}/error?message=Token exchange failed`)
     }
     
     // Get user info from Twitter
@@ -63,7 +66,7 @@ export async function GET(request: NextRequest) {
     
     if (!userResponse.ok) {
       console.error('Failed to get user data:', userData)
-      return NextResponse.redirect('/error?message=Failed to get user data')
+      return NextResponse.redirect(`${baseUrl}/error?message=Failed to get user data`)
     }
     
     const twitterUser = userData.data
@@ -77,7 +80,7 @@ export async function GET(request: NextRequest) {
     
     if (existingUser) {
       // User already exists, just log in
-      const response = NextResponse.redirect('/dashboard')
+      const response = NextResponse.redirect(`${baseUrl}/dashboard`)
       response.cookies.delete('oauth_state')
       response.cookies.delete('referrer_id')
       response.cookies.delete('code_verifier')
@@ -99,7 +102,7 @@ export async function GET(request: NextRequest) {
     
     if (userError) {
       console.error('Error creating user:', userError)
-      return NextResponse.redirect('/error?message=Failed to create user')
+      return NextResponse.redirect(`${baseUrl}/error?message=Failed to create user`)
     }
     
     // Add points to new user
@@ -144,7 +147,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Clear cookies and redirect
-    const response = NextResponse.redirect('/dashboard')
+    const response = NextResponse.redirect(`${baseUrl}/dashboard`)
     response.cookies.delete('oauth_state')
     response.cookies.delete('referrer_id')
     response.cookies.delete('code_verifier')
@@ -153,6 +156,6 @@ export async function GET(request: NextRequest) {
     
   } catch (error) {
     console.error('OAuth callback error:', error)
-    return NextResponse.redirect('/error?message=OAuth callback failed')
+    return NextResponse.redirect(`${baseUrl}/error?message=OAuth callback failed`)
   }
 } 
