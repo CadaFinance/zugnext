@@ -170,7 +170,7 @@ export default function BitcoinLayer2() {
                   <div className="absolute top-4 right-4 w-6 h-6  rounded-full"></div>
                   <h3 className="text-xl font-bold text-black mb-3">STEP 1</h3>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    Get some crypto from your preferred exchange. If you don't yet have a wallet, consider using Best Wallet or MetaMask. Then visit the $ZUG official website.
+                    Get some crypto from your preferred exchange. If you don&apos;t yet have a wallet, consider using Best Wallet or MetaMask. Then visit the $ZUG official website.
                   </p>
                 </div>
 
@@ -182,7 +182,7 @@ export default function BitcoinLayer2() {
                   <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                   <h3 className="text-xl font-bold text-black mb-3">STEP 2</h3>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    Now you're ready to participate in the $ZUG crypto presale. Click any Buy or Connect Wallet buttons on the $ZUG website to start.
+                    Now you&apos;re ready to participate in the $ZUG crypto presale. Click any Buy or Connect Wallet buttons on the $ZUG website to start.
                   </p>
                 </div>
 
@@ -206,7 +206,7 @@ export default function BitcoinLayer2() {
                   <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                   <h3 className="text-xl font-bold text-black mb-3">STEP 4 (CARD)</h3>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    If paying by card, connect your mobile crypto wallet or browser extension wallet and choose Buy With Card. You'll need this wallet to receive your tokens.
+                    If paying by card, connect your mobile crypto wallet or browser extension wallet and choose Buy With Card. You&apos;ll need this wallet to receive your tokens.
                   </p>
                 </div>
               </div>
@@ -223,7 +223,7 @@ export default function BitcoinLayer2() {
                       <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                       <h3 className="text-xl font-bold text-black mb-3">STEP 1</h3>
                       <p className="text-sm text-gray-700 leading-relaxed">
-                        Get some crypto from your preferred exchange. If you don't yet have a wallet, consider using Best Wallet or MetaMask. Then visit the $ZUG official website.
+                        Get some crypto from your preferred exchange. If you don&apos;t yet have a wallet, consider using Best Wallet or MetaMask. Then visit the $ZUG official website.
                       </p>
                     </div>
                   </div>
@@ -236,9 +236,9 @@ export default function BitcoinLayer2() {
                     }}>
                       <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                       <h3 className="text-xl font-bold text-black mb-3">STEP 2</h3>
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        Now you're ready to participate in the $ZUG crypto presale. Click any Buy or Connect Wallet buttons on the $ZUG website to start.
-                      </p>
+                                        <p className="text-sm text-gray-700 leading-relaxed">
+                    Now you&apos;re ready to participate in the $ZUG crypto presale. Click any Buy or Connect Wallet buttons on the $ZUG website to start.
+                  </p>
                     </div>
                   </div>
 
@@ -265,7 +265,7 @@ export default function BitcoinLayer2() {
                       <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                       <h3 className="text-xl font-bold text-black mb-3">STEP 4 (CARD)</h3>
                       <p className="text-sm text-gray-700 leading-relaxed">
-                        If paying by card, connect your mobile crypto wallet or browser extension wallet and choose Buy With Card. You'll need this wallet to receive your tokens.
+                        If paying by card, connect your mobile crypto wallet or browser extension wallet and choose Buy With Card. You&apos;ll need this wallet to receive your tokens.
                       </p>
                     </div>
                   </div>

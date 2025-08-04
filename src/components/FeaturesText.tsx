@@ -89,7 +89,7 @@ export default function FeaturesText() {
             2025 will be remembered as the year $ZUG changed everything.
           </p> 
           <p className="font-bold text-[#254657]  border-b-2 border-[#D6E14E]  pb-1">
-            $ZUG. Building Ethereum's Future.
+            $ZUG. Building Ethereum Future.
           </p>
         </div>
       </div>
