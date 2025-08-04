@@ -18,23 +18,35 @@ interface User {
   updated_at: string;
 }
 
-interface BoostPageProps {
-  params: {
+interface PageProps {
+  params: Promise<{
     username: string
-  }
+  }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default function BoostPage({ params }: BoostPageProps) {
+export default function BoostPage({ params }: PageProps) {
   const [referrer, setReferrer] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [username, setUsername] = useState<string>('')
 
   useEffect(() => {
+    async function getParams() {
+      const resolvedParams = await params
+      setUsername(resolvedParams.username)
+    }
+    getParams()
+  }, [params])
+
+  useEffect(() => {
+    if (!username) return
+
     async function checkReferrer() {
       try {
         const { data, error } = await supabase
           .from('users')
           .select('*')
-          .eq('username', params.username)
+          .eq('username', username)
           .single()
 
         if (error) {
@@ -51,11 +63,11 @@ export default function BoostPage({ params }: BoostPageProps) {
     }
 
     checkReferrer()
-  }, [params.username])
+  }, [username])
 
   const handleConnectTwitter = () => {
     // Redirect to OAuth with referrer ID
-    window.location.href = `/api/auth/twitter?ref=${params.username}`
+    window.location.href = `/api/auth/twitter?ref=${username}`
   }
 
   if (loading) {
