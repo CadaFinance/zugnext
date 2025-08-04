@@ -43,20 +43,25 @@ export default function BoostPage({ params }: PageProps) {
 
     async function checkReferrer() {
       try {
+        console.log('Checking for username:', username)
         const { data, error } = await supabase
           .from('users')
           .select('*')
           .eq('username', username)
           .single()
 
+        console.log('Supabase response:', { data, error })
+
         if (error) {
           console.error('Error fetching referrer:', error)
-          return
+          setReferrer(null)
+        } else {
+          console.log('Referrer found:', data)
+          setReferrer(data)
         }
-
-        setReferrer(data)
       } catch (error) {
         console.error('Error:', error)
+        setReferrer(null)
       } finally {
         setLoading(false)
       }
@@ -125,13 +130,23 @@ export default function BoostPage({ params }: PageProps) {
       <div className="pt-16 min-h-screen flex items-center justify-center">
         <div className="max-w-md w-full mx-auto p-6">
           {/* Referrer Info */}
-          <div className="bg-[#132a13] rounded-lg p-6 mb-6 border-2 border-[#D6E14E]">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-[#D6E14E] rounded-full flex items-center justify-center mr-4">
-                <span className="text-black font-bold text-lg">
-                  {referrer.display_name?.charAt(0) || referrer.username?.charAt(0) || 'U'}
-                </span>
-              </div>
+                     <div className="bg-[#132a13] rounded-lg p-6 mb-6 border-2 border-[#D6E14E]">
+             <div className="flex items-center mb-4">
+               {referrer.profile_image_url ? (
+                 <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
+                   <img
+                     src={referrer.profile_image_url}
+                     alt={referrer.display_name || referrer.username}
+                     className="w-full h-full object-cover"
+                   />
+                 </div>
+               ) : (
+                 <div className="w-12 h-12 bg-[#D6E14E] rounded-full flex items-center justify-center mr-4">
+                   <span className="text-black font-bold text-lg">
+                     {referrer.display_name?.charAt(0) || referrer.username?.charAt(0) || 'U'}
+                   </span>
+                 </div>
+               )}
               <div>
                 <h2 className="text-xl font-bold text-[#D6E14E]">
                   {referrer.display_name || referrer.username}
