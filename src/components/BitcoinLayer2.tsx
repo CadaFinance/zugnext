@@ -17,7 +17,7 @@ export default function BitcoinLayer2() {
      {
        id: 3,
        title: "SETTLEMENT & SECURITY",
-       description: "$ZUG batches and compresses Layer 2 transactions. Zero-knowledge (ZK) proofs are used to ensure transaction validity. Layer 2 state is periodically committed to Bitcoin's Layer 1 for synchronization and security.",
+       description: "$ZUG batches and compresses Layer 2 transactions. Zero-knowledge (ZK) proofs are used to ensure transaction validity. Layer 2 state is periodically committed to Ethereum's Layer 1 for synchronization and security.",
        color: "bg-[#e2ea83]"
      },
      {
@@ -157,11 +157,11 @@ export default function BitcoinLayer2() {
                 HOW TO BUY $ZUG TOKEN
               </h2>
             </div>
-
+ 
             {/* Steps */}
             <div className="mb-12">
               {/* Desktop Layout */}
-              <div className="hidden lg:grid grid-cols-4 gap-6">
+              <div className="hidden lg:grid grid-cols-3 gap-6">
                 {/* Step 1 */}
                 <div className="bg-[#d6e14e]  rounded-xl p-6 relative" style={{
                   backgroundImage: `radial-gradient(circle, rgba(255,165,0,0.1) 1px, transparent 1px)`,
@@ -170,7 +170,7 @@ export default function BitcoinLayer2() {
                   <div className="absolute top-4 right-4 w-6 h-6  rounded-full"></div>
                   <h3 className="text-xl font-bold text-black mb-3">STEP 1</h3>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    Get some crypto from your preferred exchange. If you don&apos;t yet have a wallet, consider using Best Wallet or MetaMask. Then visit the $ZUG official website.
+                    Get some crypto from your preferred exchange. If you don&apos;t yet have a wallet, consider using Trust Wallet or MetaMask. Then visit the $ZUG official website.
                   </p>
                 </div>
 
@@ -197,54 +197,42 @@ export default function BitcoinLayer2() {
                     Choose the amount of $ZUG you want to buy and confirm the transaction in your wallet. To stake at the same time, select the Buy and Stake option.
                   </p>
                 </div>
-
-                {/* Step 4 */}
-                <div className="bg-gray-100 border-2 border-dashed border-gray-400 rounded-xl p-6 relative" style={{
-                  backgroundImage: `radial-gradient(circle, rgba(255,165,0,0.1) 1px, transparent 1px)`,
-                  backgroundSize: '20px 20px'
-                }}>
-                  <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
-                  <h3 className="text-xl font-bold text-black mb-3">STEP 4 (CARD)</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    If paying by card, connect your mobile crypto wallet or browser extension wallet and choose Buy With Card. You&apos;ll need this wallet to receive your tokens.
-                  </p>
-                </div>
               </div>
 
               {/* Mobile Scrollable Layout */}
               <div className="lg:hidden overflow-x-auto">
-                <div className="flex gap-6 min-w-max ">
+                <div className="flex gap-4" style={{ width: 'max-content' }}>
                   {/* Step 1 */}
                   <div className="w-80 flex-shrink-0">
-                    <div className="bg-[#ecf39e] rounded-xl p-6 relative h-auto min-h-[200px]" style={{
+                    <div className="bg-[#d6e14e] rounded-xl p-6 relative h-auto min-h-[200px]" style={{
                       backgroundImage: `radial-gradient(circle, rgba(255,165,0,0.1) 1px, transparent 1px)`,
                       backgroundSize: '20px 20px'
                     }}>
                       <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                       <h3 className="text-xl font-bold text-black mb-3">STEP 1</h3>
                       <p className="text-sm text-gray-700 leading-relaxed">
-                        Get some crypto from your preferred exchange. If you don&apos;t yet have a wallet, consider using Best Wallet or MetaMask. Then visit the $ZUG official website.
+                        Get some crypto from your preferred exchange. If you don&apos;t yet have a wallet, consider using Trust Wallet or MetaMask. Then visit the $ZUG official website.
                       </p>
                     </div>
                   </div>
 
                   {/* Step 2 */}
                   <div className="w-80 flex-shrink-0">
-                    <div className="bg-[#90a955] rounded-xl p-6 relative h-auto min-h-[200px]" style={{
+                    <div className="bg-[#e2ea83] rounded-xl p-6 relative h-auto min-h-[200px]" style={{
                       backgroundImage: `radial-gradient(circle, rgba(255,165,0,0.1) 1px, transparent 1px)`,
                       backgroundSize: '20px 20px'
                     }}>
                       <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                       <h3 className="text-xl font-bold text-black mb-3">STEP 2</h3>
-                                        <p className="text-sm text-gray-700 leading-relaxed">
-                    Now you&apos;re ready to participate in the $ZUG crypto presale. Click any Buy or Connect Wallet buttons on the $ZUG website to start.
-                  </p>
+                      <p className="text-sm text-gray-700 leading-relaxed">
+                        Now you&apos;re ready to participate in the $ZUG crypto presale. Click any Buy or Connect Wallet buttons on the $ZUG website to start.
+                      </p>
                     </div>
                   </div>
 
                   {/* Step 3 */}
                   <div className="w-80 flex-shrink-0">
-                    <div className="bg-[#a3b18a] rounded-xl p-6 relative h-auto min-h-[200px]" style={{
+                    <div className="bg-[#eef3b8] rounded-xl p-6 relative h-auto min-h-[200px]" style={{
                       backgroundImage: `radial-gradient(circle, rgba(255,165,0,0.1) 1px, transparent 1px)`,
                       backgroundSize: '20px 20px'
                     }}>
@@ -252,20 +240,6 @@ export default function BitcoinLayer2() {
                       <h3 className="text-xl font-bold text-black mb-3">STEP 3</h3>
                       <p className="text-sm text-gray-700 leading-relaxed">
                         Choose the amount of $ZUG you want to buy and confirm the transaction in your wallet. To stake at the same time, select the Buy and Stake option.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Step 4 */}
-                  <div className="w-80 flex-shrink-0">
-                    <div className="bg-[#a7c957] rounded-xl p-6 relative h-auto min-h-[200px]" style={{
-                      backgroundImage: `radial-gradient(circle, rgba(255,165,0,0.1) 1px, transparent 1px)`,
-                      backgroundSize: '20px 20px'
-                    }}>
-                      <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
-                      <h3 className="text-xl font-bold text-black mb-3">STEP 4 (CARD)</h3>
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        If paying by card, connect your mobile crypto wallet or browser extension wallet and choose Buy With Card. You&apos;ll need this wallet to receive your tokens.
                       </p>
                     </div>
                   </div>

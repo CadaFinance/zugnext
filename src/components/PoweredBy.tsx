@@ -1,33 +1,29 @@
 export default function FeaturedIn() {
     const platforms = [
       {
-        name: "Cointelegraph",
-        logo: "COINTELEGRAPH"
+        name: "Ecosystem 1",
+        logo: "ECOSYSTEM 1",
+        logoImage: "/ecosystem_1.svg"
       },
       {
-        name: "CoinMarketCap",
-        logo: "CoinMarketCap"
+        name: "Ecosystem 2",
+        logo: "ECOSYSTEM 2",
+        logoImage: "/ecosystem_2.svg"
       },
       {
-        name: "Bitcoin.com",
-        logo: "Bitcoin.com"
+        name: "Ecosystem 4",
+        logo: "ECOSYSTEM 4",
+        logoImage: "/ecosystem_4.svg"
       },
       {
-        name: "Cryptonews",
-        logo: "cryptonews"
+        name: "Ecosystem 5",
+        logo: "ECOSYSTEM 5",
+        logoImage: "/ecosystem_5.svg"
       },
       {
-        name: "Binance Square",
-        logo: "BINANCE SQUARE"
-      },
-      {
-        name: "Bitcoin Magazine",
-        logo: "BITCOIN"
-        
-      },
-      {
-        name: "99Bitcoins",
-        logo: "99BITCOINS"
+        name: "Ecosystem 6",
+        logo: "ECOSYSTEM 6",
+        logoImage: "/ecosystem_6.svg"
       }
     ];
   
@@ -40,14 +36,11 @@ export default function FeaturedIn() {
            }
          `}</style>
          {/* Geometric Pattern Background */}
-         <div className="absolute inset-0 opacity-10">
+         <div className="absolute inset-0 opacity-80">
           <div className="absolute inset-0" style={{
-            backgroundImage: `
-              linear-gradient(45deg, #333 25%, transparent 25%, transparent 75%, #333 75%),
-              linear-gradient(-45deg, #333 25%, transparent 25%, transparent 75%, #333 75%)
-            `,
-            backgroundSize: '20px 20px',
-            backgroundPosition: '0 0, 10px 10px'
+            backgroundColor: '#000',
+            backgroundImage: 'repeating-linear-gradient(45deg, #1f1f1f 0, #1f1f1f 1px, #000 0, #000 50%)',
+            backgroundSize: '10px 10px'
           }}></div>
         </div>
   
@@ -55,7 +48,7 @@ export default function FeaturedIn() {
           {/* Title */}
           <div className="text-center my-4">
             <h2 className="text-2xl lg:text-3xl font-bold text-white">
-              FEATURED IN
+              POWERED BY
             </h2>
           </div>
   
@@ -65,9 +58,17 @@ export default function FeaturedIn() {
                <div key={platform.name} className="flex flex-col items-center text-white">
                  {/* Platform Name */}
                                 <div className="text-center">
-                   <div className="text-sm lg:text-base font-semibold text-white">
-                     {platform.logo}
-                   </div>
+                   {platform.logoImage ? (
+                     <img 
+                       src={platform.logoImage} 
+                       alt={platform.name}
+                       className="h-16 lg:h-20 object-contain"
+                     />
+                   ) : (
+                     <div className="text-sm lg:text-base font-semibold text-white">
+                       {platform.logo}
+                     </div>
+                   )}
                    
                  </div>
                </div>
@@ -86,9 +87,17 @@ export default function FeaturedIn() {
                  {[...platforms, ...platforms, ...platforms].map((platform, index) => (
                    <div key={`${platform.name}-${index}`} className="flex-shrink-0 mb-4 px-8 text-white">
                      <div className="text-center">
-                       <div className="text-sm font-semibold text-white">
-                         {platform.logo}
-                       </div>
+                       {platform.logoImage ? (
+                         <img 
+                           src={platform.logoImage} 
+                           alt={platform.name}
+                           className="h-14 object-contain"
+                         />
+                       ) : (
+                         <div className="text-sm font-semibold text-white">
+                           {platform.logo}
+                         </div>
+                       )}
                        
                      </div>
                    </div>

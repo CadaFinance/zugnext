@@ -1,14 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const navigation = [
-  { name: 'Product', href: '#' },
-  { name: 'Features', href: '#' },
-  { name: 'Marketplace', href: '#' },
-  { name: 'Company', href: '#' },
+  { name: 'HOW TO BUY', href: '/#how-to-buy' },
+  { name: 'TOKENOMICS', href: '/#tokenomics' },
+  { name: 'FAQ', href: '/#faq' },
+  { name: 'ABOUT', href: '/#about' },
+  { name: 'AIRDROP', href: '/Airdrop' },
 ]
 
 interface HeaderProps {
@@ -17,15 +18,89 @@ interface HeaderProps {
   showOnlyX?: boolean;
 }
 
+// Generate random wallet address
+const generateWalletAddress = () => {
+  const chars = '0123456789abcdef';
+  let address = '0x';
+  for (let i = 0; i < 40; i++) {
+    address += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return address;
+}
+
+// Generate random transaction data
+const generateTransactionData = () => {
+  const transactions = [];
+  const zugPrice = 0.012525;
+  
+  for (let i = 0; i < 30; i++) {
+    const usdAmount = Math.random() * (1021.82 - 82.23) + 82.23;
+    const zugAmount = usdAmount / zugPrice;
+    const walletAddress = generateWalletAddress();
+    
+    transactions.push({
+      usd: usdAmount.toFixed(2),
+      zug: zugAmount.toFixed(0),
+      wallet: walletAddress.substring(0, 6) + '...' + walletAddress.substring(36)
+    });
+  }
+  
+  return transactions;
+}
+
 export default function Header({ fullWidth = false, showBothButtons = false, showOnlyX = false }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [transactionData, setTransactionData] = useState<string>('')
+
+  useEffect(() => {
+    const generateTransactions = () => {
+      const transactions = generateTransactionData();
+      const transactionString = transactions.map(t => 
+        `[${t.wallet}] bought ${t.zug}K $ZUG worth $${t.usd}`
+      ).join(' ');
+      setTransactionData(transactionString);
+    };
+
+    generateTransactions();
+  }, []);
 
   return (
-    <header className="absolute inset-x-0 top-0 z-50">
+    <>
+      <style jsx>{`
+        @keyframes scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .scroll-animation {
+          animation: scroll 10s linear infinite;
+          display: flex;
+        }
+      `}</style>
+      
+      {/* Scrolling Ticker Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 overflow-hidden">
+        <div className="flex items-center">
+          <span className="inline-block px-4 font-bold text-sm whitespace-nowrap bg-black relative z-10">
+            LATEST PURCHASES
+          </span>
+          <div className="flex-1 overflow-hidden">
+            <div className="scroll-animation whitespace-nowrap">
+              <span className="inline-block px-4">
+                {transactionData}
+              </span>
+              <span className="inline-block px-4">
+                {transactionData}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <header className="fixed inset-x-0 top-8 z-50 bg-white shadow-sm">
       <div className={`mx-auto px-6 lg:px-8 ${fullWidth ? '' : 'max-w-7xl'}`}>
-        <nav aria-label="Global" className="flex items-center justify-between pt-6">
+        <nav aria-label="Global" className="flex items-center justify-between py-4">
           <div className="flex lg:flex-1">
-            <a href="#" className="-m-1.5 p-1.5 flex items-center">
+            <a href="/" className="-m-1.5 p-1.5 flex items-center">
               <img
                 alt="Logo"
                 src="/Group 5195.png"
@@ -54,9 +129,9 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
               <Bars3Icon aria-hidden="true" className="size-6" />
             </button>
           </div>
-          <div className="hidden lg:flex lg:gap-x-12">
+          <div className="hidden lg:flex lg:gap-x-8">
             {navigation.map((item) => (
-              <a key={item.name} href={item.href} className="text-sm/6 font-semibold text-gray-900">
+              <a key={item.name} href={item.href} className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">
                 {item.name}
               </a>
             ))}
@@ -79,7 +154,7 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
         <div className="fixed inset-0 z-50" />
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
           <div className="flex items-center justify-between">
-            <a href="#" className="-m-1.5 p-1.5 flex items-center">
+            <a href="/" className="-m-1.5 p-1.5 flex items-center">
               <span className="sr-only">Your Company</span>
               <img
                 alt="Logo"
@@ -127,5 +202,6 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
         </DialogPanel>
       </Dialog>
     </header>
+    </>
   )
 } 

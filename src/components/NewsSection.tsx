@@ -2,29 +2,29 @@ export default function NewsSection() {
   const newsItems = [
     {
       id: 1,
-      headline: "WHY $HYPER IS THE CRYPTO TO WATCH IN BLOCKCHAIN INTEROPERABILITY - PRESALE NOW LIVE",
-      description: "Ever tried sending Bitcoin only to wait forever and pay crazy fees? You're not alone. However, today, we might have an answer for all of that.",
+      headline: "WHY $ZUG IS THE CRYPTO TO WATCH IN BLOCKCHAIN INTEROPERABILITY - PRESALE NOW LIVE",
+      description: "Ever tried sending Ethereum only to wait forever and pay crazy fees? You're not alone. However, today, we might have an answer for all of that.",
       logo: "cryptonews",
       imagePlaceholder: "News Image 1"
     },
     {
       id: 2,
-      headline: "BTC HYPER'S VISION FOR FASTER BLOCKCHAIN TRANSACTIONS - TOP PRESALE TO INVEST IN NOW?",
-      description: "Bitcoin is the original crypto that started it all, the one even your grandma has probably heard of. But let's be honest - it's got some issues. Try sending Bitcoin today and you'll see.",
+      headline: "ZUG'S VISION FOR FASTER ETH LAYER 2 TRANSACTIONS - TOP PRESALE TO INVEST IN NOW?",
+      description: "Ethereum is the original smart contract platform that started it all, the one even your grandma has probably heard of. But let's be honest - it's got some issues. Try sending ETH today and you'll see.",
       logo: "the Cryptonomist",
       imagePlaceholder: "News Image 2"
     },
     {
       id: 3,
-      headline: "HOW BITCOIN HYPER IS MAKING BTC FASTER AND CHEAPER, PRESALE ONGOING",
-      description: "Bitcoin isn't perfect. Those slow transactions and hefty fees? Total pain points. That's where Bitcoin Hyper jumps in.",
+      headline: "HOW ZUG IS MAKING ETH LAYER 2 FASTER AND CHEAPER, PRESALE ONGOING",
+      description: "Ethereum isn't perfect. Those slow transactions and hefty fees? Total pain points. That's where ZUG jumps in.",
       logo: "inside bitcoins",
       imagePlaceholder: "News Image 3"
     },
     {
       id: 4,
-      headline: "FIDELITY CALLS IT: BITCOIN COULD FLIP GOLD'S DOMINANCE ANY DAY NOW",
-      description: "Bitcoin is gearing up to outshine gold as Fidelity's latest analysis highlights a pivotal shift in performance momentum, signaling a new era for digital store-of-value dominance.",
+      headline: "FIDELITY CALLS IT: ETH LAYER 2 COULD FLIP GOLD'S DOMINANCE ANY DAY NOW",
+      description: "Ethereum Layer 2 is gearing up to outshine gold as Fidelity's latest analysis highlights a pivotal shift in performance momentum, signaling a new era for digital store-of-value dominance.",
       logo: "Bitcoin.com",
       imagePlaceholder: "News Image 4"
     }
@@ -58,8 +58,12 @@ export default function NewsSection() {
                 {/* Image */}
                 <div className="h-48 bg-gray-200 flex items-center justify-center border-b-2 border-[#132a13] overflow-hidden">
                   <img
-                    src={item.id === 2 ? "/Group2.png" : item.id === 3 ? "/Hiring training.png" : "/Fall illustration.png"}
-                    alt={item.id === 2 ? "Group2 illustration" : item.id === 3 ? "Hiring training illustration" : "Fall illustration"}
+                    src={item.id === 1 ? "/GPT_Image_1_Place_this_uploaded_character_in_the_center_of_the_0.png" : 
+                         item.id === 2 ? "/GPT_Image_1_Use_the_uploaded_PNG_character_as_the_main_focus_c_0.png" : 
+                         item.id === 3 ? "/Hiring training.png" : "/Fall illustration.png"}
+                    alt={item.id === 1 ? "Character illustration" : 
+                         item.id === 2 ? "Main focus character" : 
+                         item.id === 3 ? "Hiring training illustration" : "Fall illustration"}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -96,8 +100,12 @@ export default function NewsSection() {
                                    {/* Image */}
                   <div className="h-48 bg-gray-200 flex items-center justify-center border-b-2 border-[#132a13] overflow-hidden">
                     <img
-                      src={item.id === 2 ? "/Group2.png" : item.id === 3 ? "/Hiring training.png" : "/Fall illustration.png"}
-                      alt={item.id === 2 ? "Group2 illustration" : item.id === 3 ? "Hiring training illustration" : "Fall illustration"}
+                      src={item.id === 1 ? "/GPT_Image_1_Place_this_uploaded_character_in_the_center_of_the_0.png" : 
+                           item.id === 2 ? "/GPT_Image_1_Use_the_uploaded_PNG_character_as_the_main_focus_c_0.png" : 
+                           item.id === 3 ? "/Hiring training.png" : "/Fall illustration.png"}
+                      alt={item.id === 1 ? "Character illustration" : 
+                           item.id === 2 ? "Main focus character" : 
+                           item.id === 3 ? "Hiring training illustration" : "Fall illustration"}
                       className="w-full h-full object-cover"
                     />
                   </div>

@@ -1,6 +1,6 @@
 export default function HeroSection() {
   return (
-    <div className="bg-white pt-24 white-pattern-bg">
+    <div className="bg-white pt-32 white-pattern-bg">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Main Hero Banner */}
         <div 
@@ -41,7 +41,7 @@ export default function HeroSection() {
               SCALABILITY AND SPEED FOR ETHEREUM ARE FINALLY HERE
             </p>
             <div className="flex justify-center pt-4">
-              <button className="bg-[#132a13] text-white px-6 py-3 rounded-lg font-bold text-base hover:bg-gray-800 transition-colors">
+              <button className="bg-[#132a13] text-white px-6 py-3 rounded-lg font-bold text-base hover:bg-gray-800 transition-colors animate-pulse">
                 PRESALE IS LIVE
               </button>
             </div>

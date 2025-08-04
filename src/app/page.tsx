@@ -8,8 +8,8 @@ import PoweredBy from '@/components/PoweredBy'
 import NewsSection from '@/components/NewsSection'
 import Tokenomics from '@/components/Tokenomics'
 import BitcoinLayer2 from '@/components/BitcoinLayer2'
-import Updates from '@/components/Updates'
-import OurFriends from '@/components/OurFriends'
+
+
 import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
 export default function Home() {
@@ -17,19 +17,23 @@ export default function Home() {
     <div className='bg-white  white-pattern-bg'>
       <Header />
       <HeroSection />
-      <Features />
+      <div id="about">
+        <Features />
+      </div>
       <FeaturedIn />
-      <BitcoinLayer2 />
+      <div id="how-to-buy">
+        <BitcoinLayer2 />
+      </div>
       <NewsSection />
       <PoweredBy />
-      <Tokenomics />
-      <Updates />
-      <OurFriends />
-      <FAQ />
-      <Footer />
-
+      <div id="tokenomics">
+        <Tokenomics />
+      </div>
      
-
+      <div id="faq">
+        <FAQ />
+      </div>
+      <Footer />
     </div>
   )
 }

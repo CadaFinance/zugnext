@@ -1,8 +1,61 @@
+'use client'
+
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Leaderboard from '@/components/Leaderboard';
+import { useEffect, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function MindsharePage() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkUserAuth() {
+      try {
+        // Check if user is authenticated with Supabase
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        
+        if (authUser) {
+          // Get user data from our users table
+          const { data: userData } = await supabase
+            .from('users')
+            .select('*')
+            .eq('twitter_id', authUser.id)
+            .single();
+
+          if (userData) {
+            setUser(userData);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking user auth:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkUserAuth();
+  }, []);
+
+  const handleConnectTwitter = () => {
+    // Redirect to OAuth
+    window.location.href = '/api/auth/twitter';
+  };
+
+  const copyReferralLink = () => {
+    if (user) {
+      const link = `${window.location.origin}/boost/${user.username}`;
+      navigator.clipboard.writeText(link);
+      alert('Referral link copied!');
+    }
+  };
+
   return (
     <div className="bg-white min-h-screen relative">
       {/* Background Pattern - Full Viewport */}
@@ -222,9 +275,42 @@ export default function MindsharePage() {
                 <div className="w-3 h-3 bg-[#D6E14E] rounded-full mr-3"></div>
                 <h3 className="text-lg font-bold text-black">Invite friends</h3>
               </div>
-              <button className="bg-black w-full text-[#D6E14E]  px-6 py-3 rounded-lg font-bold  transition-colors ">
-                Connect your X
-              </button>
+              
+              {loading ? (
+                <div className="bg-gray-200 w-full text-gray-500 px-6 py-3 rounded-lg font-bold">
+                  Loading...
+                </div>
+              ) : user ? (
+                <div className="space-y-3">
+                  <div className="bg-[#D6E14E] text-black px-4 py-3 rounded-lg">
+                    <p className="text-sm font-semibold mb-2">Your Referral Link:</p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={`${typeof window !== 'undefined' ? window.location.origin : ''}/boost/${user.username}`}
+                        readOnly
+                        className="flex-1 bg-black text-white px-3 py-2 rounded text-sm"
+                      />
+                      <button
+                        onClick={copyReferralLink}
+                        className="bg-black text-[#D6E14E] px-3 py-2 rounded text-sm font-bold hover:bg-gray-800 transition-colors"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    Share this link to earn 100 points for each new user you refer!
+                  </p>
+                </div>
+              ) : (
+                <button 
+                  onClick={handleConnectTwitter}
+                  className="bg-black w-full text-[#D6E14E] px-6 py-3 rounded-lg font-bold transition-colors hover:bg-gray-800"
+                >
+                  Connect your X
+                </button>
+              )}
             </div>
           </div>
         </div>

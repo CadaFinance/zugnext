@@ -1,36 +1,29 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss'
 
-export default {
+const config: Config = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
-      fontFamily: {
-        'baumans': ['Baumans', 'system-ui'],
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(ellipse at center, var(--tw-gradient-stops))',
+        'gradient-conic':
+          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
       animation: {
-        'scroll': 'scroll 30s linear infinite',
-        'float': 'float 3s ease-in-out infinite',
-        'swing': 'swing 3s ease-in-out infinite',
+        'scroll': 'scroll 120s linear infinite',
       },
       keyframes: {
         scroll: {
-          '0%': { transform: 'translateX(0)' },
+          '0%': { transform: 'translateX(100%)' },
           '100%': { transform: 'translateX(-100%)' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(-6px)' },
-          '50%': { transform: 'translateY(6px)' },
-        },
-        swing: {
-          '0%, 100%': { transform: 'rotate(-6deg)' },
-          '50%': { transform: 'rotate(6deg)' },
         },
       },
     },
   },
   plugins: [],
-} satisfies Config; 
+}
+export default config 

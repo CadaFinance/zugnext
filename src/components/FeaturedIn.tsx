@@ -2,32 +2,23 @@ export default function FeaturedIn() {
   const platforms = [
     {
       name: "Cointelegraph",
-      logo: "COINTELEGRAPH"
-    },
-    {
-      name: "CoinMarketCap",
-      logo: "CoinMarketCap"
-    },
-    {
-      name: "Bitcoin.com",
-      logo: "Bitcoin.com"
+      logo: "COINTELEGRAPH",
+      logoImage: "/cointelegraph-seeklogo-2.png"
     },
     {
       name: "Cryptonews",
-      logo: "cryptonews"
+      logo: "cryptonews",
+      logoImage: "/Crypto News_idTC9W6q3t_1.svg"
     },
     {
       name: "Binance Square",
-      logo: "BINANCE SQUARE"
-    },
-    {
-      name: "Bitcoin Magazine",
-      logo: "BITCOIN"
-      
+      logo: "BINANCE SQUARE",
+      logoImage: "/binance-square.svg"
     },
     {
       name: "99Bitcoins",
-      logo: "99BITCOINS"
+      logo: "99BITCOINS",
+      logoImage: "/99Bitcoins_idnDiw3oB9_1.svg"
     }
   ];
 
@@ -40,14 +31,11 @@ export default function FeaturedIn() {
          }
        `}</style>
        {/* Geometric Pattern Background */}
-       <div className="absolute inset-0 opacity-10">
+       <div className="absolute inset-0 opacity-80">
         <div className="absolute inset-0" style={{
-          backgroundImage: `
-            linear-gradient(45deg, #333 25%, transparent 25%, transparent 75%, #333 75%),
-            linear-gradient(-45deg, #333 25%, transparent 25%, transparent 75%, #333 75%)
-          `,
-          backgroundSize: '20px 20px',
-          backgroundPosition: '0 0, 10px 10px'
+          backgroundColor: '#000',
+          backgroundImage: 'repeating-linear-gradient(45deg, #1f1f1f 0, #1f1f1f 1px, #000 0, #000 50%)',
+          backgroundSize: '10px 10px'
         }}></div>
       </div>
 
@@ -65,9 +53,17 @@ export default function FeaturedIn() {
              <div key={platform.name} className="flex flex-col items-center text-white">
                {/* Platform Name */}
                               <div className="text-center">
-                 <div className="text-sm lg:text-base font-semibold text-white">
-                   {platform.logo}
-                 </div>
+                 {platform.logoImage ? (
+                   <img 
+                     src={platform.logoImage} 
+                     alt={platform.name}
+                     className="h-6 lg:h-8 object-contain"
+                   />
+                 ) : (
+                   <div className="text-sm lg:text-base font-semibold text-white">
+                     {platform.logo}
+                   </div>
+                 )}
                  
                </div>
              </div>
@@ -86,9 +82,17 @@ export default function FeaturedIn() {
                {[...platforms, ...platforms, ...platforms].map((platform, index) => (
                  <div key={`${platform.name}-${index}`} className="flex-shrink-0 mb-4 px-8 text-white">
                    <div className="text-center">
-                     <div className="text-sm font-semibold text-white">
-                       {platform.logo}
-                     </div>
+                     {platform.logoImage ? (
+                       <img 
+                         src={platform.logoImage} 
+                         alt={platform.name}
+                         className="h-4 object-contain"
+                       />
+                     ) : (
+                       <div className="text-sm font-semibold text-white">
+                         {platform.logo}
+                       </div>
+                     )}
                      
                    </div>
                  </div>
