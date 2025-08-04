@@ -16,7 +16,7 @@ export async function GET(_request: NextRequest) {
         username,
         display_name,
         profile_image_url,
-        user_points (
+        user_points!user_points_user_id_fkey (
           points,
           usda_amount
         )
