@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Header from '@/components/Header';
 import Leaderboard from '@/components/Leaderboard';
+import Tasks from '@/components/Tasks';
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
@@ -24,6 +25,7 @@ interface User {
 export default function MindsharePage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'leaderboard' | 'tasks'>('leaderboard')
   const [milestoneData, setMilestoneData] = useState({
     totalUsers: 0,
     targetUsers: 100,
@@ -339,11 +341,62 @@ export default function MindsharePage() {
           </div>
         </div>
 
-        {/* Leaderboard Section */}
-        <div >
-          <Leaderboard />
+        {/* Tab Navigation */}
+        <div className="-mb-10 mt-20">
+          <div className="flex space-x-1 bg-[#132a13]/50 rounded-lg p-1 border border-[#D6E14E]/20">
+            <button
+              onClick={() => setActiveTab('leaderboard')}
+              className={`flex-1 py-3 px-4 rounded-md font-medium transition-all duration-200 ${
+                activeTab === 'leaderboard'
+                  ? 'bg-[#D6E14E] text-black shadow-lg'
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span>Leaderboard</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`flex-1 py-3 px-4 rounded-md font-medium transition-all duration-200 ${
+                activeTab === 'tasks'
+                  ? 'bg-[#D6E14E] text-black shadow-lg'
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span>Tasks</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div className="animate-fade-in">
+          {activeTab === 'leaderboard' ? (
+            <Leaderboard />
+          ) : (
+            <Tasks />
+          )}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 } 

@@ -136,10 +136,7 @@ export default function Leaderboard() {
   return (
     <div className=" rounded-lg   mt-10 ">
       {/* Header */}
-      <div className="flex justify-between items-center mb-5">
-        <h2 className="text-lg sm:text-3xl text-left font-bold text-black">Leaderboard</h2>
-       
-      </div>
+    
 
       {/* Table */}
       <div className="overflow-x-auto">
