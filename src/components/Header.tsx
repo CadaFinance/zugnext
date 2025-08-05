@@ -232,9 +232,17 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="bg-black text-[#D6E14E] px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-gray-800 transition-colors flex items-center gap-1"
                 >
-                  <div className="w-4 h-4 bg-blue-500 rounded flex items-center justify-center">
-                    <div className="w-2 h-2 bg-yellow-400 rounded-sm"></div>
-                  </div>
+                  {user.profile_image_url ? (
+                    <img 
+                      src={user.profile_image_url} 
+                      alt={user.display_name}
+                      className="w-4 h-4 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-4 h-4 bg-blue-500 rounded flex items-center justify-center">
+                      <div className="w-2 h-2 bg-yellow-400 rounded-sm"></div>
+                    </div>
+                  )}
                   <span className="text-xs">{user.display_name}</span>
                   <ChevronDownIcon className="w-3 h-3" />
                 </button>
@@ -286,9 +294,17 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="bg-black text-[#D6E14E] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-800 transition-colors flex items-center gap-2"
                 >
-                  <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center">
-                    <div className="w-3 h-3 bg-yellow-400 rounded-sm"></div>
-                  </div>
+                  {user.profile_image_url ? (
+                    <img 
+                      src={user.profile_image_url} 
+                      alt={user.display_name}
+                      className="w-5 h-5 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center">
+                      <div className="w-3 h-3 bg-yellow-400 rounded-sm"></div>
+                    </div>
+                  )}
                   <span>{user.display_name}</span>
                   <ChevronDownIcon className="w-4 h-4" />
                 </button>
@@ -361,9 +377,17 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                 {(showBothButtons || showOnlyX) && user && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 bg-[#132a13] text-white px-3 py-2.5 rounded-lg">
-                      <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center">
-                        <div className="w-3 h-3 bg-yellow-400 rounded-sm"></div>
-                      </div>
+                      {user.profile_image_url ? (
+                        <img 
+                          src={user.profile_image_url} 
+                          alt={user.display_name}
+                          className="w-5 h-5 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center">
+                          <div className="w-3 h-3 bg-yellow-400 rounded-sm"></div>
+                        </div>
+                      )}
                       <span className="font-semibold">{user.display_name}</span>
                     </div>
                     <button 
