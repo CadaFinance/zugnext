@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react'
 interface Task {
   id: string
   title: string
-  description: string
   points: number
   completed: boolean
   loading: boolean
@@ -70,7 +69,6 @@ export default function Tasks() {
       {
         id: '1',
         title: 'Follow X',
-        description: 'Follow ZUG on X',
         points: 25,
         completed: false,
         loading: false
@@ -78,7 +76,6 @@ export default function Tasks() {
       {
         id: '2',
         title: 'Like & RT',
-        description: 'Like and retweet our latest post',
         points: 25,
         completed: false,
         loading: false
@@ -86,7 +83,6 @@ export default function Tasks() {
       {
         id: '3',
         title: 'Share your invite link',
-        description: 'Share your referral link on X',
         points: 25,
         completed: false,
         loading: false
@@ -94,7 +90,6 @@ export default function Tasks() {
       {
         id: '4',
         title: 'Add "ZUG" to X name & ref links to bio',
-        description: 'Update your X profile with ZUG',
         points: 25,
         completed: false,
         loading: false
@@ -205,12 +200,10 @@ export default function Tasks() {
     <div className="space-y-6 mt-20">
       {/* Tasks List */}
       <div className="space-y-4">
-        <h3 className="text-xl font-bold text-[#D6E14E] text-center mb-6">Complete These Tasks</h3>
-        
         {tasks.map((task) => (
           <div 
             key={task.id}
-            className={`bg-gradient-to-r from-[#132a13]/60 to-[#1a3a1a]/60 rounded-lg p-4 border cursor-pointer transition-all duration-200 hover:border-[#D6E14E]/40 ${
+            className={`bg-gradient-to-r from-[#132a13]/90 to-[#1a3a1a]/90 rounded-lg p-4 border cursor-pointer transition-all duration-200 hover:border-[#D6E14E]/40 ${
               task.completed 
                 ? 'border-[#D6E14E]/50 bg-[#D6E14E]/10' 
                 : 'border-[#D6E14E]/20'
@@ -223,25 +216,26 @@ export default function Tasks() {
                   <h4 className={`font-semibold ${task.completed ? 'text-[#D6E14E]' : 'text-white'}`}>
                     {task.title}
                   </h4>
-                  {task.completed && (
-                    <svg className="w-5 h-5 text-[#D6E14E] ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                  {task.loading && (
-                    <div className="ml-2">
-                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#D6E14E] border-t-transparent"></div>
-                    </div>
-                  )}
                 </div>
-                <p className="text-gray-400 text-sm">{task.description}</p>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-[#D6E14E] font-bold">{task.points} pts</span>
-                  {!task.completed && !task.loading && (
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  )}
+                <div className="flex items-center justify-between">
+                  <div className="bg-[#D6E14E]/20 px-3 py-1 rounded-lg">
+                    <span className="text-[#D6E14E] font-bold text-sm">{task.points} Point</span>
+                  </div>
+                  <div className="flex items-center">
+                    {task.completed && (
+                      <svg className="w-5 h-5 text-[#D6E14E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                    {task.loading && (
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#D6E14E] border-t-transparent"></div>
+                    )}
+                    {!task.completed && !task.loading && (
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
