@@ -112,7 +112,7 @@ export default function MindsharePage() {
                           TOP 1 - 100
                         </p>
                       <div className="bg-[#D6E14E] text-black px-6 py-3 rounded-lg mb-2">
-                        <span className="font-bold text-2xl sm:text-5xl">350,000 $USDZ</span>
+                        <span className="font-bold text-2xl sm:text-5xl">350,000 $USDZ </span>
                       </div>
                                               <p className="text-gray-600 text-center text-sm sm:text-xl">
                           30.17% Rewards

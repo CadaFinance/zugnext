@@ -28,7 +28,7 @@ export default function BitcoinLayer2() {
      }
    ];
 
-  const frameworks = [
+  const frameworks = [ 
     { name: "Lightning Network", logo: "⚡", description: "Speed" },
     { name: "Optimism", logo: "OPTIMISM", description: "Optimistic Rollups" },
     { name: "ZK-Rollups", logo: "zkROLLUPS", description: "ZK-Rollups" },
