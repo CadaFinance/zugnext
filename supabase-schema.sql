@@ -22,5 +22,6 @@ CREATE TABLE public.users (
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   session_token text,
+  tasks boolean DEFAULT false,
   CONSTRAINT users_pkey PRIMARY KEY (id)
 );

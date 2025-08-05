@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     // Verify the session and get user data
     const { data: user, error } = await supabase
       .from('users')
-      .select('*')
+      .select('id, twitter_id, username, display_name, profile_image_url, created_at, updated_at, tasks')
       .eq('session_token', sessionToken)
       .single()
     
