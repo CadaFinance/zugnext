@@ -69,28 +69,28 @@ export default function Tasks() {
       {
         id: '1',
         title: 'Follow X',
-        points: 25,
+        points: 150,
         completed: false,
         loading: false
       },
       {
         id: '2',
         title: 'Like & RT',
-        points: 25,
+        points: 150,
         completed: false,
         loading: false
       },
       {
         id: '3',
         title: 'Share your invite link',
-        points: 25,
+        points: 150,
         completed: false,
         loading: false
       },
       {
         id: '4',
         title: 'Add "ZUG" to X name & ref links to bio',
-        points: 25,
+        points: 200,
         completed: false,
         loading: false
       }
@@ -145,15 +145,15 @@ export default function Tasks() {
         },
         body: JSON.stringify({
           userId: user.id,
-          totalPoints: 100 // 4 tasks * 25 points each
+          totalPoints: 650 // 3 tasks * 150 + 1 task * 200 points
         })
       })
 
       if (response.ok) {
         // Update local state
-        setUserPoints(prev => prev + 100)
+        setUserPoints(prev => prev + 650)
         setAllTasksCompleted(true)
-        alert('Tasks completed! 100 points added to your account.')
+        alert('Tasks completed! 650 points added to your account.')
       }
     } catch (error) {
       console.error('Error claiming rewards:', error)
@@ -250,7 +250,7 @@ export default function Tasks() {
             onClick={handleClaimRewards}
             className="bg-[#D6E14E] text-black font-bold py-3 px-8 rounded-lg hover:bg-[#b8c93e] transition-all duration-300 transform hover:scale-105"
           >
-            Claim Rewards (100 pts)
+            Claim Rewards (650 pts)
           </button>
         ) : (
           <button

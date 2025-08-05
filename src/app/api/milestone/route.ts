@@ -6,15 +6,17 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Define milestone tiers
+// Define milestone tiers with corrected percentages
+// Total reward pool: 1,160,000 $USDA
 const MILESTONE_TIERS = [
-  { target: 100, reward: 141750, percentage: 35, name: 'TOP 1 - 100' },
-  { target: 1000, reward: 101250, percentage: 25, name: 'TOP 101 - 1000' },
-  { target: 2000, reward: 60750, percentage: 15, name: 'TOP 1,001 - 2,000' },
-  { target: 5000, reward: 40500, percentage: 10, name: 'TOP 2,001 - 5,000' },
-  { target: 10000, reward: 28350, percentage: 7, name: 'TOP 5,001 - 10,000' },
-  { target: 20000, reward: 20250, percentage: 5, name: 'TOP 10,001 - 20,000' },
-  { target: 100000, reward: 12150, percentage: 3, name: 'TOP 20,001 - 100,000' }
+  { target: 100, reward: 350000, percentage: 30.17, name: 'TOP 1 - 100' },
+  { target: 1000, reward: 250000, percentage: 21.55, name: 'TOP 101 - 1000' },
+  { target: 2000, reward: 150000, percentage: 12.93, name: 'TOP 1,001 - 2,000' },
+  { target: 5000, reward: 120000, percentage: 10.34, name: 'TOP 2,001 - 5,000' },
+  { target: 10000, reward: 100000, percentage: 8.62, name: 'TOP 5,100 - 10,000' },
+  { target: 20000, reward: 80000, percentage: 6.90, name: 'TOP 10,001 - 20,000' },
+  { target: 50000, reward: 60000, percentage: 5.17, name: 'TOP 20,001 - 50,000' },
+  { target: 100000, reward: 50000, percentage: 4.31, name: 'TOP 50,001 - 100,000' }
 ]
 
 export async function GET(_request: NextRequest) {
@@ -31,9 +33,10 @@ export async function GET(_request: NextRequest) {
         targetUsers: 100,
         progressPercentage: 0,
         currentReward: '0',
-        nextReward: '141,750',
+        nextReward: '350,000',
         currentTier: 'TOP 1 - 100',
-        nextTier: 'TOP 1 - 100'
+        nextTier: 'TOP 1 - 100',
+        totalDistributedReward: '0'
       })
     }
 
@@ -75,37 +78,42 @@ export async function GET(_request: NextRequest) {
       }
     }
     
-    // Calculate current and next rewards based on user count
-    let currentReward = 0
-    let nextReward = 0
-    
     // Calculate current reward based on users in current tier
+    let currentReward = 0
+    let nextReward = nextTier.reward
+    
     if (userCount > 0) {
       if (currentTier.target === 100) {
-        // First tier (0-100)
+        // First tier (0-100) - calculate based on current users
         const rewardPerUser = currentTier.reward / currentTier.target
         currentReward = Math.floor(rewardPerUser * userCount)
       } else {
         // Other tiers - calculate based on users in current tier
-        const usersInCurrentTier = Math.min(userCount, currentTier.target)
-        const rewardPerUser = currentTier.reward / currentTier.target
+        const prevTier = MILESTONE_TIERS.find(t => t.target < currentTier.target) || MILESTONE_TIERS[0]
+        const usersInCurrentTier = Math.min(userCount - prevTier.target, currentTier.target - prevTier.target)
+        const rewardPerUser = currentTier.reward / (currentTier.target - prevTier.target)
         currentReward = Math.floor(rewardPerUser * usersInCurrentTier)
       }
     }
     
-    // Calculate next reward (full tier reward)
-    nextReward = nextTier.reward
-    
     // Calculate total rewards distributed so far
     let totalDistributedReward = 0
+    let cumulativeUsers = 0
+    
     for (const tier of MILESTONE_TIERS) {
       if (userCount >= tier.target) {
+        // Tier is fully completed
         totalDistributedReward += tier.reward
-      } else if (userCount > 0) {
-        // Add partial reward for current tier
-        const usersInTier = Math.min(userCount, tier.target)
-        const rewardPerUser = tier.reward / tier.target
+        cumulativeUsers = tier.target
+      } else if (userCount > cumulativeUsers) {
+        // Partial tier completion
+        const usersInTier = userCount - cumulativeUsers
+        const tierSize = tier.target - cumulativeUsers
+        const rewardPerUser = tier.reward / tierSize
         totalDistributedReward += Math.floor(rewardPerUser * usersInTier)
+        break
+      } else {
+        break
       }
     }
 
@@ -126,9 +134,10 @@ export async function GET(_request: NextRequest) {
       targetUsers: 100,
       progressPercentage: 0,
       currentReward: '0',
-      nextReward: '141,750',
+      nextReward: '350,000',
       currentTier: 'TOP 1 - 100',
-      nextTier: 'TOP 1 - 100'
+      nextTier: 'TOP 1 - 100',
+      totalDistributedReward: '0'
     })
   }
 } 

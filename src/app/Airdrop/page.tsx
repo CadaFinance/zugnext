@@ -112,10 +112,10 @@ export default function MindsharePage() {
                           TOP 1 - 100
                         </p>
                       <div className="bg-[#D6E14E] text-black px-6 py-3 rounded-lg mb-2">
-                        <span className="font-bold text-2xl sm:text-5xl">350,000 $USDA</span>
+                        <span className="font-bold text-2xl sm:text-5xl">350,000 $USDZ</span>
                       </div>
                                               <p className="text-gray-600 text-center text-sm sm:text-xl">
-                          35% Rewards
+                          30.17% Rewards
                         </p>
                     </div>
                   </div>
@@ -131,10 +131,10 @@ export default function MindsharePage() {
                           TOP 101 - 1000
                         </p>
                       <div className="bg-[#D6E14E] text-black px-6 py-3 rounded-lg mb-2">
-                        <span className="font-bold text-2xl sm:text-5xl">250,000 $USDA</span>
+                        <span className="font-bold text-2xl sm:text-5xl">250,000 $USDZ</span>
                       </div>
                                               <p className="text-gray-600 text-center text-sm sm:text-xl">
-                          25% Rewards
+                          21.55% Rewards
                         </p>
                     </div>
                   </div>
@@ -152,9 +152,9 @@ export default function MindsharePage() {
                       <div className="px-4 pt-4 sm:px-6 sm:pt-6 flex flex-col items-center justify-center h-full">
                         <p className="text-sm sm:text-xl tracking-tight text-black text-center">TOP 1,001 - 2,000</p>
                         <div className="text-black px-3 py-2 mb-2">
-                          <span className="font-bold text-lg sm:text-4xl">150,000 $USDA</span>
+                          <span className="font-bold text-lg sm:text-4xl">150,000 $USDZ</span>
                         </div>
-                        <p className="text-sm sm:text-2xl text-gray-600 text-center">15% Rewards</p>
+                        <p className="text-sm sm:text-2xl text-gray-600 text-center">12.93% Rewards</p>
                       </div>
                     </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
@@ -170,9 +170,9 @@ export default function MindsharePage() {
                         <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
                           <p className="text-xs sm:text-lg tracking-tight text-black text-center ">TOP 2,001 - 5,000</p>
                           <div className="text-black px-2 py-1 mb-1">
-                            <span className="font-bold text-sm sm:text-3xl">120,000 $USDA</span>
+                            <span className="font-bold text-sm sm:text-3xl">120,000 $USDZ</span>
                           </div>
-                          <p className="text-xs sm:text-lg text-gray-600 text-center">12% Rewards</p>
+                          <p className="text-xs sm:text-lg text-gray-600 text-center">10.34% Rewards</p>
                         </div>
                       </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
@@ -185,9 +185,9 @@ export default function MindsharePage() {
                         <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
                           <p className="text-xs sm:text-lg tracking-tight text-black text-center ">TOP 5,100 - 10,000</p>
                           <div className="text-black px-2 py-1 mb-1">
-                            <span className="font-bold text-sm sm:text-3xl">100,000 $USDA</span>
+                            <span className="font-bold text-sm sm:text-3xl">100,000 $USDZ</span>
                           </div>
-                          <p className="text-xs sm:text-lg text-gray-600 text-center">10% Rewards</p>
+                          <p className="text-xs sm:text-lg text-gray-600 text-center">8.62% Rewards</p>
                         </div>
                       </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
@@ -203,9 +203,9 @@ export default function MindsharePage() {
                       <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
                         <p className="text-xs sm:text-sm tracking-tight text-black text-center ">TOP 10,001 - 20,000</p>
                         <div className="text-black px-2 py-1 mb-1">
-                          <span className="font-bold text-xs sm:text-2xl">80,000 $USDA</span>
+                          <span className="font-bold text-xs sm:text-2xl">80,000 $USDZ</span>
                         </div>
-                        <p className="text-xs text-gray-600 text-center">8% Rewards</p>
+                        <p className="text-xs text-gray-600 text-center">6.90% Rewards</p>
                       </div>
                     </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
@@ -218,9 +218,9 @@ export default function MindsharePage() {
                       <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
                         <p className="text-xs sm:text-sm tracking-tight text-black text-center ">TOP 20,001 - 50,000</p>
                         <div className="text-black px-2 py-1 mb-1">
-                          <span className="font-bold text-xs sm:text-2xl">60,000 $USDA</span>
+                          <span className="font-bold text-xs sm:text-2xl">60,000 $USDZ</span>
                         </div>
-                        <p className="text-xs text-gray-600 text-center">6% Rewards</p>
+                        <p className="text-xs text-gray-600 text-center">5.17% Rewards</p>
                       </div>
                     </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
@@ -233,9 +233,9 @@ export default function MindsharePage() {
                       <div className="px-3 pt-3 sm:px-4 sm:pt-4 flex flex-col items-center justify-center h-full">
                         <p className="text-xs sm:text-sm font-medium tracking-tight text-black text-center ">TOP 50,001 - 100,000</p>
                         <div className="text-black px-2 py-1 mb-1">
-                          <span className="font-bold text-xs sm:text-2xl">50,000 $USDA</span>
+                          <span className="font-bold text-xs sm:text-2xl">50,000 $USDZ</span>
                         </div>
-                        <p className="text-xs text-gray-600 text-center">5% Rewards</p>
+                        <p className="text-xs text-gray-600 text-center">4.31% Rewards</p>
                       </div>
                     </div>
                     <div className="pointer-events-none absolute inset-px rounded-lg shadow-sm outline outline-black/5" />
@@ -254,7 +254,7 @@ export default function MindsharePage() {
 
                 <h3 className="text-lg font-bold text-left text-black">Season 1 Rewards</h3>
               </div>
-                              <div className="text-5xl sm:text-5xl mt-2 font-bold text-black mb-6 text-left">1,100,000 $USDA</div>
+                              <div className="text-5xl sm:text-5xl mt-2 font-bold text-black mb-6 text-left">1,160,000 $USDZ</div>
               
               {/* Rewards Character */}
               <div className="relative h-48 flex items-center justify-center">
@@ -290,8 +290,8 @@ export default function MindsharePage() {
               </div>
               
               <div className="flex justify-between text-sm font-semibold text-black">
-                <span>{milestoneData.currentReward} $USDA</span>
-                <span className="bg-[#D6E14E] px-2 py-1 rounded">{milestoneData.nextReward} $USDA</span>
+                <span>{milestoneData.currentReward} $USDZ</span>
+                <span className="bg-[#D6E14E] px-2 py-1 rounded">{milestoneData.nextReward} $USDZ</span>
               </div>
             </div> 
 
@@ -374,7 +374,7 @@ export default function MindsharePage() {
                 <span>Tasks</span>
               </div>
             </button>
-          </div>
+          </div> 
         </div>
 
         {/* Tab Content */}
