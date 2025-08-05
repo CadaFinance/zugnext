@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Dialog, DialogPanel } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -18,6 +18,16 @@ interface HeaderProps {
   fullWidth?: boolean;
   showBothButtons?: boolean;
   showOnlyX?: boolean;
+}
+
+interface User {
+  id: string;
+  twitter_id: string;
+  username: string;
+  display_name: string;
+  profile_image_url: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // Generate random wallet address
@@ -53,7 +63,11 @@ const generateTransactionData = () => {
 export default function Header({ fullWidth = false, showBothButtons = false, showOnlyX = false }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [transactionData, setTransactionData] = useState<string>('')
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [showDropdown, setShowDropdown] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const generateTransactions = () => {
@@ -66,6 +80,25 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
 
     generateTransactions();
   }, []);
+
+  useEffect(() => {
+    async function checkUserAuth() {
+      try {
+        const response = await fetch('/api/auth/check')
+        const data = await response.json()
+        
+        if (data.authenticated && data.user) {
+          setUser(data.user)
+        }
+      } catch (error) {
+        console.error('Error checking auth:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkUserAuth()
+  }, [])
 
   useEffect(() => {
     const scrollElement = scrollRef.current;
@@ -98,6 +131,41 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
       }
     };
   }, [transactionData]);
+
+  const handleDisconnect = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      })
+      
+      if (response.ok) {
+        setUser(null)
+        setShowDropdown(false)
+        // Refresh the page to update the state
+        window.location.reload()
+      }
+    } catch (error) {
+      console.error('Error disconnecting:', error)
+    }
+  }
+
+  const handleConnectTwitter = () => {
+    window.location.href = '/api/auth/twitter';
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   return (
     <>
@@ -137,9 +205,9 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
               <Image
                 alt="Logo"
                 src="/Group 5195.png"
-                width={32}
-                height={32}
-                className="h-8 w-auto mr-2"
+                width={48}
+                height={48}
+                className=" mr-2"
               />
               <span className="text-xl font-bold text-gray-900">ZUG</span>
             </Link>
@@ -150,10 +218,37 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                 Connect your wallet
               </button>
             )}
-            {(showBothButtons || showOnlyX) && (
-              <button className="bg-black text-[#D6E14E] px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-gray-800 transition-colors">
+            {(showBothButtons || showOnlyX) && !user && (
+              <button 
+                onClick={handleConnectTwitter}
+                className="bg-black text-[#D6E14E] px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-gray-800 transition-colors"
+              >
                 Connect your X
               </button>
+            )}
+            {(showBothButtons || showOnlyX) && user && (
+              <div className="relative" ref={dropdownRef}>
+                <button 
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="bg-black text-[#D6E14E] px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-gray-800 transition-colors flex items-center gap-1"
+                >
+                  <div className="w-4 h-4 bg-blue-500 rounded flex items-center justify-center">
+                    <div className="w-2 h-2 bg-yellow-400 rounded-sm"></div>
+                  </div>
+                  <span className="text-xs">{user.display_name}</span>
+                  <ChevronDownIcon className="w-3 h-3" />
+                </button>
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <button
+                      onClick={handleDisconnect}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-lg"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
             <button
               type="button"
@@ -177,10 +272,37 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                 Connect your wallet
               </button>
             )}
-            {(showBothButtons || showOnlyX) && (
-              <button className="bg-black text-[#D6E14E] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-800 transition-colors">
+            {(showBothButtons || showOnlyX) && !user && (
+              <button 
+                onClick={handleConnectTwitter}
+                className="bg-black text-[#D6E14E] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-800 transition-colors"
+              >
                 Connect your X
               </button>
+            )}
+            {(showBothButtons || showOnlyX) && user && (
+              <div className="relative" ref={dropdownRef}>
+                <button 
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="bg-black text-[#D6E14E] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-800 transition-colors flex items-center gap-2"
+                >
+                  <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center">
+                    <div className="w-3 h-3 bg-yellow-400 rounded-sm"></div>
+                  </div>
+                  <span>{user.display_name}</span>
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+                {showDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <button
+                      onClick={handleDisconnect}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-lg"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </nav>
@@ -228,10 +350,29 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                     Connect your wallet
                   </button>
                 )}
-                {(showBothButtons || showOnlyX) && (
-                  <button className="w-full bg-[#132a13] text-white px-3 py-2.5 rounded-lg font-semibold text-base hover:bg-gray-800 transition-colors">
+                {(showBothButtons || showOnlyX) && !user && (
+                  <button 
+                    onClick={handleConnectTwitter}
+                    className="w-full bg-[#132a13] text-white px-3 py-2.5 rounded-lg font-semibold text-base hover:bg-gray-800 transition-colors"
+                  >
                     Connect your X
                   </button>
+                )}
+                {(showBothButtons || showOnlyX) && user && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 bg-[#132a13] text-white px-3 py-2.5 rounded-lg">
+                      <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center">
+                        <div className="w-3 h-3 bg-yellow-400 rounded-sm"></div>
+                      </div>
+                      <span className="font-semibold">{user.display_name}</span>
+                    </div>
+                    <button 
+                      onClick={handleDisconnect}
+                      className="w-full bg-red-600 text-white px-3 py-2.5 rounded-lg font-semibold text-base hover:bg-red-700 transition-colors"
+                    >
+                      Disconnect
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
