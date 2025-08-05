@@ -73,7 +73,7 @@ const ecosystemItems = [
 
 export default function FeaturesText() {
   return (
-    <div className="lg:pt-4 lg:pr-8">
+    <div className=" lg:pr-8">
       <div className="lg:min-w-2xl">
       
         <p className="mt-2 text-2xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-4xl">

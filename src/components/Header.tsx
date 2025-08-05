@@ -5,6 +5,7 @@ import { Dialog, DialogPanel } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import Image from 'next/image'
+import WalletConnectButton from './WalletConnectButton'
 
 const navigation = [
   { name: 'HOW TO BUY', href: '/#how-to-buy' },
@@ -198,7 +199,7 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
       </div>
       
       <header className="fixed inset-x-0 top-8 z-50 bg-white shadow-sm">
-      <div className={`mx-auto px-6 lg:px-8 ${fullWidth ? '' : 'max-w-7xl'}`}>
+      <div className={`mx-auto px-2 lg:px-8 ${fullWidth ? '' : 'max-w-7xl'}`}>
         <nav aria-label="Global" className="flex items-center justify-between py-4">
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 p-1.5 flex items-center">
@@ -214,9 +215,7 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
           </div>
           <div className="flex lg:hidden items-center gap-2">
             {!showOnlyX && (
-              <button className="bg-black text-[#D6E14E] px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-gray-800 transition-colors">
-                Connect your wallet
-              </button>
+              <WalletConnectButton />
             )}
             {(showBothButtons || showOnlyX) && !user && (
               <button 
@@ -276,9 +275,7 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-3">
             {!showOnlyX && (
-              <button className="bg-black text-[#D6E14E] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-800 transition-colors">
-                Connect your wallet
-              </button>
+              <WalletConnectButton />
             )}
             {(showBothButtons || showOnlyX) && !user && (
               <button 
@@ -362,9 +359,9 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
               </div>
               <div className="py-6 space-y-3">
                 {!showOnlyX && (
-                  <button className="w-full bg-[#132a13] text-white px-3 py-2.5 rounded-lg font-semibold text-base hover:bg-gray-800 transition-colors">
-                    Connect your wallet
-                  </button>
+                  <div className="w-full">
+                    <WalletConnectButton />
+                  </div>
                 )}
                 {(showBothButtons || showOnlyX) && !user && (
                   <button 

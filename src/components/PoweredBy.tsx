@@ -44,16 +44,16 @@ export default function FeaturedIn() {
           }}></div>
         </div>
   
-        <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="relative z-10 mx-auto max-w-7xl px-2 lg:px-8">
           {/* Title */}
-          <div className="text-center my-4">
+          <div className="text-center my-2">
             <h2 className="text-2xl lg:text-3xl font-bold text-white">
               POWERED BY
             </h2>
           </div>
   
                    {/* Platform Names */}
-           <div className="hidden lg:flex flex-wrap justify-center items-center mb-4 gap-8 lg:gap-12">
+           <div className="hidden lg:flex flex-wrap justify-center items-center  gap-8 lg:gap-12">
              {platforms.map((platform, index) => (
                <div key={platform.name} className="flex flex-col items-center text-white">
                  {/* Platform Name */}

@@ -254,7 +254,7 @@ export default function MindsharePage() {
 
                 <h3 className="text-lg font-bold text-left text-black">Season 1 Rewards</h3>
               </div>
-                              <div className="text-5xl sm:text-5xl mt-2 font-bold text-black mb-6 text-left">1,160,000 $USDZ</div>
+                              <div className="text-5xl sm:text-4xl mt-2 font-bold text-black mb-6 text-left">1,160,000 $USDZ</div>
               
               {/* Rewards Character */}
               <div className="relative h-48 flex items-center justify-center">

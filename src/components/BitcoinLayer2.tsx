@@ -38,7 +38,7 @@ export default function BitcoinLayer2() {
 
   return (
     <div className="bg-white py-16 white-pattern-bg">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-2 lg:px-8">
         {/* Main Title */}
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold text-black mb-4">
@@ -170,7 +170,7 @@ export default function BitcoinLayer2() {
                   <div className="absolute top-4 right-4 w-6 h-6  rounded-full"></div>
                   <h3 className="text-xl font-bold text-black mb-3">STEP 1</h3>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    Get some crypto from your preferred exchange. If you don&apos;t yet have a wallet, consider using Trust Wallet or MetaMask. Then visit the $ZUG official website.
+                    Get some ETH from your preferred exchange. If you don&apos;t yet have a wallet, consider using Trust Wallet or MetaMask. Then visit the $ZUG official website.
                   </p>
                 </div>
 
@@ -194,7 +194,7 @@ export default function BitcoinLayer2() {
                   <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                   <h3 className="text-xl font-bold text-black mb-3">STEP 3</h3>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    Choose the amount of $ZUG you want to buy and confirm the transaction in your wallet. To stake at the same time, select the Buy and Stake option.
+                    Choose the amount of $ZUG you want to buy and confirm the transaction in your wallet. 
                   </p>
                 </div>
               </div>
@@ -211,7 +211,7 @@ export default function BitcoinLayer2() {
                       <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                       <h3 className="text-xl font-bold text-black mb-3">STEP 1</h3>
                       <p className="text-sm text-gray-700 leading-relaxed">
-                        Get some crypto from your preferred exchange. If you don&apos;t yet have a wallet, consider using Trust Wallet or MetaMask. Then visit the $ZUG official website.
+                        Get some ETH from your preferred exchange. If you don&apos;t yet have a wallet, consider using Trust Wallet or MetaMask. Then visit the $ZUG official website.
                       </p>
                     </div>
                   </div>
@@ -249,8 +249,8 @@ export default function BitcoinLayer2() {
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <button className="bg-[#D6E14E] text-black px-8 py-3 rounded-lg font-bold text-base hover:bg-orange-600 transition-colors">
-                BUY WITH CARD
+              <button className="bg-[#D6E14E] text-black px-8 py-3 rounded-lg font-bold text-base  transition-colors">
+                BUY WITH ETH
               </button>
             
             </div>

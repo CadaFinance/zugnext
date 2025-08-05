@@ -1,23 +1,580 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useReadContract, useAccount, useBalance, usePublicClient, useWriteContract, useSwitchChain } from 'wagmi'
+import { useMemo } from 'react'
+import { toast } from 'sonner'
+import ZUGPresaleABI from '@/contract/ZUGPresale.json'
+import WalletModal from './WalletModal'
+
+// Glow button styles
+const glowButtonStyles = {
+  '--glow-color': '#D6E14E',
+  '--glow-spread-color': 'rgba(214, 225, 78, 0.781)',
+  '--enhanced-glow-color': '#E8F15A',
+  '--btn-color': '#B8C93A',
+  border: '.25em solid var(--glow-color)',
+  padding: '1em 3em',
+  color: '#1a1a1a',
+  fontSize: '15px',
+  fontWeight: 'bold',
+  backgroundColor: 'var(--btn-color)',
+  borderRadius: '1em',
+  outline: 'none',
+  boxShadow: '0 0 1em .25em var(--glow-color), 0 0 4em 1em var(--glow-spread-color), inset 0 0 .75em .25em var(--glow-color)',
+  textShadow: 'none',
+  position: 'relative' as const,
+  transition: 'all 0.3s',
+  cursor: 'pointer'
+} as React.CSSProperties
+
+const glowButtonHoverStyles = {
+  ...glowButtonStyles,
+  color: '#1a1a1a',
+  backgroundColor: 'var(--glow-color)',
+  boxShadow: '0 0 1em .25em var(--glow-color), 0 0 4em 2em var(--glow-spread-color), inset 0 0 .75em .25em var(--glow-color)'
+} as React.CSSProperties
+
+const glowButtonActiveStyles = {
+  ...glowButtonStyles,
+  boxShadow: '0 0 0.6em .25em var(--glow-color), 0 0 2.5em 2em var(--glow-spread-color), inset 0 0 .5em .25em var(--glow-color)'
+} as React.CSSProperties
+
+const ZUG_PRESALE_ADDRESS = '0x3B9ec42CE1D4B820Bfa0090101b8d5263FeB9dec'
+const ZUG_TOKEN_ADDRESS = '0xF8c4C4f266e5fF52b89d347Bb6A941b1dFf0fb03'
+
 export default function FeaturesCard() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [ethAmount, setEthAmount] = useState('0')
+  const [zugAmount, setZugAmount] = useState('0')
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+  const [currentAmount, setCurrentAmount] = useState(0)
+  const [buttonStyle, setButtonStyle] = useState(glowButtonStyles)
+  const [hasTransactionCompleted, setHasTransactionCompleted] = useState(false)
+  const { address, isConnected, chainId } = useAccount()
+  const { switchChain } = useSwitchChain()
+  
+  // Countdown timer and progress calculation
+  useEffect(() => {
+    const targetDate = new Date('2025-08-09T12:00:00Z')
+    const targetAmount = 1502850.49
+    const startDate = new Date('2025-08-05T12:00:00Z')
+    
+    const updateCountdown = () => {
+      const now = new Date()
+      const difference = targetDate.getTime() - now.getTime()
+      
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24))
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000)
+        
+        setCountdown({ days, hours, minutes, seconds })
+        
+        // Calculate progress with 5-minute intervals
+        const totalDuration = targetDate.getTime() - startDate.getTime()
+        const elapsed = now.getTime() - startDate.getTime()
+        const progress = Math.min(elapsed / totalDuration, 1)
+        
+        // Calculate 5-minute intervals
+        const fiveMinuteIntervals = Math.floor(elapsed / (5 * 60 * 1000))
+        const totalFiveMinuteIntervals = Math.floor(totalDuration / (5 * 60 * 1000))
+        const intervalProgress = Math.min(fiveMinuteIntervals / totalFiveMinuteIntervals, 1)
+        
+        const currentRaised = intervalProgress * targetAmount
+        
+        setCurrentAmount(currentRaised)
+      } else {
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+        setCurrentAmount(targetAmount)
+      }
+    }
+    
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+    
+    return () => clearInterval(interval)
+  }, [])
+  
+  // Debug: Log contract address
+  console.log('Contract Address:', ZUG_PRESALE_ADDRESS)
+
+  // Get user's ETH balance
+  const { data: ethBalance } = useBalance({
+    address: address,
+    chainId: 17000, // Holesky testnet
+  })
+
+  // Auto-fill MAX amount when wallet connects
+  useEffect(() => {
+    if (isConnected && address && ethBalance) {
+      // Small delay to ensure balance is loaded
+      const timer = setTimeout(() => {
+        handleMaxClick();
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isConnected, address, ethBalance]);
+
+  // Get user's ZUG token balance
+  const { data: zugBalance } = useBalance({
+    address: address,
+    token: ZUG_TOKEN_ADDRESS as `0x${string}`,
+    chainId: 17000, // Holesky testnet
+  })
+
+  // Get public client for gas estimation
+  const publicClient = usePublicClient()
+
+  // Write contract for buy function
+  const { writeContract, isPending, error } = useWriteContract()
+
+  // Read contract data
+  const { data: tokenPriceUsd } = useReadContract({
+    address: ZUG_PRESALE_ADDRESS as `0x${string}`,
+    abi: ZUGPresaleABI.abi,
+    functionName: 'tokenPriceUsd',
+    chainId: 17000, // Holesky testnet
+  })
+
+  // Handle contract errors and success with toast
+  useEffect(() => {
+    if (error) {
+      let errorMessage = 'Transaction failed'
+      
+      if (error.message.includes('User rejected')) {
+        errorMessage = 'Transaction was cancelled by user'
+      } else if (error.message.includes('insufficient funds')) {
+        errorMessage = 'Insufficient ETH balance'
+      } else if (error.message.includes('gas')) {
+        errorMessage = 'Gas estimation failed. Please try again'
+      } else if (error.message.includes('network')) {
+        errorMessage = 'Network error. Please check your connection'
+      }
+      
+      toast.error(errorMessage)
+    }
+  }, [error])
+
+  // Handle successful transaction
+  useEffect(() => {
+    if (!isPending && !error && hasTransactionCompleted) {
+      toast.success(`Successfully bought ${zugAmount} ZUG tokens!`)
+      setHasTransactionCompleted(false) // Reset for next transaction
+    }
+  }, [isPending, error, hasTransactionCompleted, zugAmount])
+
+  // Calculate ZUG amount when ETH amount changes
+  const calculateZugAmount = async (ethValue: string) => {
+    if (!ethValue || Number(ethValue) === 0) {
+      setZugAmount('0')
+      return
+    }
+
+    try {
+      const ethInWei = BigInt(Math.floor(Number(ethValue) * 1e18))
+      
+      console.log('ETH Value:', ethValue)
+      console.log('ETH in Wei:', ethInWei.toString())
+      console.log('Contract Address:', ZUG_PRESALE_ADDRESS)
+      
+      // First check if contract exists and has the function
+      try {
+        const result = await publicClient.readContract({
+          address: ZUG_PRESALE_ADDRESS as `0x${string}`,
+          abi: ZUGPresaleABI.abi,
+          functionName: 'calculateTokenAmount',
+          args: [ethInWei],
+        })
+
+        console.log('Contract Result:', result?.toString())
+        
+        const zugAmount = Number(result) / 1e18
+        console.log('Calculated ZUG Amount:', zugAmount)
+        
+        // Manual calculation for comparison
+        const ethUsdValue = Number(ethValue) * 3000 // Assuming $3000 ETH price
+        const expectedZug = ethUsdValue / 0.000120
+        console.log('Expected ZUG (manual):', expectedZug)
+        
+        setZugAmount(zugAmount.toFixed(6))
+      } catch (contractError) {
+        console.error('Contract call failed:', contractError)
+        // Fallback to manual calculation
+        const ethUsdValue = Number(ethValue) * 3000
+        const manualZug = ethUsdValue / 0.000120
+        setZugAmount(manualZug.toFixed(6))
+      }
+    } catch (error) {
+      console.error('Error calculating ZUG amount:', error)
+      setZugAmount('0')
+    }
+  }
+
+
+
+  // Format data for display
+  const formattedPrice = useMemo(() => {
+    console.log('Raw tokenPriceUsd:', tokenPriceUsd)
+    if (!tokenPriceUsd) return '0.00'
+    // Price 6 decimal olarak set edilmiş
+    // 120 = 0.000120 USD (120 / 1,000,000)
+    const price = (Number(tokenPriceUsd) / 1000000).toFixed(6)
+    // Remove trailing zeros
+    return price.replace(/\.?0+$/, '')
+  }, [tokenPriceUsd])
+
+
+
+  const handleConnect = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleMaxClick = async () => {
+    if (!address || !ethBalance) return
+
+    try {
+      // Estimate gas for buyTokens function
+      const gasEstimate = await publicClient.estimateGas({
+        account: address,
+        to: ZUG_PRESALE_ADDRESS as `0x${string}`,
+        value: ethBalance.value,
+        data: '0x', // buyTokens function call
+      })
+
+      // Get current gas price
+      const gasPrice = await publicClient.getGasPrice()
+      
+      // Calculate gas cost
+      const gasCost = gasEstimate * gasPrice
+      
+      // Calculate available amount (balance - gas cost)
+      const availableAmount = ethBalance.value - gasCost
+      
+      // Convert to ETH for display
+      const availableEth = Number(availableAmount) / 1e18
+      
+      console.log('Gas Estimate:', gasEstimate.toString())
+      console.log('Gas Price:', gasPrice.toString())
+      console.log('Gas Cost:', gasCost.toString())
+      console.log('Available Amount:', availableEth)
+      
+      // Set the input value to available amount
+      const availableEthStr = availableEth.toFixed(6)
+      setEthAmount(availableEthStr)
+      await calculateZugAmount(availableEthStr)
+      
+    } catch (error) {
+      console.error('Error estimating gas:', error)
+      // Fallback: use 90% of balance
+      const fallbackAmount = Number(ethBalance.formatted) * 0.9
+      const fallbackStr = fallbackAmount.toFixed(6)
+      setEthAmount(fallbackStr)
+      await calculateZugAmount(fallbackStr)
+    }
+  }
+
   return (
-    <div className="relative rounded-xl shadow-xl ring-1 ring-gray-400/10 h-full min-h-[400px] flex items-center justify-center overflow-hidden">
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200"></div>
-      
-      {/* Pattern Overlay */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0" style={{
+    <>
+      <div 
+        className="relative rounded-xl shadow-xl h-full flex flex-col items-center justify-center overflow-hidden p-4"
+        style={{
+          backgroundColor: '#1a1a1a',
           backgroundImage: `
-            linear-gradient(45deg, #e5e7eb 25%, transparent 25%, transparent 75%, #e5e7eb 75%),
-            linear-gradient(-45deg, #e5e7eb 25%, transparent 25%, transparent 75%, #e5e7eb 75%)
+            linear-gradient(45deg, rgba(214, 225, 78, 0.1) 25%, transparent 25%, transparent 75%, rgba(214, 225, 78, 0.1) 75%),
+            linear-gradient(-45deg, rgba(214, 225, 78, 0.1) 25%, transparent 25%, transparent 75%, rgba(214, 225, 78, 0.1) 75%)
           `,
-          backgroundSize: '20px 20px',
-          backgroundPosition: '0 0, 10px 10px'
-        }}></div>
-      </div>
-      
-      {/* Content */}
-      <div className="relative z-10 text-gray-400 text-lg">Empty Card</div>
-    </div>
+          backgroundSize: '30px 30px, 30px 30px',
+          backgroundPosition: '0 0, 15px 15px'
+        }}
+      >
+        {/* Content */}
+        <div className="relative z-10 w-full max-w-md">
+            {/* ZUG Token Presale Title - Grid 1 */}
+            <div className="grid grid-cols-1 mb-6">
+              <h3 className="text-4xl font-bold text-center">
+                <span className="text-white">BUY </span>
+                <span className="text-[#D6E14E]">$ZUG</span>
+                <span className="text-white"> NOW</span>
+              </h3>
+            </div>
+            
+            {/* Countdown Timer */}
+            <div className="grid grid-cols-1 mb-6">
+              <div className="text-center">
+                <div className="flex justify-center space-x-2 sm:space-x-3">
+                  <div className="text-center">
+                    <div className="bg-gray-800 border-2 border-[#D6E14E] rounded-lg px-2 py-2 sm:px-4 sm:py-3 mb-2 w-16 sm:w-20">
+                      <div className="text-xl sm:text-3xl font-bold text-[#D6E14E]">{countdown.days}</div>
+                    </div>
+                    <div className="text-xs sm:text-sm text-gray-300 font-medium">Days</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="bg-gray-800 border-2 border-[#D6E14E] rounded-lg px-2 py-2 sm:px-4 sm:py-3 mb-2 w-16 sm:w-20">
+                      <div className="text-xl sm:text-3xl font-bold text-[#D6E14E]">{countdown.hours.toString().padStart(2, '0')}</div>
+                    </div>
+                    <div className="text-xs sm:text-sm text-gray-300 font-medium">Hours</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="bg-gray-800 border-2 border-[#D6E14E] rounded-lg px-2 py-2 sm:px-4 sm:py-3 mb-2 w-16 sm:w-20">
+                      <div className="text-xl sm:text-3xl font-bold text-[#D6E14E]">{countdown.minutes.toString().padStart(2, '0')}</div>
+                    </div>
+                    <div className="text-xs sm:text-sm text-gray-300 font-medium">Minutes</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="bg-gray-800 border-2 border-[#D6E14E] rounded-lg px-2 py-2 sm:px-4 sm:py-3 mb-2 w-16 sm:w-20">
+                      <div className="text-xl sm:text-3xl font-bold text-[#D6E14E]">{countdown.seconds.toString().padStart(2, '0')}</div>
+                    </div>
+                    <div className="text-xs sm:text-sm text-gray-300 font-medium">Seconds</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="grid grid-cols-1 mb-6">
+              <div className="text-center">
+                <div className="text-sm text-gray-300 mb-2">USD Raised: <span className='text-[#D6E14E] lg:text-xl font-bold text-lg'>${currentAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / $1,502,850.49</span> </div>
+                <div className="relative w-full bg-gray-700 rounded-full h-6 mb-2">
+                  <div 
+                    className="bg-gradient-to-r from-[#D6E14E] to-[#E8F15A] h-6 rounded-full transition-all duration-1000"
+                    style={{ width: `${Math.min((currentAmount / 1502850.49) * 100, 100)}%` }}
+                  ></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-white drop-shadow-lg">UNTIL PRICE RISE</span>
+                  </div>
+                </div>
+              </div>
+                             {isConnected && (
+                 <div className="flex items-center -mt-1 justify-between">
+                   <div className="flex items-center space-x-2">
+                     <span className="text-xs font-medium text-gray-300">
+                       PURCHASED $ZUG: {zugBalance ? 
+                         (Number(zugBalance.formatted) >= 1000000000 ? 
+                           (Number(zugBalance.formatted) / 1000000000).toFixed(2) + 'B' : 
+                           Number(zugBalance.formatted) >= 1000000 ? 
+                             (Number(zugBalance.formatted) / 1000000).toFixed(2) + 'M' : 
+                             Number(zugBalance.formatted).toFixed(2)
+                         ) : '0.00'}
+                     </span>
+                   </div>
+                   <div className="text-xs text-gray-300">
+                   STAKEABLE $ZUG: {zugBalance ? 
+                       (Number(zugBalance.formatted) >= 1000000000 ? 
+                         (Number(zugBalance.formatted) / 1000000000).toFixed(2) + 'B' : 
+                         Number(zugBalance.formatted) >= 1000000 ? 
+                           (Number(zugBalance.formatted) / 1000000).toFixed(2) + 'M' : 
+                           Number(zugBalance.formatted).toFixed(2)
+                       ) : '0.00'}
+                   </div>
+                 </div>
+               )}
+
+            </div>
+            
+            {!isConnected ? (
+              <div className="space-y-4">
+                {/* Price Display Only */}
+                <div className="text-center">
+                  <div className="text-xl font-bold mb-2">
+                    <span className="text-white">1 </span>
+                    <span className="text-[#D6E14E]">$ZUG</span>
+                    <span className="text-white"> = ${formattedPrice} USD</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* PAY WITH ETH and Balance - Grid 2 */}
+                <div className="grid grid-cols-2 mb-1 gap-2">
+                  <div className="text-sm text-gray-300 font-medium">PAY WITH ETH</div>
+                  <div className="text-xs text-gray-400 text-right">
+                    Balance = {ethBalance ? Number(ethBalance.formatted).toFixed(4) : '0.0000'}
+                  </div>
+                </div>
+                
+                {/* Input Field and ETH Dropdown - Grid 2 */}
+                <div className="grid grid-cols-10 gap-3 relative">
+                  <div className="relative col-span-7">
+                    <input 
+                      type="number" 
+                      placeholder="0" 
+                      min="0"
+                      step="0.000001"
+                      value={ethAmount}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        // Prevent negative numbers
+                        if (Number(value) < 0) return
+                        setEthAmount(value)
+                        calculateZugAmount(value)
+                      }}
+                      className="w-full bg-gray-700 text-xl font-bold text-white outline-none px-4 py-3 rounded-lg border border-gray-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-1 bg-gray-700 px-3 py-3 rounded-lg border border-gray-600 justify-center col-span-3">
+                    <img src="/Ethereum-Icon-Purple-Logo.wine.svg" alt="ETH" className="w-6 h-6" />
+                    <span className="text-lg font-medium text-white">ETH</span>
+                  </div>
+                  {/* MAX Button positioned at top-right of input card */}
+                  <button 
+                    onClick={handleMaxClick}
+                    className="absolute  right-40 -mr-10 lg:right-40 -mt-6 lg:-mr-5  text-sm text-[#D6E14E] underline hover:text-[#E8F15A] font-medium"
+                  >
+               MAX  
+                  </button>
+                </div>
+
+                {/* RECEIVE ZUG and Price - Grid 2 */}
+                <div className="grid grid-cols-2 mb-0.5 gap-2">
+                  <div className="text-sm text-gray-300 font-medium">RECEIVE ZUG</div>
+                                  <div className="text-sm font-bold text-right relative group">
+                  <span className="text-white">1 </span>
+                  <span className="text-[#D6E14E]">$ZUG</span>
+                  <span className="text-white"> = ${formattedPrice} USD</span>
+                  <span className="ml-1 text-[#D6E14E] cursor-help">ⓘ</span>
+                  
+                  {/* Tooltip */}
+                  <div className="absolute right-0 bottom-full mb-2 w-64 bg-gray-900 border border-[#D6E14E]/30 rounded-lg p-3 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus:opacity-100 group-focus:visible transition-all duration-200 z-50">
+                    <div className="text-xs text-gray-300 mb-2 text-left">Future Stage Prices:</div>
+                    <div className="flex flex-col gap-1 text-xs text-left">
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 1: <span className="text-[#D6E14E]">$0.00012</span></div>
+                        <div className="text-white">Stage 8: <span className="text-[#D6E14E]">$0.008</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 2: <span className="text-[#D6E14E]">$0.00024</span></div>
+                        <div className="text-white">Stage 9: <span className="text-[#D6E14E]">$0.01</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 3: <span className="text-[#D6E14E]">$0.00048</span></div>
+                        <div className="text-white">Stage 10: <span className="text-[#D6E14E]">$0.02</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 4: <span className="text-[#D6E14E]">$0.00096</span></div>
+                        <div className="text-white">Stage 11: <span className="text-[#D6E14E]">$0.04</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 5: <span className="text-[#D6E14E]">$0.001</span></div>
+                        <div className="text-white">Stage 12: <span className="text-[#D6E14E]">$0.08</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 6: <span className="text-[#D6E14E]">$0.002</span></div>
+                        <div className="text-white">Stage 13: <span className="text-[#D6E14E]">$0.1</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 7: <span className="text-[#D6E14E]">$0.004</span></div>
+                        <div className="text-white">Stage 14: <span className="text-[#D6E14E]">$0.2</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </div>
+                
+                {/* ZUG Input Field with ZUG logo inside */}
+                <div className="grid grid-cols-1 gap-3">
+                  <div className="relative">
+                    <input 
+                      type="number" 
+                      placeholder="0" 
+                      min="0"
+                      value={Math.max(0, Math.floor(Number(zugAmount)))}
+                      readOnly
+                      className="w-full bg-gray-700 text-xl font-bold text-white outline-none px-4 py-3 rounded-lg border border-gray-600 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none pr-16"
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                      <img src="/Group 5195.png" alt="ZUG" className="w-5 h-5" />
+                    </div>
+                  </div> 
+                </div>
+              </div>
+            )}
+            
+            {!isConnected && (
+              <div className="mt-6">
+                <button
+                  onClick={handleConnect}
+                  className="w-full relative overflow-hidden font-semibold text-lg"
+                  style={buttonStyle}
+                  onMouseEnter={() => setButtonStyle(glowButtonHoverStyles)}
+                  onMouseLeave={() => setButtonStyle(glowButtonStyles)}
+                  onMouseDown={() => setButtonStyle(glowButtonActiveStyles)}
+                  onMouseUp={() => setButtonStyle(glowButtonHoverStyles)}
+                >
+                   BUY WITH ETH
+                </button>
+              </div>
+            )}
+            
+            {isConnected && (
+              <div className="mt-6 space-y-4">
+              
+                {/* Check if user is on Holesky network */}
+                {chainId === 17000 ? (
+                  /* Buy Button - Show when on Holesky */
+                  <button
+                    onClick={() => {
+                      if (!ethAmount || Number(ethAmount) === 0) {
+                        toast.error('Please enter an amount to buy')
+                        return
+                      }
+                      
+                      const ethInWei = BigInt(Math.floor(Number(ethAmount) * 1e18))
+                      
+                      setHasTransactionCompleted(true) // Mark that we started a transaction
+                      
+                      writeContract({
+                        address: ZUG_PRESALE_ADDRESS as `0x${string}`,
+                        abi: ZUGPresaleABI.abi,
+                        functionName: 'buyTokens',
+                        value: ethInWei,
+                        chainId: 17000, // Holesky testnet
+                      })
+                    }}
+                    disabled={!ethAmount || Number(ethAmount) === 0 || isPending}
+                    className="w-full relative overflow-hidden font-semibold text-lg disabled:cursor-not-allowed disabled:opacity-50"
+                    style={buttonStyle}
+                    onMouseEnter={() => setButtonStyle(glowButtonHoverStyles)}
+                    onMouseLeave={() => setButtonStyle(glowButtonStyles)}
+                    onMouseDown={() => setButtonStyle(glowButtonActiveStyles)}
+                    onMouseUp={() => setButtonStyle(glowButtonHoverStyles)}
+                  >
+                    {isPending ? 'Buying...' : (!ethAmount || Number(ethAmount) === 0) ? 'Enter Amount' : 'Buy ZUG Tokens'}
+                  </button>
+                ) : (
+                  /* Switch to Holesky Button - Show when not on Holesky */
+                  <button
+                    onClick={() => {
+                      try {
+                        switchChain({ chainId: 17000 })
+                        toast.success('Switching to Holesky network...')
+                      } catch (error) {
+                        console.error('Error switching chain:', error)
+                        toast.error('Failed to switch network')
+                      }
+                    }}
+                    className="w-full relative overflow-hidden font-semibold text-lg"
+                    style={buttonStyle}
+                    onMouseEnter={() => setButtonStyle(glowButtonHoverStyles)}
+                    onMouseLeave={() => setButtonStyle(glowButtonStyles)}
+                    onMouseDown={() => setButtonStyle(glowButtonActiveStyles)}
+                    onMouseUp={() => setButtonStyle(glowButtonHoverStyles)}
+                  >
+                    Switch to Holesky
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+   
+
+      <WalletModal 
+        open={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
+    </>
   )
 } 

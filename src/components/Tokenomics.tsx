@@ -47,7 +47,7 @@ export default function Tokenomics() {
          }}></div>
        </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-2 lg:px-8">
         {/* Title */}
         <div className="text-center mb-12">
           <h2 className="text-4xl lg:text-5xl font-bold text-black mb-4" style={{ fontFamily: 'baumans' }}>
@@ -120,7 +120,7 @@ export default function Tokenomics() {
                />
                {/* Call to Action */}
                <div className="text-center mt-6">
-                 <button className="bg-[#132a13] text-white px-8 py-3 rounded-lg font-bold text-lg mb-4 hover:bg-blue-700 transition-colors">
+                 <button className="bg-[#132a13] text-white px-8 py-3 rounded-lg font-bold text-lg mb-4  transition-colors">
                    READ WHITEPAPER
                  </button>
                  <p className="text-black text-sm">
@@ -136,7 +136,7 @@ export default function Tokenomics() {
            {/* Image at top */}
            <div className="flex justify-center mb-8">
              <Image 
-               src="/Group 4.png" 
+               src="/Group 1.png" 
                alt="Tokenomics Illustration" 
                width={300} 
                height={300}
@@ -174,7 +174,7 @@ export default function Tokenomics() {
 
            {/* Button at bottom */}
            <div className="text-center">
-             <button className="bg-[#132a13] text-white px-8 py-3 rounded-lg font-bold text-lg mb-4 hover:bg-blue-700 transition-colors">
+             <button className="bg-[#132a13] text-white px-8 py-3 rounded-lg font-bold text-lg mb-4 ">
                READ WHITEPAPER
              </button>
              <p className="text-black text-sm">

@@ -188,12 +188,13 @@ export default function Leaderboard() {
                         <div className={`h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden ${
                           entry.isCurrentUser ? 'ring-2 ring-[#D6E14E]' : ''
                         }`}>
-                          <Image
+                          <Image  
                             src={entry.profileImage}
                             alt={entry.user}
                             width={40}
                             height={40}
                             className="w-full h-full object-cover"
+                            unoptimized={true}
                             onError={(e) => {
                               // Fallback to avatar if image fails to load
                               const target = e.target as HTMLImageElement;

@@ -14,7 +14,7 @@ export default function Footer() {
         }}></div>
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-2 lg:px-8">
         <div className="text-center">
           {/* Disclaimer Section */}
           <div className="mb-8">
