@@ -107,10 +107,16 @@ export default function Tasks() {
         
         if (data.user.authenticated && data.user.user) {
           setUser(data.user.user)
-          loadUserPoints(data.user.user.id)
+          // Parallel API calls for better performance
           if (data.user.user.tasks) {
             setAllTasksCompleted(true)
-            loadDailyTasks(data.user.user.id)
+            // Load both in parallel
+            Promise.all([
+              loadUserPoints(data.user.user.id),
+              loadDailyTasks(data.user.user.id)
+            ])
+          } else {
+            loadUserPoints(data.user.user.id)
           }
         }
       } catch (error) {
@@ -231,7 +237,7 @@ export default function Tasks() {
       )
     }
 
-    // Simulate 3 second loading (for testing)
+    // Simulate 1 second loading (optimized)
     setTimeout(async () => {
       if (isDailyTask) {
         // Complete daily task in browser and check completion
@@ -245,10 +251,6 @@ export default function Tasks() {
           // Check if both daily tasks are completed
           const allDailyCompleted = updatedTasks.every(task => task.completed)
           setDailyTasksCompleted(allDailyCompleted)
-          
-          // Debug log
-          console.log('Daily tasks completed:', allDailyCompleted)
-          console.log('Updated tasks:', updatedTasks)
           
           return updatedTasks
         })
@@ -277,7 +279,7 @@ export default function Tasks() {
           }
         }
       }
-    }, 15000)
+    }, 1000) // 1 saniye!
 
     // Redirect based on task type
     if (isDailyTask) {
@@ -357,8 +359,21 @@ export default function Tasks() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8 mt-20">
-        <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#D6E14E] border-t-transparent"></div>
+      <div className="space-y-4 mt-15">
+        {/* Loading skeleton */}
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="bg-gradient-to-r from-[#132a13]/90 to-[#1a3a1a]/90 rounded-lg p-4 border animate-pulse">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="h-4 bg-gray-600 rounded w-3/4 mb-2"></div>
+                <div className="flex items-center justify-between">
+                  <div className="h-6 bg-gray-600 rounded w-20"></div>
+                  <div className="h-5 w-5 bg-gray-600 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     )
   }
