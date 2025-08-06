@@ -73,23 +73,22 @@ function truncateText(text: string, maxLength: number): string {
 export default function Leaderboard() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        // Check authentication status via API
-        const response = await fetch('/api/auth/check');
-        const data = await response.json();
+        // Use the combined dashboard API to get user data
+        const dashboardResponse = await fetch('/api/dashboard');
+        const dashboardData = await dashboardResponse.json();
         
-        if (data.authenticated && data.user) {
-          setCurrentUser(data.user);
+        if (dashboardData.user.authenticated && dashboardData.user.user) {
+          setCurrentUser(dashboardData.user.user);
         }
         
         // Get leaderboard data
-        const leaderboardResponse = await fetch(`/api/leaderboard${currentUser?.id ? `?userId=${currentUser.id}` : ''}`);
+        const leaderboardResponse = await fetch(`/api/leaderboard${dashboardData.user.user?.id ? `?userId=${dashboardData.user.user.id}` : ''}`);
         const leaderboardData = await leaderboardResponse.json();
-        
-        console.log('API Response:', leaderboardData); // Debug log
         
         // Check if API returned error
         if (leaderboardData.error) {
@@ -131,13 +130,15 @@ export default function Leaderboard() {
         });
         
         setLeaderboardData(transformedData);
-              } catch (error) {
-          console.error('Error loading data:', error);
-        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+      } finally {
+        setLoading(false);
       }
+    }
 
     loadData();
-  }, [currentUser?.id]);
+  }, []);
 
   return (
     <div className=" rounded-lg   mt-10 ">
@@ -145,7 +146,22 @@ export default function Leaderboard() {
     
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      {loading ? (
+        <div className="space-y-2">
+          {[...Array(10)].map((_, index) => (
+            <div key={index} className="flex items-center space-x-4 p-4 bg-gray-100 rounded-lg animate-pulse">
+              <div className="w-8 h-8 bg-gray-300 rounded"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-gray-300 rounded w-1/4"></div>
+                <div className="h-3 bg-gray-300 rounded w-1/6"></div>
+              </div>
+              <div className="w-16 h-4 bg-gray-300 rounded"></div>
+              <div className="w-20 h-4 bg-gray-300 rounded"></div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
         <table className="w-full ">
           {/* Table Header */}
           <thead className="">
@@ -276,6 +292,7 @@ export default function Leaderboard() {
           })}
         </div>
       </div>
+      )}
     </div>
   );
 } 

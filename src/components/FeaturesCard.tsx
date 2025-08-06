@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback, memo, useRef } from 'react'
 import { useReadContract, useAccount, useBalance, usePublicClient, useWriteContract, useSwitchChain } from 'wagmi'
-import { useMemo } from 'react'
 import { toast } from 'sonner'
 import ZUGPresaleABI from '@/contract/ZUGPresale.json'
 import WalletModal from './WalletModal'
@@ -43,18 +42,12 @@ const glowButtonActiveStyles = {
 const ZUG_PRESALE_ADDRESS = '0x3B9ec42CE1D4B820Bfa0090101b8d5263FeB9dec'
 const ZUG_TOKEN_ADDRESS = '0xF8c4C4f266e5fF52b89d347Bb6A941b1dFf0fb03'
 
-export default function FeaturesCard() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [ethAmount, setEthAmount] = useState('0')
-  const [zugAmount, setZugAmount] = useState('0')
+// Memoized countdown calculation
+const useCountdown = () => {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [currentAmount, setCurrentAmount] = useState(0)
-  const [buttonStyle, setButtonStyle] = useState(glowButtonStyles)
-  const [hasTransactionCompleted, setHasTransactionCompleted] = useState(false)
-  const { address, isConnected, chainId } = useAccount()
-  const { switchChain } = useSwitchChain()
-  
-  // Countdown timer and progress calculation
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
   useEffect(() => {
     const targetDate = new Date('2025-08-09T12:00:00Z')
     const targetAmount = 1502850.49
@@ -92,150 +85,91 @@ export default function FeaturesCard() {
     }
     
     updateCountdown()
-    const interval = setInterval(updateCountdown, 1000)
+    // Timer runs every second for accurate countdown
+    intervalRef.current = setInterval(updateCountdown, 1000)
     
-    return () => clearInterval(interval)
-  }, [])
-  
-  // Debug: Log contract address
-  console.log('Contract Address:', ZUG_PRESALE_ADDRESS)
-
-  // Get user's ETH balance
-  const { data: ethBalance } = useBalance({
-    address: address,
-    chainId: 17000, // Holesky testnet
-  })
-
-  // Auto-fill MAX amount when wallet connects
-  useEffect(() => {
-    if (isConnected && address && ethBalance) {
-      // Small delay to ensure balance is loaded
-      const timer = setTimeout(() => {
-        handleMaxClick();
-      }, 1000);
-      
-      return () => clearTimeout(timer);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
     }
-  }, [isConnected, address, ethBalance]);
+  }, [])
 
-  // Get user's ZUG token balance
-  const { data: zugBalance } = useBalance({
-    address: address,
-    token: ZUG_TOKEN_ADDRESS as `0x${string}`,
-    chainId: 17000, // Holesky testnet
-  })
+  return { countdown, currentAmount }
+}
 
-  // Get public client for gas estimation
-  const publicClient = usePublicClient()
+const FeaturesCard = memo(function FeaturesCard() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [ethAmount, setEthAmount] = useState('0')
+  const [zugAmount, setZugAmount] = useState('0')
+  const [buttonStyle, setButtonStyle] = useState(glowButtonStyles)
+  const [hasTransactionCompleted, setHasTransactionCompleted] = useState(false)
+  const { address, isConnected, chainId } = useAccount()
+  const { switchChain } = useSwitchChain()
+  
+  // Use memoized countdown
+  const { countdown, currentAmount } = useCountdown()
 
-  // Write contract for buy function
-  const { writeContract, isPending, error } = useWriteContract()
-
-  // Read contract data
+  // Memoized contract reads - only when connected
   const { data: tokenPriceUsd } = useReadContract({
     address: ZUG_PRESALE_ADDRESS as `0x${string}`,
     abi: ZUGPresaleABI.abi,
     functionName: 'tokenPriceUsd',
-    chainId: 17000, // Holesky testnet
+    chainId: 17000,
   })
 
-  // Handle contract errors and success with toast
-  useEffect(() => {
-    if (error) {
-      let errorMessage = 'Transaction failed'
-      
-      if (error.message.includes('User rejected')) {
-        errorMessage = 'Transaction was cancelled by user'
-      } else if (error.message.includes('insufficient funds')) {
-        errorMessage = 'Insufficient ETH balance'
-      } else if (error.message.includes('gas')) {
-        errorMessage = 'Gas estimation failed. Please try again'
-      } else if (error.message.includes('network')) {
-        errorMessage = 'Network error. Please check your connection'
-      }
-      
-      toast.error(errorMessage)
-    }
-  }, [error])
+  // Memoized balance reads - only when connected
+  const { data: ethBalance } = useBalance({
+    address: address,
+    chainId: 17000,
+  })
 
-  // Handle successful transaction
-  useEffect(() => {
-    if (!isPending && !error && hasTransactionCompleted) {
-      toast.success(`Successfully bought ${zugAmount} ZUG tokens!`)
-      setHasTransactionCompleted(false) // Reset for next transaction
-    }
-  }, [isPending, error, hasTransactionCompleted, zugAmount])
+  const { data: zugBalance } = useBalance({
+    address: address,
+    token: ZUG_TOKEN_ADDRESS as `0x${string}`,
+    chainId: 17000,
+  })
 
-  // Calculate ZUG amount when ETH amount changes
-  const calculateZugAmount = async (ethValue: string) => {
-    if (!ethValue || Number(ethValue) === 0) {
+  const publicClient = usePublicClient()
+  const { writeContract, isPending, error } = useWriteContract()
+
+  // Memoized calculation function
+  const calculateZugAmount = useCallback(async (ethValue: string) => {
+    if (!ethValue || parseFloat(ethValue) <= 0) {
       setZugAmount('0')
       return
     }
 
     try {
-      const ethInWei = BigInt(Math.floor(Number(ethValue) * 1e18))
-      
-      console.log('ETH Value:', ethValue)
-      console.log('ETH in Wei:', ethInWei.toString())
-      console.log('Contract Address:', ZUG_PRESALE_ADDRESS)
-      
-      // First check if contract exists and has the function
-      try {
-        const result = await publicClient.readContract({
-          address: ZUG_PRESALE_ADDRESS as `0x${string}`,
-          abi: ZUGPresaleABI.abi,
-          functionName: 'calculateTokenAmount',
-          args: [ethInWei],
-        })
-
-        console.log('Contract Result:', result?.toString())
-        
-        const zugAmount = Number(result) / 1e18
-        console.log('Calculated ZUG Amount:', zugAmount)
-        
-        // Manual calculation for comparison
-        const ethUsdValue = Number(ethValue) * 3000 // Assuming $3000 ETH price
-        const expectedZug = ethUsdValue / 0.000120
-        console.log('Expected ZUG (manual):', expectedZug)
-        
-        setZugAmount(zugAmount.toFixed(6))
-      } catch (contractError) {
-        console.error('Contract call failed:', contractError)
-        // Fallback to manual calculation
-        const ethUsdValue = Number(ethValue) * 3000
-        const manualZug = ethUsdValue / 0.000120
-        setZugAmount(manualZug.toFixed(6))
-      }
+      const ethAmount = Math.max(0, parseFloat(ethValue)) // Ensure non-negative
+      const tokenPrice = tokenPriceUsd ? Number(tokenPriceUsd) / 1e8 : 0.012525
+      const zugAmount = ethAmount / tokenPrice
+      setZugAmount(Math.max(0, zugAmount).toFixed(0)) // Ensure non-negative result
     } catch (error) {
-      console.error('Error calculating ZUG amount:', error)
+      // console.error('Error calculating ZUG amount:', error)
       setZugAmount('0')
     }
-  }
-
-
-
-  // Format data for display
-  const formattedPrice = useMemo(() => {
-    console.log('Raw tokenPriceUsd:', tokenPriceUsd)
-    if (!tokenPriceUsd) return '0.00'
-    // Price 6 decimal olarak set edilmiş
-    // 120 = 0.000120 USD (120 / 1,000,000)
-    const price = (Number(tokenPriceUsd) / 1000000).toFixed(6)
-    // Remove trailing zeros
-    return price.replace(/\.?0+$/, '')
   }, [tokenPriceUsd])
 
-
-
-  const handleConnect = () => {
+  // Memoized handlers
+  const handleConnect = useCallback(() => {
     setIsModalOpen(true)
-  }
+  }, [])
 
-  const handleMaxClick = async () => {
+  const handleMaxClick = useCallback(async () => {
     if (!address || !ethBalance) return
 
     try {
+      // Check if balance is 0 or very low
+      const balanceInEth = Number(ethBalance.formatted)
+      
+      if (balanceInEth <= 0.001) {
+        // If balance is 0 or very low, set to 0.01 ETH
+        setEthAmount('0.01')
+        await calculateZugAmount('0.01')
+        return
+      }
+
       // Estimate gas for buyTokens function
       const gasEstimate = await publicClient.estimateGas({
         account: address,
@@ -256,25 +190,138 @@ export default function FeaturesCard() {
       // Convert to ETH for display
       const availableEth = Number(availableAmount) / 1e18
       
-      console.log('Gas Estimate:', gasEstimate.toString())
-      console.log('Gas Price:', gasPrice.toString())
-      console.log('Gas Cost:', gasCost.toString())
-      console.log('Available Amount:', availableEth)
+      // Ensure we don't have negative values
+      const finalAmount = Math.max(0, availableEth)
+      
+      // Gas estimation logs (commented for performance)
+      // console.log('Gas Estimate:', gasEstimate.toString())
+      // console.log('Gas Price:', gasPrice.toString())
+      // console.log('Gas Cost:', gasCost.toString())
+      // console.log('Available Amount:', availableEth)
       
       // Set the input value to available amount
-      const availableEthStr = availableEth.toFixed(6)
+      const availableEthStr = finalAmount.toFixed(6)
       setEthAmount(availableEthStr)
       await calculateZugAmount(availableEthStr)
       
     } catch (error) {
-      console.error('Error estimating gas:', error)
-      // Fallback: use 90% of balance
-      const fallbackAmount = Number(ethBalance.formatted) * 0.9
+      // console.error('Error estimating gas:', error)
+      // Fallback: use 90% of balance or 0.01 ETH if balance is too low
+      const balanceInEth = Number(ethBalance.formatted)
+      const fallbackAmount = balanceInEth <= 0.001 ? 0.01 : balanceInEth * 0.9
       const fallbackStr = fallbackAmount.toFixed(6)
       setEthAmount(fallbackStr)
       await calculateZugAmount(fallbackStr)
     }
-  }
+  }, [address, ethBalance, publicClient, calculateZugAmount])
+
+  // Auto-fill MAX amount when wallet connects - optimized with ref
+  const maxClickTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  useEffect(() => {
+    if (isConnected && address && ethBalance) {
+      // Clear any existing timeout
+      if (maxClickTimeoutRef.current) {
+        clearTimeout(maxClickTimeoutRef.current)
+      }
+      
+      maxClickTimeoutRef.current = setTimeout(() => {
+        // Check if balance is 0 or very low
+        const balanceInEth = Number(ethBalance.formatted)
+        
+        if (balanceInEth <= 0.001) {
+          // If balance is 0 or very low, set to 0.01 ETH
+          setEthAmount('0.01')
+          calculateZugAmount('0.01')
+        } else {
+          // Use normal MAX logic
+          handleMaxClick()
+        }
+      }, 1000)
+      
+      return () => {
+        if (maxClickTimeoutRef.current) {
+          clearTimeout(maxClickTimeoutRef.current)
+        }
+      }
+    }
+  }, [isConnected, address, ethBalance, handleMaxClick, calculateZugAmount])
+
+  // Handle contract errors and success with toast
+  useEffect(() => {
+    if (error) {
+      let errorMessage = 'Transaction failed'
+      
+      if (error.message.includes('User rejected')) {
+        errorMessage = 'Transaction was cancelled by user'
+      } else if (error.message.includes('insufficient funds')) {
+        errorMessage = 'Insufficient funds for transaction'
+      } else if (error.message.includes('gas')) {
+        errorMessage = 'Gas estimation failed'
+      }
+      
+      toast.error(errorMessage)
+    }
+  }, [error])
+
+  // Handle successful transaction
+  useEffect(() => {
+    if (!isPending && !error && hasTransactionCompleted) {
+      toast.success(`Successfully bought ${zugAmount} ZUG tokens!`)
+      setHasTransactionCompleted(false) // Reset for next transaction
+    }
+  }, [isPending, error, hasTransactionCompleted, zugAmount])
+
+  // Memoized progress calculation
+  const progressPercentage = useMemo(() => {
+    const targetAmount = 1502850.49
+    return Math.min((currentAmount / targetAmount) * 100, 100)
+  }, [currentAmount])
+
+  // Memoized formatted amounts
+  const formattedCurrentAmount = useMemo(() => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(currentAmount)
+  }, [currentAmount])
+
+  const formattedTargetAmount = useMemo(() => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(1502850.49)
+  }, [])
+
+  // Check if user has sufficient balance
+  const hasSufficientBalance = useMemo(() => {
+    if (!isConnected || !ethBalance || !ethAmount) return false
+    
+    const userBalance = Number(ethBalance.formatted)
+    const requestedAmount = Number(ethAmount)
+    
+    return userBalance >= requestedAmount
+  }, [isConnected, ethBalance, ethAmount])
+
+    // Contract address for reference
+  // console.log('Contract Address:', ZUG_PRESALE_ADDRESS)
+
+
+
+  // Format data for display
+  const formattedPrice = useMemo(() => {
+    console.log('Raw tokenPriceUsd:', tokenPriceUsd)
+    if (!tokenPriceUsd) return '0.00'
+    // Price 6 decimal olarak set edilmiş
+    // 120 = 0.000120 USD (120 / 1,000,000)
+    const price = (Number(tokenPriceUsd) / 1000000).toFixed(6)
+    // Remove trailing zeros
+    return price.replace(/\.?0+$/, '')
+  }, [tokenPriceUsd])
 
   return (
     <>
@@ -301,7 +348,7 @@ export default function FeaturesCard() {
               </h3>
             </div>
             
-            {/* Countdown Timer */}
+            {/* Countdown Timer */} 
             <div className="grid grid-cols-1 mb-6">
               <div className="text-center">
                 <div className="flex justify-center space-x-2 sm:space-x-3">
@@ -336,11 +383,11 @@ export default function FeaturesCard() {
             {/* Progress Bar */}
             <div className="grid grid-cols-1 mb-6">
               <div className="text-center">
-                <div className="text-sm text-gray-300 mb-2">USD Raised: <span className='text-[#D6E14E] lg:text-xl font-bold text-lg'>${currentAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / $1,502,850.49</span> </div>
+                <div className="text-sm text-gray-300 mb-2">USD Raised: <span className='text-[#D6E14E] lg:text-xl font-bold text-lg'>{formattedCurrentAmount} / {formattedTargetAmount}</span> </div>
                 <div className="relative w-full bg-gray-700 rounded-full h-6 mb-2">
                   <div 
                     className="bg-gradient-to-r from-[#D6E14E] to-[#E8F15A] h-6 rounded-full transition-all duration-1000"
-                    style={{ width: `${Math.min((currentAmount / 1502850.49) * 100, 100)}%` }}
+                    style={{ width: `${progressPercentage}%` }}
                   ></div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-xs font-bold text-white drop-shadow-lg">UNTIL PRICE RISE</span>
@@ -391,7 +438,7 @@ export default function FeaturesCard() {
                 <div className="grid grid-cols-2 mb-1 gap-2">
                   <div className="text-sm text-gray-300 font-medium">PAY WITH ETH</div>
                   <div className="text-xs text-gray-400 text-right">
-                    Balance = {ethBalance ? Number(ethBalance.formatted).toFixed(4) : '0.0000'}
+                    Balance = {ethBalance ? Math.max(0, Number(ethBalance.formatted)).toFixed(4) : '0.0000'}
                   </div>
                 </div>
                 
@@ -406,10 +453,14 @@ export default function FeaturesCard() {
                       value={ethAmount}
                       onChange={(e) => {
                         const value = e.target.value
-                        // Prevent negative numbers
-                        if (Number(value) < 0) return
-                        setEthAmount(value)
-                        calculateZugAmount(value)
+                        // Prevent negative numbers and ensure minimum 0
+                        const numValue = Number(value)
+                        if (numValue < 0) return
+                        
+                        // Set to 0 if empty or invalid
+                        const finalValue = isNaN(numValue) ? '0' : value
+                        setEthAmount(finalValue)
+                        calculateZugAmount(finalValue)
                       }}
                       className="w-full bg-gray-700 text-xl font-bold text-white outline-none px-4 py-3 rounded-lg border border-gray-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
@@ -421,9 +472,9 @@ export default function FeaturesCard() {
                   {/* MAX Button positioned at top-right of input card */}
                   <button 
                     onClick={handleMaxClick}
-                    className="absolute  right-40 -mr-10 lg:right-40 -mt-6 lg:-mr-5  text-sm text-[#D6E14E] underline hover:text-[#E8F15A] font-medium"
+                    className="absolute right-40 -mr-10 lg:right-40 -mt-6 lg:-mr-5 text-sm text-[#D6E14E] underline hover:text-[#E8F15A] font-medium"
                   >
-               MAX  
+                    MAX
                   </button>
                 </div>
 
@@ -521,6 +572,11 @@ export default function FeaturesCard() {
                         return
                       }
                       
+                      if (!hasSufficientBalance) {
+                        toast.error('Insufficient balance')
+                        return
+                      }
+                      
                       const ethInWei = BigInt(Math.floor(Number(ethAmount) * 1e18))
                       
                       setHasTransactionCompleted(true) // Mark that we started a transaction
@@ -533,7 +589,7 @@ export default function FeaturesCard() {
                         chainId: 17000, // Holesky testnet
                       })
                     }}
-                    disabled={!ethAmount || Number(ethAmount) === 0 || isPending}
+                    disabled={!ethAmount || Number(ethAmount) === 0 || isPending || !hasSufficientBalance}
                     className="w-full relative overflow-hidden font-semibold text-lg disabled:cursor-not-allowed disabled:opacity-50"
                     style={buttonStyle}
                     onMouseEnter={() => setButtonStyle(glowButtonHoverStyles)}
@@ -541,7 +597,10 @@ export default function FeaturesCard() {
                     onMouseDown={() => setButtonStyle(glowButtonActiveStyles)}
                     onMouseUp={() => setButtonStyle(glowButtonHoverStyles)}
                   >
-                    {isPending ? 'Buying...' : (!ethAmount || Number(ethAmount) === 0) ? 'Enter Amount' : 'Buy ZUG Tokens'}
+                    {isPending ? 'Buying...' : 
+                     !ethAmount || Number(ethAmount) === 0 ? 'Enter Amount' : 
+                     !hasSufficientBalance ? 'Insufficient Balance' : 
+                     'Buy ZUG Tokens'}
                   </button>
                 ) : (
                   /* Switch to Holesky Button - Show when not on Holesky */
@@ -577,4 +636,6 @@ export default function FeaturesCard() {
       />
     </>
   )
-} 
+})
+
+export default FeaturesCard 

@@ -65,6 +65,8 @@ export default function NewsSection() {
                          item.id === 2 ? "Main focus character" : 
                          item.id === 3 ? "Hiring training illustration" : "Fall illustration"}
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
 
@@ -97,18 +99,20 @@ export default function NewsSection() {
            <div className="flex gap-4" style={{ width: 'max-content' }}>
              {newsItems.map((item) => (
                <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-xl border-4 border-[#132a13] w-80 flex-shrink-0">
-                                   {/* Image */}
-                  <div className="h-48 bg-gray-200 flex items-center justify-center border-b-2 border-[#132a13] overflow-hidden">
-                    <img
-                      src={item.id === 1 ? "/GPT_Image_1_Place_this_uploaded_character_in_the_center_of_the_0.png" : 
-                           item.id === 2 ? "/GPT_Image_1_Use_the_uploaded_PNG_character_as_the_main_focus_c_0.png" : 
-                           item.id === 3 ? "/Hiring training.png" : "/Fall illustration.png"}
-                      alt={item.id === 1 ? "Character illustration" : 
-                           item.id === 2 ? "Main focus character" : 
-                           item.id === 3 ? "Hiring training illustration" : "Fall illustration"}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                                                                      {/* Image */}
+                                   <div className="h-48 bg-gray-200 flex items-center justify-center border-b-2 border-[#132a13] overflow-hidden">
+                                     <img
+                                       src={item.id === 1 ? "/GPT_Image_1_Place_this_uploaded_character_in_the_center_of_the_0.png" : 
+                                            item.id === 2 ? "/GPT_Image_1_Use_the_uploaded_PNG_character_as_the_main_focus_c_0.png" : 
+                                            item.id === 3 ? "/Hiring training.png" : "/Fall illustration.png"}
+                                       alt={item.id === 1 ? "Character illustration" : 
+                                            item.id === 2 ? "Main focus character" : 
+                                            item.id === 3 ? "Hiring training illustration" : "Fall illustration"}
+                                       className="w-full h-full object-cover"
+                                       loading="lazy"
+                                       decoding="async"
+                                     />
+                                   </div>
 
                  {/* Content */}
                  <div className="p-6">

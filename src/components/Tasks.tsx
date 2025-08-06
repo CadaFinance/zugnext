@@ -102,15 +102,15 @@ export default function Tasks() {
   useEffect(() => {
     async function checkUserAuth() {
       try {
-        const response = await fetch('/api/auth/check')
+        const response = await fetch('/api/dashboard')
         const data = await response.json()
         
-        if (data.authenticated && data.user) {
-          setUser(data.user)
-          loadUserPoints(data.user.id)
-          if (data.user.tasks) {
+        if (data.user.authenticated && data.user.user) {
+          setUser(data.user.user)
+          loadUserPoints(data.user.user.id)
+          if (data.user.user.tasks) {
             setAllTasksCompleted(true)
-            loadDailyTasks(data.user.id)
+            loadDailyTasks(data.user.user.id)
           }
         }
       } catch (error) {

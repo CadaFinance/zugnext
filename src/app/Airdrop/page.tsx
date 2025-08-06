@@ -4,13 +4,8 @@ import Image from 'next/image';
 import Header from '@/components/Header';
 import Leaderboard from '@/components/Leaderboard';
 import Tasks from '@/components/Tasks';
-import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import PerformanceMonitor from '@/components/PerformanceMonitor';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 
 interface User {
   id: string;
@@ -22,11 +17,22 @@ interface User {
   updated_at: string;
 }
 
+interface MilestoneData {
+  totalUsers: number;
+  targetUsers: number;
+  progressPercentage: number;
+  currentReward: string;
+  nextReward: string;
+  currentTier: string;
+  nextTier: string;
+  totalDistributedReward: string;
+}
+
 export default function MindsharePage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'tasks'>('leaderboard')
-  const [milestoneData, setMilestoneData] = useState({
+  const [milestoneData, setMilestoneData] = useState<MilestoneData>({
     totalUsers: 0,
     targetUsers: 100,
     progressPercentage: 0,
@@ -37,48 +43,57 @@ export default function MindsharePage() {
     totalDistributedReward: '0'
   })
 
-  useEffect(() => {
-    async function checkUserAuth() {
-      try {
-        const response = await fetch('/api/auth/check')
-        const data = await response.json()
-        
-        if (data.authenticated && data.user) {
-          setUser(data.user)
-        }
-      } catch (error) {
-        console.error('Error checking auth:', error)
-      } finally {
-        setLoading(false)
+  // Memoized data loading function
+  const loadDashboardData = useCallback(async () => {
+    try {
+      const response = await fetch('/api/dashboard')
+      const data = await response.json()
+      
+      if (data.user.authenticated && data.user.user) {
+        setUser(data.user.user)
       }
-    }
-
-    async function loadMilestoneData() {
-      try {
-        const response = await fetch('/api/milestone')
-        const data = await response.json()
-        setMilestoneData(data)
-      } catch (error) {
-        console.error('Error loading milestone data:', error)
+      
+      if (data.milestone) {
+        setMilestoneData(data.milestone)
       }
+    } catch (error) {
+      console.error('Error loading dashboard data:', error)
+    } finally {
+      setLoading(false)
     }
-
-    checkUserAuth()
-    loadMilestoneData()
   }, [])
+
+  useEffect(() => {
+    loadDashboardData()
+  }, [loadDashboardData])
 
   const handleConnectTwitter = () => {
     // Redirect to OAuth
     window.location.href = '/api/auth/twitter';
   };
 
-  const copyReferralLink = () => {
-    if (user) {
-      const link = `${window.location.origin}/boost/${user.username}`;
-      navigator.clipboard.writeText(link);
-      alert('Referral link copied!');
+  // Memoized referral link
+  const referralLink = useMemo(() => {
+    if (user && typeof window !== 'undefined') {
+      return `${window.location.origin}/boost/${user.username}`;
     }
-  };
+    return '';
+  }, [user]);
+
+  const copyReferralLink = useCallback(async () => {
+    if (referralLink) {
+      try {
+        await navigator.clipboard.writeText(referralLink);
+        // Use a more modern approach instead of alert
+        const event = new CustomEvent('showToast', { 
+          detail: { message: 'Referral link copied!', type: 'success' } 
+        });
+        window.dispatchEvent(event);
+      } catch (error) {
+        console.error('Failed to copy link:', error);
+      }
+    }
+  }, [referralLink]);
 
   return (
     <div className="bg-white min-h-screen relative">
@@ -264,6 +279,8 @@ export default function MindsharePage() {
                   width={200}
                   height={200}
                   className="object-contain"
+                  priority
+                  loading="eager"
                 />
               </div>
             </div>
@@ -277,22 +294,34 @@ export default function MindsharePage() {
                 <h3 className="text-lg font-bold text-black">Milestone</h3>
               </div>
               
-              {/* Progress Bar */}
-              <div className="w-full bg-gray-200 rounded h-6 mb-4 relative">
-                <div 
-                  className="bg-[#D6E14E] h-6 p-2 rounded"
-                  style={{ width: `${milestoneData.progressPercentage}%` }}
-                >
+              {loading ? (
+                <div className="space-y-4">
+                  <div className="w-full bg-gray-200 rounded h-6 animate-pulse"></div>
+                  <div className="flex justify-between">
+                    <div className="bg-gray-200 animate-pulse h-4 rounded w-20"></div>
+                    <div className="bg-gray-200 animate-pulse h-4 rounded w-24"></div>
+                  </div>
                 </div>
-                <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">
-                  {milestoneData.totalUsers.toLocaleString()}/{milestoneData.targetUsers.toLocaleString()} Users
-                </span>
-              </div>
-              
-              <div className="flex justify-between text-sm font-semibold text-black">
-                <span>{milestoneData.currentReward} $USDZ</span>
-                <span className="bg-[#D6E14E] px-2 py-1 rounded">{milestoneData.nextReward} $USDZ</span>
-              </div>
+              ) : (
+                <>
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded h-6 mb-4 relative">
+                    <div 
+                      className="bg-[#D6E14E] h-6 p-2 rounded"
+                      style={{ width: `${milestoneData.progressPercentage}%` }}
+                    >
+                    </div>
+                    <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-black">
+                      {milestoneData.totalUsers.toLocaleString()}/{milestoneData.targetUsers.toLocaleString()} Users
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between text-sm font-semibold text-black">
+                    <span>{milestoneData.currentReward} $USDZ</span>
+                    <span className="bg-[#D6E14E] px-2 py-1 rounded">{milestoneData.nextReward} $USDZ</span>
+                  </div>
+                </>
+              )}
             </div> 
 
             {/* Invite Friends */}
@@ -303,8 +332,9 @@ export default function MindsharePage() {
               </div>
               
               {loading ? (
-                <div className="bg-gray-200 w-full text-gray-500 px-6 py-3 rounded-lg font-bold">
-                  Loading...
+                <div className="space-y-3">
+                  <div className="bg-gray-200 animate-pulse h-20 rounded-lg"></div>
+                  <div className="bg-gray-200 animate-pulse h-4 rounded w-3/4"></div>
                 </div>
               ) : user ? (
                 <div className="space-y-3">
@@ -313,7 +343,7 @@ export default function MindsharePage() {
                     <div className="flex items-center gap-2">
                       <input
                         type="text"
-                        value={`${typeof window !== 'undefined' ? window.location.origin : ''}/boost/${user.username}`}
+                        value={referralLink}
                         readOnly
                         className="flex-1 bg-black text-white px-3 py-2 rounded text-sm"
                       />
@@ -387,6 +417,13 @@ export default function MindsharePage() {
         </div>
       </div>
 
+      {/* Toast Notification */}
+      <div id="toast" className="fixed top-4 right-4 z-50 hidden">
+        <div className="bg-black text-[#D6E14E] px-4 py-2 rounded-lg shadow-lg">
+          <span id="toast-message"></span>
+        </div>
+      </div>
+
       <style jsx>{`
         @keyframes fade-in {
           from { opacity: 0; transform: translateY(10px); }
@@ -397,6 +434,24 @@ export default function MindsharePage() {
           animation: fade-in 0.3s ease-out;
         }
       `}</style>
+
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          window.addEventListener('showToast', function(event) {
+            const toast = document.getElementById('toast');
+            const message = document.getElementById('toast-message');
+            if (toast && message) {
+              message.textContent = event.detail.message;
+              toast.classList.remove('hidden');
+              setTimeout(() => {
+                toast.classList.add('hidden');
+              }, 3000);
+            }
+          });
+        `
+      }} />
+      
+      <PerformanceMonitor />
     </div>
   );
 } 

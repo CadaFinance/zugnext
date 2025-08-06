@@ -111,7 +111,7 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
     const speed = 50; // pixels per second
 
     const animate = () => {
-      position -= speed / 60; // 60fps
+      position -= speed / 30; // Reduced from 60fps to 30fps for better performance
       
       // Reset position when content has scrolled completely
       const containerWidth = scrollElement.parentElement?.offsetWidth || 0;
@@ -280,7 +280,12 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                   {item.name}
                 </a>
               ) : (
-                <Link key={item.name} href={item.href} className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">
+                <Link 
+                  key={item.name} 
+                  href={item.href} 
+                  className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors"
+                  prefetch={item.href === '/Airdrop' ? false : true}
+                >
                   {item.name}
                 </Link>
               )
@@ -376,6 +381,7 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                       key={item.name}
                       href={item.href}
                       className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                      prefetch={item.href === '/Airdrop' ? false : true}
                     >
                       {item.name}
                     </Link>
