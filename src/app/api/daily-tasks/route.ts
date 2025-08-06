@@ -15,12 +15,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 })
     }
 
-    // Check if user has completed one-time tasks
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('tasks')
-      .eq('id', userId)
-      .single()
+    // Parallel database queries for better performance
+    const [userDataResult, dailyClaimResult] = await Promise.all([
+      // Check if user has completed one-time tasks
+      supabase
+        .from('users')
+        .select('tasks')
+        .eq('id', userId)
+        .single(),
+      
+      // Check if user has claimed daily rewards recently
+      supabase
+        .from('daily_tasks')
+        .select('claimed_at, next_available_at')
+        .eq('user_id', userId)
+        .eq('task_id', 'daily_claim')
+        .single()
+    ])
+
+    const { data: userData, error: userError } = userDataResult
+    const { data: dailyClaim, error: claimError } = dailyClaimResult
 
     if (userError || !userData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
@@ -36,14 +50,6 @@ export async function GET(request: NextRequest) {
         nextReset: ''
       })
     }
-
-    // Check if user has claimed daily rewards recently
-    const { data: dailyClaim, error: claimError } = await supabase
-      .from('daily_tasks')
-      .select('claimed_at, next_available_at')
-      .eq('user_id', userId)
-      .eq('task_id', 'daily_claim')
-      .single()
 
     let isAvailable = true
     let timeRemaining = ''

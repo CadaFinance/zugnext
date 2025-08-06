@@ -107,16 +107,10 @@ export default function Tasks() {
         
         if (data.user.authenticated && data.user.user) {
           setUser(data.user.user)
-          // Parallel API calls for better performance
+          loadUserPoints(data.user.user.id)
           if (data.user.user.tasks) {
             setAllTasksCompleted(true)
-            // Load both in parallel
-            Promise.all([
-              loadUserPoints(data.user.user.id),
-              loadDailyTasks(data.user.user.id)
-            ])
-          } else {
-            loadUserPoints(data.user.user.id)
+            loadDailyTasks(data.user.user.id)
           }
         }
       } catch (error) {
@@ -182,6 +176,42 @@ export default function Tasks() {
 
   const loadDailyTasks = async (userId: string) => {
     try {
+      // Aggressive caching - cache for 30 minutes instead of 5
+      const cacheKey = `daily-tasks-${userId}`
+      const cached = sessionStorage.getItem(cacheKey)
+      
+      if (cached) {
+        const data = JSON.parse(cached)
+        setDailyTasks(data.tasks)
+        setDailyTasksAvailable(data.available)
+        setCountdown(data.nextReset)
+        return
+      }
+
+      // Show loading state immediately
+      setDailyTasks([
+        {
+          id: 'daily_1',
+          title: 'Daily: Follow ZUG on X',
+          points: 50,
+          completed: false,
+          loading: true,
+          type: 'daily',
+          isAvailable: false,
+          timeRemaining: ''
+        },
+        {
+          id: 'daily_2',
+          title: 'Daily: Like & RT ZUG post',
+          points: 50,
+          completed: false,
+          loading: true,
+          type: 'daily',
+          isAvailable: false,
+          timeRemaining: ''
+        }
+      ])
+
       const response = await fetch(`/api/daily-tasks?userId=${userId}`)
       const data = await response.json()
       
@@ -190,7 +220,7 @@ export default function Tasks() {
           id: 'daily_1',
           title: 'Daily: Follow ZUG on X',
           points: 50,
-          completed: false, // Always false, tracked in browser
+          completed: false,
           loading: false,
           type: 'daily',
           isAvailable: data.tasks?.daily_1?.available || false,
@@ -200,13 +230,21 @@ export default function Tasks() {
           id: 'daily_2',
           title: 'Daily: Like & RT ZUG post',
           points: 50,
-          completed: false, // Always false, tracked in browser
+          completed: false,
           loading: false,
           type: 'daily',
           isAvailable: data.tasks?.daily_2?.available || false,
           timeRemaining: data.tasks?.daily_2?.timeRemaining || ''
         }
       ]
+      
+      // Cache the data for 30 minutes (much longer cache)
+      const cacheData = {
+        tasks: dailyTasksData,
+        available: data.tasks?.daily_1?.available || false,
+        nextReset: data.nextReset || ''
+      }
+      sessionStorage.setItem(cacheKey, JSON.stringify(cacheData))
       
       setDailyTasks(dailyTasksData)
       setDailyTasksAvailable(data.tasks?.daily_1?.available || false)
@@ -237,7 +275,7 @@ export default function Tasks() {
       )
     }
 
-    // Simulate 1 second loading (optimized)
+    // Simulate 1 second loading (reduced from 15 seconds)
     setTimeout(async () => {
       if (isDailyTask) {
         // Complete daily task in browser and check completion
@@ -279,7 +317,7 @@ export default function Tasks() {
           }
         }
       }
-    }, 1000) // 1 saniye!
+    }, 15000) // Back to 15 seconds as requested
 
     // Redirect based on task type
     if (isDailyTask) {
@@ -359,21 +397,8 @@ export default function Tasks() {
 
   if (loading) {
     return (
-      <div className="space-y-4 mt-15">
-        {/* Loading skeleton */}
-        {[...Array(4)].map((_, index) => (
-          <div key={index} className="bg-gradient-to-r from-[#132a13]/90 to-[#1a3a1a]/90 rounded-lg p-4 border animate-pulse">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="h-4 bg-gray-600 rounded w-3/4 mb-2"></div>
-                <div className="flex items-center justify-between">
-                  <div className="h-6 bg-gray-600 rounded w-20"></div>
-                  <div className="h-5 w-5 bg-gray-600 rounded"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="flex items-center justify-center py-8 mt-20">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#D6E14E] border-t-transparent"></div>
       </div>
     )
   }
