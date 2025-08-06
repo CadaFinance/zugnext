@@ -420,7 +420,6 @@ export default function Tasks() {
           {/* Daily Tasks Section */}
           <div className="space-y-4">
             <div className="text-center mb-6">
-              <p className="text-black text-sm">Complete daily tasks to earn points</p>
               {countdown && (
                 <p className="text-gray-400 text-sm mt-2">Next reset:  <span className='text-gray-800 font-bold text-lg'>{countdown}</span> </p>
               )}
@@ -507,15 +506,12 @@ export default function Tasks() {
         <div className="space-y-6 mt-15">
           {/* One-time Tasks Section */}
           <div className="space-y-4">
-            <div className="text-center mb-6">
-             
-              <p className="text-black text-sm">Complete tasks to unlock daily tasks</p>
-            </div>
+            
 
             {/* Tasks List */}
             <div className="space-y-4">
               {tasks.map((task) => (
-                <div 
+                <div  
                   key={task.id}
                   className={`bg-gradient-to-r from-[#132a13]/90 to-[#1a3a1a]/90 rounded-lg p-4 border cursor-pointer transition-all duration-200 hover:border-[#D6E14E]/40 ${
                     task.completed 
