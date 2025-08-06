@@ -319,9 +319,9 @@ export default function Tasks() {
         <div className="space-y-4">
           <div className="text-center mb-6">
             <h3 className="text-xl font-bold text-white mb-2">Daily Tasks</h3>
-            <p className="text-gray-400 text-sm">Complete these tasks daily to earn points</p>
+            <p className="text-gray-400 text-sm">Complete daily tasks to earn extra points</p>
             {countdown && (
-              <p className="text-[#D6E14E] text-sm mt-2">Next reset: {countdown}</p>
+              <p className="text-gray-400 text-sm mt-2">Next reset: <span className="text-[#D6E14E] font-bold text-lg">{countdown}</span></p>
             )}
           </div>
 
