@@ -43,7 +43,12 @@ export async function POST(request: NextRequest) {
       const now = new Date()
       
       if (nextAvailable > now) {
-        return NextResponse.json({ error: 'Daily tasks not available yet' }, { status: 400 })
+        const diff = nextAvailable.getTime() - now.getTime()
+        const hours = Math.floor(diff / (1000 * 60 * 60))
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+        return NextResponse.json({ 
+          error: `Daily tasks not available yet. Try again in ${hours}h ${minutes}m` 
+        }, { status: 400 })
       }
     }
 

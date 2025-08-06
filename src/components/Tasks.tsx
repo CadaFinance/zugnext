@@ -179,15 +179,22 @@ export default function Tasks() {
           )
         )
         
-        // Check if both daily tasks are completed
-        const updatedDailyTasks = dailyTasks.map(task => 
-          task.id === taskId 
-            ? { ...task, completed: true, loading: false }
-            : task
-        )
-        
-        const allDailyCompleted = updatedDailyTasks.every(task => task.completed)
-        setDailyTasksCompleted(allDailyCompleted)
+                 // Check if both daily tasks are completed
+         const updatedDailyTasks = dailyTasks.map(task => 
+           task.id === taskId 
+             ? { ...task, completed: true, loading: false }
+             : task
+         )
+         
+         const allDailyCompleted = updatedDailyTasks.every(task => task.completed)
+         setDailyTasksCompleted(allDailyCompleted)
+         
+         // Update dailyTasks state with the new completed task
+         setDailyTasks(updatedDailyTasks)
+         
+         // Debug log
+         console.log('Daily tasks completed:', allDailyCompleted)
+         console.log('Updated tasks:', updatedDailyTasks)
       } else {
         setTasks(prevTasks => 
           prevTasks.map(task => 
@@ -265,15 +272,19 @@ export default function Tasks() {
         })
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        // Update local state
-        setUserPoints(prev => prev + data.points)
-        setDailyTasksCompleted(false)
-        // Reload daily tasks to reset them
-        loadDailyTasks(user.id)
-        alert(`Daily rewards claimed! ${data.points} points added to your account.`)
-      }
+             if (response.ok) {
+         const data = await response.json()
+         // Update local state
+         setUserPoints(prev => prev + data.points)
+         setDailyTasksCompleted(false)
+         // Reset daily tasks to not completed
+         setDailyTasks(prevTasks => 
+           prevTasks.map(task => ({ ...task, completed: false }))
+         )
+         // Reload daily tasks to check availability
+         loadDailyTasks(user.id)
+         alert(`Daily rewards claimed! ${data.points} points added to your account.`)
+       }
     } catch (error) {
       console.error('Error claiming daily rewards:', error)
     }
@@ -380,7 +391,7 @@ export default function Tasks() {
 
           {/* Daily Claim Button */}
           <div className="text-center mt-8">
-            {dailyTasksCompleted && dailyTasksAvailable ? (
+            {dailyTasksCompleted ? (
               <button
                 onClick={handleClaimDailyRewards}
                 className="bg-[#D6E14E] text-black font-bold py-3 px-8 rounded-lg hover:bg-[#b8c93e] transition-all duration-300 transform hover:scale-105"
@@ -395,6 +406,11 @@ export default function Tasks() {
                 Complete Daily Tasks First ({dailyTasks.filter(t => t.completed).length}/2)
               </button>
             )}
+            {/* Debug info */}
+            <div className="text-xs text-gray-500 mt-2">
+              Debug: dailyTasksCompleted={dailyTasksCompleted.toString()}, 
+              completedTasks={dailyTasks.filter(t => t.completed).length}/2
+            </div>
           </div>
         </div>
       </div>
