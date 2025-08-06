@@ -239,7 +239,7 @@ export default function BitcoinLayer2() {
                       <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                       <h3 className="text-xl font-bold text-black mb-3">STEP 3</h3>
                       <p className="text-sm text-gray-700 leading-relaxed">
-                        Choose the amount of $ZUG you want to buy and confirm the transaction in your wallet. To stake at the same time, select the Buy and Stake option.
+                        Choose the amount of $ZUG you want to buy and confirm the transaction in your wallet. 
                       </p>
                     </div>
                   </div>
