@@ -1,22 +1,14 @@
--- Daily Tasks Schema
--- This table tracks daily task completion and cooldown periods
+-- Update existing daily_tasks table with RLS policies
+-- This script should be run after the table already exists
 
-CREATE TABLE public.daily_tasks (
-  id uuid NOT NULL DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL,
-  task_id text NOT NULL, -- 'daily_1', 'daily_2' etc.
-  completed_at timestamp with time zone DEFAULT now(),
-  claimed_at timestamp with time zone DEFAULT now(),
-  next_available_at timestamp with time zone DEFAULT (now() + interval '24 hours'),
-  created_at timestamp with time zone DEFAULT now(),
-  updated_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT daily_tasks_pkey PRIMARY KEY (id),
-  CONSTRAINT daily_tasks_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
-  CONSTRAINT daily_tasks_unique_user_task UNIQUE (user_id, task_id)
-);
-
--- Enable RLS (Row Level Security)
+-- Enable RLS (Row Level Security) on existing table
 ALTER TABLE public.daily_tasks ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (to avoid conflicts)
+DROP POLICY IF EXISTS "Users can view their own daily tasks" ON public.daily_tasks;
+DROP POLICY IF EXISTS "Users can insert their own daily tasks" ON public.daily_tasks;
+DROP POLICY IF EXISTS "Users can update their own daily tasks" ON public.daily_tasks;
+DROP POLICY IF EXISTS "Service role can manage all daily tasks" ON public.daily_tasks;
 
 -- Create RLS policies
 -- Policy for users to read their own daily tasks
@@ -35,9 +27,25 @@ CREATE POLICY "Users can update their own daily tasks" ON public.daily_tasks
 CREATE POLICY "Service role can manage all daily tasks" ON public.daily_tasks
   FOR ALL USING (auth.role() = 'service_role');
 
--- Index for faster queries
-CREATE INDEX idx_daily_tasks_user_id ON public.daily_tasks(user_id);
-CREATE INDEX idx_daily_tasks_next_available ON public.daily_tasks(next_available_at);
+-- Add unique constraint if it doesn't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints 
+        WHERE constraint_name = 'daily_tasks_unique_user_task'
+    ) THEN
+        ALTER TABLE public.daily_tasks ADD CONSTRAINT daily_tasks_unique_user_task UNIQUE (user_id, task_id);
+    END IF;
+END $$;
+
+-- Create indexes if they don't exist
+CREATE INDEX IF NOT EXISTS idx_daily_tasks_user_id ON public.daily_tasks(user_id);
+CREATE INDEX IF NOT EXISTS idx_daily_tasks_next_available ON public.daily_tasks(next_available_at);
+
+-- Drop existing functions if they exist
+DROP FUNCTION IF EXISTS check_daily_tasks_available(uuid);
+DROP FUNCTION IF EXISTS complete_daily_task(uuid, text);
+DROP FUNCTION IF EXISTS claim_daily_rewards(uuid);
 
 -- Function to check if daily tasks are available
 CREATE OR REPLACE FUNCTION check_daily_tasks_available(user_uuid uuid)

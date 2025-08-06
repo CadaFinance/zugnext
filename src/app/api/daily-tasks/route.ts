@@ -37,6 +37,41 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    // Initialize daily tasks for user if they don't exist
+    const { data: existingTasks, error: checkError } = await supabase
+      .from('daily_tasks')
+      .select('task_id')
+      .eq('user_id', userId)
+      .in('task_id', ['daily_1', 'daily_2'])
+
+    if (checkError) {
+      console.error('Error checking existing daily tasks:', checkError)
+      return NextResponse.json({ error: 'Failed to check daily tasks' }, { status: 500 })
+    }
+
+    // If daily tasks don't exist, create them with 24 hour cooldown
+    if (!existingTasks || existingTasks.length === 0) {
+      const { error: insertError } = await supabase
+        .from('daily_tasks')
+        .insert([
+          {
+            user_id: userId,
+            task_id: 'daily_1',
+            next_available_at: new Date().toISOString()
+          },
+          {
+            user_id: userId,
+            task_id: 'daily_2',
+            next_available_at: new Date().toISOString()
+          }
+        ])
+
+      if (insertError) {
+        console.error('Error creating daily tasks:', insertError)
+        return NextResponse.json({ error: 'Failed to create daily tasks' }, { status: 500 })
+      }
+    }
+
     // Get daily tasks status
     const { data: dailyTasks, error: dailyError } = await supabase
       .rpc('check_daily_tasks_available', { user_uuid: userId })

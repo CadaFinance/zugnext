@@ -222,6 +222,10 @@ export default function Tasks() {
         const allCompleted = updatedTasks.every(task => task.completed)
         if (allCompleted) {
           setAllTasksCompleted(true)
+          // Load daily tasks when one-time tasks are completed
+          if (user) {
+            loadDailyTasks(user.id)
+          }
         }
       }
     }, 15000)
@@ -253,6 +257,8 @@ export default function Tasks() {
         // Update local state
         setUserPoints(prev => prev + 650)
         setAllTasksCompleted(true)
+        // Load daily tasks after claiming rewards
+        loadDailyTasks(user.id)
         alert('Tasks completed! 650 points added to your account.')
       }
     } catch (error) {

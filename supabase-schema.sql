@@ -1,6 +1,18 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+CREATE TABLE public.daily_tasks (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  task_id text NOT NULL,
+  completed_at timestamp with time zone DEFAULT now(),
+  claimed_at timestamp with time zone DEFAULT now(),
+  next_available_at timestamp with time zone DEFAULT (now() + '24:00:00'::interval),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT daily_tasks_pkey PRIMARY KEY (id),
+  CONSTRAINT daily_tasks_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
 CREATE TABLE public.user_points (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid,
