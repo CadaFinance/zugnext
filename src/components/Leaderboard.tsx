@@ -86,45 +86,38 @@ export default function Leaderboard() {
         }
         
         // Get leaderboard data
-        const leaderboardResponse = await fetch('/api/leaderboard');
+        const leaderboardResponse = await fetch(`/api/leaderboard${currentUser?.id ? `?userId=${currentUser.id}` : ''}`);
         const leaderboardData = await leaderboardResponse.json();
         
+        console.log('API Response:', leaderboardData); // Debug log
+        
+        // Check if API returned error
+        if (leaderboardData.error) {
+          console.error('API Error:', leaderboardData.error);
+          return;
+        }
+        
         // Transform data to match our interface and add tier rewards
-        const transformedData = leaderboardData.leaderboard.map((user: { 
-          rank: number; 
-          display_name: string; 
-          username: string; 
-          totalPoints: number; 
-          totalUsda: string; 
-          profile_image_url: string; 
-          id: string; 
-        }) => {
+        const transformedData = leaderboardData.leaderboard.map((user: any) => {
           // Calculate tier rewards based on rank
           const { additionalUsda } = calculateTierRewards(user.rank)
           
           // Add tier rewards only to USDA (not points)
-          const totalUsdaWithTier = parseFloat(user.totalUsda) + additionalUsda
+          const totalUsdaWithTier = parseFloat(user.totalUsda || '0') + additionalUsda
           
           return {
             rank: user.rank,
             user: user.display_name || user.username,
             handle: `@${user.username}`,
-            points: user.totalPoints, // Keep original points
+            points: user.totalPoints || 0, // Keep original points
             usda: totalUsdaWithTier.toFixed(2),
             profileImage: user.profile_image_url,
             id: user.id,
-            isCurrentUser: currentUser?.id === user.id
+            isCurrentUser: user.isCurrentUser || false
           }
         });
         
-        // Sort data to put current user at the top
-        const sortedData = transformedData.sort((a: LeaderboardEntry, b: LeaderboardEntry) => {
-          if (a.isCurrentUser && !b.isCurrentUser) return -1;
-          if (!a.isCurrentUser && b.isCurrentUser) return 1;
-          return a.rank - b.rank;
-        });
-        
-        setLeaderboardData(sortedData);
+        setLeaderboardData(transformedData);
               } catch (error) {
           console.error('Error loading data:', error);
         }
