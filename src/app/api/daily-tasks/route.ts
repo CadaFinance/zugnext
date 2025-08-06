@@ -63,7 +63,8 @@ export async function GET(request: NextRequest) {
         const diff = nextAvailable.getTime() - now.getTime()
         const hours = Math.floor(diff / (1000 * 60 * 60))
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-        timeRemaining = `${hours}h ${minutes}m`
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+        timeRemaining = `${hours}h ${minutes}m ${seconds}s`
       }
     }
 
@@ -72,7 +73,8 @@ export async function GET(request: NextRequest) {
         daily_1: { available: isAvailable, completed: false, timeRemaining },
         daily_2: { available: isAvailable, completed: false, timeRemaining }
       },
-      nextReset: timeRemaining
+      nextReset: timeRemaining,
+      nextResetTime: dailyClaim?.next_available_at || null
     })
 
   } catch (error) {
