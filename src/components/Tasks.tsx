@@ -391,17 +391,7 @@ export default function Tasks() {
             )}
            
           </div>
-          <div className="bg-gradient-to-r from-[#132a13]/80 to-[#1a3a1a]/80 rounded-xl p-6 border border-[#D6E14E]/30">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-[#D6E14E]/20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-[#D6E14E]">
-              <svg className="w-8 h-8 text-[#D6E14E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-[#D6E14E] mb-2">One-time Tasks Completed!</h3>
-            <p className="text-gray-400">You have successfully completed all one-time tasks.</p>
-          </div>
-        </div>
+       
         </div>
       </div>
     )
