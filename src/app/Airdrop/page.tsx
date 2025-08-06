@@ -110,7 +110,7 @@ export default function MindsharePage() {
 
       <Header fullWidth={true} showOnlyX={true}  />
       
-      <div className="relative z-10 mx-auto px-2 min-h-screen lg:px-8 lg:py-40 py-30 w-full">
+      <div className="relative z-10 mx-auto px-2 min-h-screen lg:px-8 lg:py-35 py-30 w-full">
         {/* Main Content - Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Left Column - Reward Tiers with Bento Grid (80% width) */}
