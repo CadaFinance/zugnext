@@ -52,18 +52,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Insert or update daily claim record
-    const { error: insertError } = await supabase
+    // Update existing daily_claim record or insert if doesn't exist
+    const { error: upsertError } = await supabase
       .from('daily_tasks')
       .upsert({
         user_id: userId,
         task_id: 'daily_claim',
         claimed_at: new Date().toISOString(),
         next_available_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
+      }, {
+        onConflict: 'user_id,task_id'
       })
 
-    if (insertError) {
-      console.error('Error claiming daily rewards:', insertError)
+    if (upsertError) {
+      console.error('Error claiming daily rewards:', upsertError)
       return NextResponse.json({ error: 'Failed to claim daily rewards' }, { status: 500 })
     }
 
