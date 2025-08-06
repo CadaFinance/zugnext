@@ -376,13 +376,13 @@ export default function Tasks() {
   return (
     <>
       {allTasksCompleted ? (
-        <div className="space-y-6 mt-10">
+        <div className="space-y-6 mt-15">
           {/* Daily Tasks Section */}
           <div className="space-y-4">
             <div className="text-center mb-6">
               <p className="text-black text-sm">Complete daily tasks to earn points</p>
               {countdown && (
-                <p className="text-gray-400 text-sm mt-2"> <span className='text-gray-800 font-bold text-lg'>Next reset:</span> {countdown}</p>
+                <p className="text-gray-400 text-sm mt-2">Next reset:  <span className='text-gray-800 font-bold text-lg'>{countdown}</span> </p>
               )}
             </div>
 
@@ -464,7 +464,7 @@ export default function Tasks() {
           </div>
         </div>
       ) : (
-        <div className="space-y-6 mt-10">
+        <div className="space-y-6 mt-15">
           {/* One-time Tasks Section */}
           <div className="space-y-4">
             <div className="text-center mb-6">
