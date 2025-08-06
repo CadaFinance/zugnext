@@ -93,7 +93,6 @@ export default function Tasks() {
   const [dailyTasksCompleted, setDailyTasksCompleted] = useState(false)
   const [countdown, setCountdown] = useState<string>('')
   const [dailyTasksAvailable, setDailyTasksAvailable] = useState(true)
-  const [nextResetTime, setNextResetTime] = useState<Date | null>(null)
   
   // Modal state
   const [showSuccessModal, setShowSuccessModal] = useState(false)
@@ -124,42 +123,6 @@ export default function Tasks() {
     checkUserAuth()
     loadTasks()
   }, [])
-
-  // Countdown timer effect
-  useEffect(() => {
-    if (!nextResetTime) return
-
-    const updateCountdown = () => {
-      const now = new Date()
-      const diff = nextResetTime.getTime() - now.getTime()
-      
-      if (diff <= 0) {
-        setCountdown('')
-        setDailyTasksAvailable(true)
-        setNextResetTime(null)
-        // Reload daily tasks when countdown reaches zero
-        if (user) {
-          const cacheKey = `daily-tasks-${user.id}`
-          sessionStorage.removeItem(cacheKey)
-          loadDailyTasks(user.id)
-        }
-        return
-      }
-
-      const hours = Math.floor(diff / (1000 * 60 * 60))
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
-      setCountdown(`${hours}h ${minutes}m ${seconds}s`)
-    }
-
-    // Update immediately
-    updateCountdown()
-
-    // Set up interval to update every second
-    const interval = setInterval(updateCountdown, 1000)
-
-    return () => clearInterval(interval)
-  }, [nextResetTime, user])
 
   const loadUserPoints = async (userId: string) => {
     try {
@@ -222,11 +185,6 @@ export default function Tasks() {
         setDailyTasks(data.tasks)
         setDailyTasksAvailable(data.available)
         setCountdown(data.nextReset)
-        if (data.nextResetTime && !data.available) {
-          setNextResetTime(new Date(data.nextResetTime))
-        } else {
-          setNextResetTime(null)
-        }
         return
       }
 
@@ -284,21 +242,13 @@ export default function Tasks() {
       const cacheData = {
         tasks: dailyTasksData,
         available: data.tasks?.daily_1?.available || false,
-        nextReset: data.nextReset || '',
-        nextResetTime: data.nextResetTime || null
+        nextReset: data.nextReset || ''
       }
       sessionStorage.setItem(cacheKey, JSON.stringify(cacheData))
       
       setDailyTasks(dailyTasksData)
       setDailyTasksAvailable(data.tasks?.daily_1?.available || false)
       setCountdown(data.nextReset || '')
-      
-      // Parse next reset time for countdown timer
-      if (data.nextResetTime && !data.tasks?.daily_1?.available) {
-        setNextResetTime(new Date(data.nextResetTime))
-      } else {
-        setNextResetTime(null)
-      }
     } catch (error) {
       console.error('Error loading daily tasks:', error)
     }
@@ -482,7 +432,7 @@ export default function Tasks() {
           <div className="space-y-4">
             <div className="text-center mb-6">
               {countdown && (
-                <p className="text-gray-400 text-sm mt-2">Next reset: <span className='text-gray-800 font-bold text-lg'>{countdown}</span></p>
+                <p className="text-gray-400 text-sm mt-2">Next reset:  <span className='text-gray-800 font-bold text-lg'>{countdown}</span> </p>
               )}
             </div>
 
