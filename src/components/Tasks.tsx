@@ -167,34 +167,27 @@ export default function Tasks() {
       )
     }
 
-    // Simulate 15 second loading
+    // Simulate 3 second loading (for testing)
     setTimeout(async () => {
       if (isDailyTask) {
-        // Complete daily task in browser
-        setDailyTasks(prevTasks => 
-          prevTasks.map(task => 
+        // Complete daily task in browser and check completion
+        setDailyTasks(prevTasks => {
+          const updatedTasks = prevTasks.map(task => 
             task.id === taskId 
               ? { ...task, completed: true, loading: false }
               : task
           )
-        )
-        
-                 // Check if both daily tasks are completed
-         const updatedDailyTasks = dailyTasks.map(task => 
-           task.id === taskId 
-             ? { ...task, completed: true, loading: false }
-             : task
-         )
-         
-         const allDailyCompleted = updatedDailyTasks.every(task => task.completed)
-         setDailyTasksCompleted(allDailyCompleted)
-         
-         // Update dailyTasks state with the new completed task
-         setDailyTasks(updatedDailyTasks)
-         
-         // Debug log
-         console.log('Daily tasks completed:', allDailyCompleted)
-         console.log('Updated tasks:', updatedDailyTasks)
+          
+          // Check if both daily tasks are completed
+          const allDailyCompleted = updatedTasks.every(task => task.completed)
+          setDailyTasksCompleted(allDailyCompleted)
+          
+          // Debug log
+          console.log('Daily tasks completed:', allDailyCompleted)
+          console.log('Updated tasks:', updatedTasks)
+          
+          return updatedTasks
+        })
       } else {
         setTasks(prevTasks => 
           prevTasks.map(task => 
