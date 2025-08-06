@@ -309,9 +309,9 @@ export default function Tasks() {
         <div className="space-y-4">
           <div className="text-center mb-6">
             <h3 className="text-xl font-bold text-white mb-2">Daily Tasks</h3>
-            <p className="text-gray-400 text-sm">Complete daily tasks to earn extra points</p>
+            <p className="text-black text-sm">Complete daily tasks to earn extra points</p>
             {countdown && (
-              <p className="text-gray-400 text-sm mt-2">Next reset: <span className="text-[#D6E14E] font-bold text-lg">{countdown}</span></p>
+              <p className="text-black text-sm mt-2">Next reset: <span className="text-[#D6E14E] font-bold text-lg">{countdown}</span></p>
             )}
           </div>
 
@@ -377,14 +377,14 @@ export default function Tasks() {
             {dailyTasksCompleted ? (
               <button
                 onClick={handleClaimDailyRewards}
-                className="bg-[#D6E14E] text-black font-bold py-3 px-8 rounded-lg hover:bg-[#b8c93e] transition-all duration-300 transform hover:scale-105"
+                className="bg-[#D6E14E] text-black sm:w-full font-bold py-3 px-8 rounded-lg  transition-all duration-300 transform hover:scale-105"
               >
                 Claim Daily Rewards (100 pts)
               </button>
             ) : (
               <button
                 disabled
-                className="bg-gray-600 text-gray-400 font-bold py-3 px-8 rounded-lg cursor-not-allowed"
+                className="bg-gray-600 sm:w-full text-gray-400 font-bold py-3 px-8 rounded-lg cursor-not-allowed"
               >
                 Complete Daily Tasks First ({dailyTasks.filter(t => t.completed).length}/2)
               </button>
