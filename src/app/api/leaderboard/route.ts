@@ -6,12 +6,36 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// TypeScript interfaces
+interface LeaderboardUser {
+  id: string
+  twitter_id: string
+  username: string
+  display_name: string | null
+  profile_image_url: string | null
+  total_points: number
+  total_usda: number
+  rank: number
+  is_current_user?: boolean
+}
+
+interface TransformedLeaderboardUser {
+  rank: number
+  display_name: string
+  username: string
+  totalPoints: number
+  totalUsda: string
+  profile_image_url: string | null
+  id: string
+  isCurrentUser: boolean
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId')
 
-    let leaderboardData
+    let leaderboardData: TransformedLeaderboardUser[]
 
     if (userId) {
       // User is logged in - get top 100 + current user
@@ -34,7 +58,7 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })
         }
 
-        leaderboardData = top100Data.map((user: any) => ({
+        leaderboardData = (top100Data as LeaderboardUser[]).map((user: LeaderboardUser) => ({
           rank: user.rank,
           display_name: user.display_name || user.username,
           username: user.username,
@@ -46,7 +70,7 @@ export async function GET(request: NextRequest) {
         }))
       } else {
         // Transform data for logged in user
-        leaderboardData = data.map((user: any) => ({
+        leaderboardData = (data as LeaderboardUser[]).map((user: LeaderboardUser) => ({
           rank: user.rank,
           display_name: user.display_name || user.username,
           username: user.username,
@@ -54,7 +78,7 @@ export async function GET(request: NextRequest) {
           totalUsda: user.total_usda.toFixed(2),
           profile_image_url: user.profile_image_url,
           id: user.id,
-          isCurrentUser: user.is_current_user
+          isCurrentUser: user.is_current_user || false
         }))
       }
     } else {
@@ -70,7 +94,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })
       }
 
-      leaderboardData = data.map((user: any) => ({
+      leaderboardData = (data as LeaderboardUser[]).map((user: LeaderboardUser) => ({
         rank: user.rank,
         display_name: user.display_name || user.username,
         username: user.username,

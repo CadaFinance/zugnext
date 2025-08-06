@@ -98,12 +98,25 @@ export default function Leaderboard() {
         }
         
         // Transform data to match our interface and add tier rewards
-        const transformedData = leaderboardData.leaderboard.map((user: any) => {
+        const transformedData = leaderboardData.leaderboard.map((user: {
+          rank: number
+          display_name: string
+          username: string
+          totalPoints: number
+          totalUsda: string
+          profile_image_url: string | null
+          id: string
+          isCurrentUser: boolean
+        }) => {
           // Calculate tier rewards based on rank
           const { additionalUsda } = calculateTierRewards(user.rank)
           
-          // Add tier rewards only to USDA (not points)
-          const totalUsdaWithTier = parseFloat(user.totalUsda || '0') + additionalUsda
+          // Calculate USDA from points (0.0025 conversion rate)
+          const pointsToUsda = (user.totalPoints || 0) * 0.0025
+          
+          // Calculate total USDA: Base + Points Conversion + Tier Rewards
+          const baseUsda = parseFloat(user.totalUsda || '0')
+          const totalUsdaWithTier = baseUsda + pointsToUsda + additionalUsda
           
           return {
             rank: user.rank,
