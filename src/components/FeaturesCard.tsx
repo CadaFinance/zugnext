@@ -104,6 +104,7 @@ const FeaturesCard = memo(function FeaturesCard() {
   const [zugAmount, setZugAmount] = useState('0')
   const [buttonStyle, setButtonStyle] = useState(glowButtonStyles)
   const [hasTransactionCompleted, setHasTransactionCompleted] = useState(false)
+  const [showPriceInfo, setShowPriceInfo] = useState(false)
   const { address, isConnected, chainId } = useAccount()
   const { switchChain } = useSwitchChain()
   
@@ -293,8 +294,8 @@ const FeaturesCard = memo(function FeaturesCard() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(currentAmount)
   }, [currentAmount])
 
@@ -302,8 +303,8 @@ const FeaturesCard = memo(function FeaturesCard() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(1502850.49)
   }, [])
 
@@ -494,10 +495,15 @@ const FeaturesCard = memo(function FeaturesCard() {
                   <div className="text-sm text-gray-300 font-medium">RECEIVE ZUG</div>
                   <div className="text-sm font-bold text-right relative group">
                     <span className="text-white">1 ZUG = ${formattedPrice} USD</span>
-                    <span className="ml-1 text-[#D6E14E] cursor-help">ⓘ</span>
+                    <button 
+                      onClick={() => setShowPriceInfo(!showPriceInfo)}
+                      className="ml-1 text-[#D6E14E] cursor-help hover:text-[#E8F15A] transition-colors"
+                    >
+                      ⓘ
+                    </button>
                   
-                  {/* Tooltip */}
-                  <div className="absolute right-0 bottom-full mb-2 w-64 bg-gray-900 border border-[#D6E14E]/30 rounded-lg p-3 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus:opacity-100 group-focus:visible transition-all duration-200 z-50">
+                  {/* Desktop Tooltip */}
+                  <div className="absolute right-0 bottom-full mb-2 w-64 bg-gray-900 border border-[#D6E14E]/30 rounded-lg p-3 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus:opacity-100 group-focus:visible transition-all duration-200 z-50 hidden md:block">
                     <div className="text-xs text-gray-300 mb-2 text-left">Future Stage Prices:</div>
                     <div className="flex flex-col gap-1 text-xs text-left">
                       <div className="grid grid-cols-2 gap-1">
@@ -532,6 +538,43 @@ const FeaturesCard = memo(function FeaturesCard() {
                   </div>
                 </div>
                 </div>
+                
+                {/* Mobile Price Info Dropdown */}
+                {showPriceInfo && (
+                  <div className="md:hidden mt-2 bg-gray-900 border border-[#D6E14E]/30 rounded-lg p-3">
+                    <div className="text-xs text-gray-300 mb-2 text-left">Future Stage Prices:</div>
+                    <div className="flex flex-col gap-1 text-xs text-left">
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 1: <span className="text-[#D6E14E]">$0.00012</span></div>
+                        <div className="text-white">Stage 8: <span className="text-[#D6E14E]">$0.008</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 2: <span className="text-[#D6E14E]">$0.00024</span></div>
+                        <div className="text-white">Stage 9: <span className="text-[#D6E14E]">$0.01</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 3: <span className="text-[#D6E14E]">$0.00048</span></div>
+                        <div className="text-white">Stage 10: <span className="text-[#D6E14E]">$0.02</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 4: <span className="text-[#D6E14E]">$0.00096</span></div>
+                        <div className="text-white">Stage 11: <span className="text-[#D6E14E]">$0.04</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 5: <span className="text-[#D6E14E]">$0.001</span></div>
+                        <div className="text-white">Stage 12: <span className="text-[#D6E14E]">$0.08</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 6: <span className="text-[#D6E14E]">$0.002</span></div>
+                        <div className="text-white">Stage 13: <span className="text-[#D6E14E]">$0.1</span></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className="text-white">Stage 7: <span className="text-[#D6E14E]">$0.004</span></div>
+                        <div className="text-white">Stage 14: <span className="text-[#D6E14E]">$0.2</span></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 {/* ZUG Input Field with ZUG logo inside */}
                 <div className="grid grid-cols-1 gap-3">
