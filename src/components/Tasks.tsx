@@ -290,6 +290,12 @@ export default function Tasks() {
           const allDailyCompleted = updatedTasks.every(task => task.completed)
           setDailyTasksCompleted(allDailyCompleted)
           
+          // Clear cache when daily tasks are completed to ensure fresh data
+          if (user) {
+            const cacheKey = `daily-tasks-${user.id}`
+            sessionStorage.removeItem(cacheKey)
+          }
+          
           return updatedTasks
         })
       } else {
@@ -378,6 +384,11 @@ export default function Tasks() {
         // Update local state
         setUserPoints(prev => prev + data.points)
         setDailyTasksCompleted(false)
+        
+        // Clear the cache to force fresh data
+        const cacheKey = `daily-tasks-${user.id}`
+        sessionStorage.removeItem(cacheKey)
+        
         // Reset daily tasks to not completed
         setDailyTasks(prevTasks => 
           prevTasks.map(task => ({ ...task, completed: false }))
