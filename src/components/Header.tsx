@@ -13,6 +13,7 @@ const navigation = [
   { name: 'FAQ', href: '/#faq' },
   { name: 'ABOUT', href: '/#about' },
   { name: 'AIRDROP', href: '/Airdrop' },
+  { name: 'WHITEPAPER', href: '/zugwhitepaper.pdf', external: true },
 ]
 
 interface HeaderProps {
@@ -268,9 +269,21 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
           </div>
           <div className="hidden lg:flex lg:gap-x-8">
             {navigation.map((item) => (
-              <Link key={item.name} href={item.href} className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">
-                {item.name}
-              </Link>
+              item.external ? (
+                <a 
+                  key={item.name} 
+                  href={item.href} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors"
+                >
+                  {item.name}
+                </a>
+              ) : (
+                <Link key={item.name} href={item.href} className="text-sm font-semibold text-gray-900 hover:text-gray-600 transition-colors">
+                  {item.name}
+                </Link>
+              )
             ))}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-3">
@@ -348,13 +361,25 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
             <div className="-my-6 divide-y divide-gray-500/10">
               <div className="space-y-2 py-6">
                 {navigation.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                  >
-                    {item.name}
-                  </Link>
+                  item.external ? (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                    >
+                      {item.name}
+                    </a>
+                  ) : (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                    >
+                      {item.name}
+                    </Link>
+                  )
                 ))}
               </div>
               <div className="py-6 space-y-3">

@@ -8,6 +8,9 @@ interface Task {
   points: number
   completed: boolean
   loading: boolean
+  type?: 'one_time' | 'daily'
+  timeRemaining?: string
+  isAvailable?: boolean
 }
 
 interface User {
@@ -25,8 +28,11 @@ export default function Tasks() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [tasks, setTasks] = useState<Task[]>([])
+  const [dailyTasks, setDailyTasks] = useState<Task[]>([])
   const [userPoints, setUserPoints] = useState(0)
   const [allTasksCompleted, setAllTasksCompleted] = useState(false)
+  const [dailyTasksCompleted, setDailyTasksCompleted] = useState(false)
+  const [countdown, setCountdown] = useState<string>('')
 
   useEffect(() => {
     async function checkUserAuth() {
@@ -39,6 +45,7 @@ export default function Tasks() {
           loadUserPoints(data.user.id)
           if (data.user.tasks) {
             setAllTasksCompleted(true)
+            loadDailyTasks(data.user.id)
           }
         }
       } catch (error) {
@@ -71,67 +78,160 @@ export default function Tasks() {
         title: 'Follow X',
         points: 150,
         completed: false,
-        loading: false
+        loading: false,
+        type: 'one_time'
       },
       {
         id: '2',
         title: 'Like & RT',
         points: 150,
         completed: false,
-        loading: false
+        loading: false,
+        type: 'one_time'
       },
       {
         id: '3',
         title: 'Share your invite link',
         points: 150,
         completed: false,
-        loading: false
+        loading: false,
+        type: 'one_time'
       },
       {
         id: '4',
         title: 'Add "ZUG" to X name & ref links to bio',
         points: 200,
         completed: false,
-        loading: false
+        loading: false,
+        type: 'one_time'
       }
     ]
     setTasks(mockTasks)
   }
 
-  const handleTaskClick = async (taskId: string) => {
-    setTasks(prevTasks => 
-      prevTasks.map(task => 
-        task.id === taskId 
-          ? { ...task, loading: true }
-          : task
-      )
-    )
+  const loadDailyTasks = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/daily-tasks?userId=${userId}`)
+      const data = await response.json()
+      
+      const dailyTasksData: Task[] = [
+        {
+          id: 'daily_1',
+          title: 'Daily: Follow ZUG on X',
+          points: 50,
+          completed: data.tasks?.daily_1?.completed || false,
+          loading: false,
+          type: 'daily',
+          isAvailable: data.tasks?.daily_1?.available || false,
+          timeRemaining: data.tasks?.daily_1?.timeRemaining || ''
+        },
+        {
+          id: 'daily_2',
+          title: 'Daily: Like & RT ZUG post',
+          points: 50,
+          completed: data.tasks?.daily_2?.completed || false,
+          loading: false,
+          type: 'daily',
+          isAvailable: data.tasks?.daily_2?.available || false,
+          timeRemaining: data.tasks?.daily_2?.timeRemaining || ''
+        }
+      ]
+      
+      setDailyTasks(dailyTasksData)
+      setDailyTasksCompleted(dailyTasksData.every(task => task.completed))
+      setCountdown(data.nextReset || '')
+    } catch (error) {
+      console.error('Error loading daily tasks:', error)
+    }
+  }
 
-    // Simulate 15 second loading
-    setTimeout(() => {
+  const handleTaskClick = async (taskId: string) => {
+    const isDailyTask = taskId.startsWith('daily_')
+    
+    if (isDailyTask) {
+      setDailyTasks(prevTasks => 
+        prevTasks.map(task => 
+          task.id === taskId 
+            ? { ...task, loading: true }
+            : task
+        )
+      )
+    } else {
       setTasks(prevTasks => 
         prevTasks.map(task => 
+          task.id === taskId 
+            ? { ...task, loading: true }
+            : task
+        )
+      )
+    }
+
+    // Simulate 15 second loading
+    setTimeout(async () => {
+      if (isDailyTask) {
+        // Complete daily task via API
+        try {
+          const response = await fetch('/api/daily-tasks/complete', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: user?.id,
+              taskId: taskId
+            })
+          })
+
+          if (response.ok) {
+            setDailyTasks(prevTasks => 
+              prevTasks.map(task => 
+                task.id === taskId 
+                  ? { ...task, completed: true, loading: false }
+                  : task
+              )
+            )
+            
+            const updatedDailyTasks = dailyTasks.map(task => 
+              task.id === taskId 
+                ? { ...task, completed: true, loading: false }
+                : task
+            )
+            
+            const allDailyCompleted = updatedDailyTasks.every(task => task.completed)
+            setDailyTasksCompleted(allDailyCompleted)
+          }
+        } catch (error) {
+          console.error('Error completing daily task:', error)
+        }
+      } else {
+        setTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.id === taskId 
+              ? { ...task, completed: true, loading: false }
+              : task
+          )
+        )
+
+        // Check if all one-time tasks are completed
+        const updatedTasks = tasks.map(task => 
           task.id === taskId 
             ? { ...task, completed: true, loading: false }
             : task
         )
-      )
-
-      // Check if all tasks are completed
-      const updatedTasks = tasks.map(task => 
-        task.id === taskId 
-          ? { ...task, completed: true, loading: false }
-          : task
-      )
-      
-      const allCompleted = updatedTasks.every(task => task.completed)
-      if (allCompleted) {
-        setAllTasksCompleted(true)
+        
+        const allCompleted = updatedTasks.every(task => task.completed)
+        if (allCompleted) {
+          setAllTasksCompleted(true)
+        }
       }
     }, 15000)
 
-    // Redirect to X profile settings
-    window.open('https://x.com/settings/profile', '_blank')
+    // Redirect based on task type
+    if (isDailyTask) {
+      window.open('https://x.com/ZUG_Official', '_blank')
+    } else {
+      window.open('https://x.com/settings/profile', '_blank')
+    }
   }
 
   const handleClaimRewards = async () => {
@@ -160,6 +260,34 @@ export default function Tasks() {
     }
   }
 
+  const handleClaimDailyRewards = async () => {
+    if (!user) return
+
+    try {
+      const response = await fetch('/api/daily-tasks/claim', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        // Update local state
+        setUserPoints(prev => prev + data.points)
+        setDailyTasksCompleted(false)
+        // Reload daily tasks to reset them
+        loadDailyTasks(user.id)
+        alert(`Daily rewards claimed! ${data.points} points added to your account.`)
+      }
+    } catch (error) {
+      console.error('Error claiming daily rewards:', error)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8 mt-20">
@@ -179,6 +307,7 @@ export default function Tasks() {
   if (allTasksCompleted) {
     return (
       <div className="space-y-6 mt-20">
+        {/* One-time tasks completed message */}
         <div className="bg-gradient-to-r from-[#132a13]/80 to-[#1a3a1a]/80 rounded-xl p-6 border border-[#D6E14E]/30">
           <div className="text-center">
             <div className="w-16 h-16 bg-[#D6E14E]/20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-[#D6E14E]">
@@ -186,8 +315,95 @@ export default function Tasks() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="text-2xl font-bold text-[#D6E14E] mb-2">All Tasks Completed!</h3>
-            <p className="text-gray-400">You have successfully completed all tasks.</p>
+            <h3 className="text-2xl font-bold text-[#D6E14E] mb-2">One-time Tasks Completed!</h3>
+            <p className="text-gray-400">You have successfully completed all one-time tasks.</p>
+          </div>
+        </div>
+
+        {/* Daily Tasks Section */}
+        <div className="space-y-4">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-bold text-white mb-2">Daily Tasks</h3>
+            <p className="text-gray-400 text-sm">Complete these tasks daily to earn points</p>
+            {countdown && (
+              <p className="text-[#D6E14E] text-sm mt-2">Next reset: {countdown}</p>
+            )}
+          </div>
+
+          {/* Daily Tasks List */}
+          <div className="space-y-4">
+            {dailyTasks.map((task) => (
+              <div 
+                key={task.id}
+                className={`bg-gradient-to-r from-[#132a13]/90 to-[#1a3a1a]/90 rounded-lg p-4 border transition-all duration-200 ${
+                  task.completed 
+                    ? 'border-[#D6E14E]/50 bg-[#D6E14E]/10' 
+                    : task.isAvailable
+                    ? 'border-[#D6E14E]/20 cursor-pointer hover:border-[#D6E14E]/40'
+                    : 'border-gray-600/30 opacity-50 cursor-not-allowed'
+                }`}
+                onClick={() => task.isAvailable && !task.completed && !task.loading && handleTaskClick(task.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center mb-2">
+                      <h4 className={`font-semibold ${task.completed ? 'text-[#D6E14E]' : 'text-white'}`}>
+                        {task.title}
+                      </h4>
+                      {!task.isAvailable && task.timeRemaining && (
+                        <span className="ml-2 text-xs text-gray-400">
+                          ({task.timeRemaining})
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="bg-[#D6E14E]/20 px-3 py-1 rounded-lg">
+                        <span className="text-[#D6E14E] font-bold text-sm">{task.points} Points</span>
+                      </div>
+                      <div className="flex items-center">
+                        {task.completed && (
+                          <svg className="w-5 h-5 text-[#D6E14E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                        {task.loading && (
+                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#D6E14E] border-t-transparent"></div>
+                        )}
+                        {!task.completed && !task.loading && task.isAvailable && (
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        )}
+                        {!task.completed && !task.loading && !task.isAvailable && (
+                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Daily Claim Button */}
+          <div className="text-center mt-8">
+            {dailyTasksCompleted ? (
+              <button
+                onClick={handleClaimDailyRewards}
+                className="bg-[#D6E14E] text-black font-bold py-3 px-8 rounded-lg hover:bg-[#b8c93e] transition-all duration-300 transform hover:scale-105"
+              >
+                Claim Daily Rewards (100 pts)
+              </button>
+            ) : (
+              <button
+                disabled
+                className="bg-gray-600 text-gray-400 font-bold py-3 px-8 rounded-lg cursor-not-allowed"
+              >
+                Complete Daily Tasks First ({dailyTasks.filter(t => t.completed).length}/2)
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -198,68 +414,76 @@ export default function Tasks() {
 
   return (
     <div className="space-y-6 mt-20">
-      {/* Tasks List */}
+      {/* One-time Tasks Section */}
       <div className="space-y-4">
-        {tasks.map((task) => (
-          <div 
-            key={task.id}
-            className={`bg-gradient-to-r from-[#132a13]/90 to-[#1a3a1a]/90 rounded-lg p-4 border cursor-pointer transition-all duration-200 hover:border-[#D6E14E]/40 ${
-              task.completed 
-                ? 'border-[#D6E14E]/50 bg-[#D6E14E]/10' 
-                : 'border-[#D6E14E]/20'
-            }`}
-            onClick={() => !task.completed && !task.loading && handleTaskClick(task.id)}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center mb-2">
-                  <h4 className={`font-semibold ${task.completed ? 'text-[#D6E14E]' : 'text-white'}`}>
-                    {task.title}
-                  </h4>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="bg-[#D6E14E]/20 px-3 py-1 rounded-lg">
-                    <span className="text-[#D6E14E] font-bold text-sm">{task.points} Point</span>
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-bold text-white mb-2">One-time Tasks</h3>
+          <p className="text-gray-400 text-sm">Complete these tasks to unlock daily tasks</p>
+        </div>
+
+        {/* Tasks List */}
+        <div className="space-y-4">
+          {tasks.map((task) => (
+            <div 
+              key={task.id}
+              className={`bg-gradient-to-r from-[#132a13]/90 to-[#1a3a1a]/90 rounded-lg p-4 border cursor-pointer transition-all duration-200 hover:border-[#D6E14E]/40 ${
+                task.completed 
+                  ? 'border-[#D6E14E]/50 bg-[#D6E14E]/10' 
+                  : 'border-[#D6E14E]/20'
+              }`}
+              onClick={() => !task.completed && !task.loading && handleTaskClick(task.id)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center mb-2">
+                    <h4 className={`font-semibold ${task.completed ? 'text-[#D6E14E]' : 'text-white'}`}>
+                      {task.title}
+                    </h4>
                   </div>
-                  <div className="flex items-center">
-                    {task.completed && (
-                      <svg className="w-5 h-5 text-[#D6E14E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                    {task.loading && (
-                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#D6E14E] border-t-transparent"></div>
-                    )}
-                    {!task.completed && !task.loading && (
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    )}
+                  <div className="flex items-center justify-between">
+                    <div className="bg-[#D6E14E]/20 px-3 py-1 rounded-lg">
+                      <span className="text-[#D6E14E] font-bold text-sm">{task.points} Points</span>
+                    </div>
+                    <div className="flex items-center">
+                      {task.completed && (
+                        <svg className="w-5 h-5 text-[#D6E14E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                      {task.loading && (
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#D6E14E] border-t-transparent"></div>
+                      )}
+                      {!task.completed && !task.loading && (
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Claim Button */}
-      <div className="text-center mt-8">
-        {completedTasks.length === 4 ? (
-          <button
-            onClick={handleClaimRewards}
-            className="bg-[#D6E14E] text-black font-bold py-3 px-8 rounded-lg hover:bg-[#b8c93e] transition-all duration-300 transform hover:scale-105"
-          >
-            Claim Rewards (650 pts)
-          </button>
-        ) : (
-          <button
-            disabled
-            className="bg-gray-600 text-gray-400 font-bold py-3 px-8 rounded-lg cursor-not-allowed"
-          >
-            Complete Tasks First ({completedTasks.length}/4)
-          </button>
-        )}
+        {/* Claim Button */}
+        <div className="text-center mt-8">
+          {completedTasks.length === 4 ? (
+            <button
+              onClick={handleClaimRewards}
+              className="bg-[#D6E14E] text-black font-bold py-3 px-8 rounded-lg hover:bg-[#b8c93e] transition-all duration-300 transform hover:scale-105"
+            >
+              Claim Rewards (650 pts)
+            </button>
+          ) : (
+            <button
+              disabled
+              className="bg-gray-600 text-gray-400 font-bold py-3 px-8 rounded-lg cursor-not-allowed"
+            >
+              Complete Tasks First ({completedTasks.length}/4)
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

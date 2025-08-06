@@ -120,9 +120,14 @@ export default function Tokenomics() {
                />
                {/* Call to Action */}
                <div className="text-center mt-6">
-                 <button className="bg-[#132a13] text-white px-8 py-3 rounded-lg font-bold text-lg mb-4  transition-colors">
+                 <a 
+                   href="/zugwhitepaper.pdf" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   className="bg-[#132a13] text-white px-8 py-3 rounded-lg font-bold text-lg mb-4 transition-colors hover:bg-[#1a1a1a] inline-block"
+                 >
                    READ WHITEPAPER
-                 </button>
+                 </a>
                  <p className="text-black text-sm">
                    Full breakdown of how $ZUG works
                  </p>
@@ -174,9 +179,14 @@ export default function Tokenomics() {
 
            {/* Button at bottom */}
            <div className="text-center">
-             <button className="bg-[#132a13] text-white px-8 py-3 rounded-lg font-bold text-lg mb-4 ">
+             <a 
+               href="/zugwhitepaper.pdf" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               className="bg-[#132a13] text-white px-8 py-3 rounded-lg font-bold text-lg mb-4 hover:bg-[#1a1a1a] inline-block"
+             >
                READ WHITEPAPER
-             </button>
+             </a>
              <p className="text-black text-sm">
                Full breakdown of how $ZUG works
              </p>

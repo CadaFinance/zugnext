@@ -98,9 +98,14 @@ export default function BitcoinLayer2() {
 
         {/* Read Whitepaper Button */}
         <div className="text-center -mb-10">
-          <button className="bg-[#D6E14E]  text-black px-8 py-3 rounded-lg font-semibold transition-colors">
+          <a 
+            href="/zugwhitepaper.pdf" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="bg-[#D6E14E] text-black px-8 py-3 rounded-lg font-semibold transition-colors hover:bg-[#E8F15A] inline-block"
+          >
             READ WHITEPAPER
-          </button>
+          </a>
           <p className="text-gray-600 mt-2 text-sm">
             Full breakdown of how $ZUG works
           </p>
@@ -139,7 +144,7 @@ export default function BitcoinLayer2() {
                 <p className="text-lg text-black font-medium ">
                 A Secure and Innovative Layer 2 Solution                </p>
                 <div className="flex justify-center pt-4">
-                  <button className="bg-[#FCFA9C] text-black px-6 py-3 rounded-lg font-bold text-base hover:bg-gray-800 transition-colors">
+                  <button className="bg-[#FCFA9C] text-black px-6 py-3 rounded-lg font-bold text-base  transition-colors">
                     PRESALE IS LIVE
                   </button>
                 </div>
