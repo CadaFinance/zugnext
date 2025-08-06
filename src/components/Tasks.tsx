@@ -7,7 +7,7 @@ interface Task {
   title: string
   points: number
   completed: boolean
-  loading: boolean
+  loading: boolean 
   type?: 'one_time' | 'daily'
   timeRemaining?: string
   isAvailable?: boolean
@@ -51,8 +51,8 @@ function SuccessModal({ isOpen, onClose, points, type }: SuccessModalProps) {
           
           <p className="text-gray-300 mb-6">
             {type === 'daily' 
-              ? 'You&apos;ve successfully completed your daily tasks!'
-              : 'You&apos;ve successfully completed all one-time tasks!'
+              ? 'You have successfully completed your daily tasks!'
+              : 'You have successfully completed all one-time tasks!'
             }
           </p>
         </div>
@@ -277,7 +277,7 @@ export default function Tasks() {
           }
         }
       }
-    }, 3000)
+    }, 15000)
 
     // Redirect based on task type
     if (isDailyTask) {
@@ -376,13 +376,13 @@ export default function Tasks() {
   return (
     <>
       {allTasksCompleted ? (
-        <div className="space-y-6 mt-20">
+        <div className="space-y-6 mt-10">
           {/* Daily Tasks Section */}
           <div className="space-y-4">
             <div className="text-center mb-6">
-              <p className="text-gray-400 text-sm">Complete daily tasks to earn points</p>
+              <p className="text-black text-sm">Complete daily tasks to earn points</p>
               {countdown && (
-                <p className="text-gray-800 text-sm mt-2">Next reset: {countdown}</p>
+                <p className="text-gray-400 text-sm mt-2"> <span className='text-gray-800 font-bold text-lg'>Next reset:</span> {countdown}</p>
               )}
             </div>
 
@@ -464,12 +464,12 @@ export default function Tasks() {
           </div>
         </div>
       ) : (
-        <div className="space-y-6 mt-20">
+        <div className="space-y-6 mt-10">
           {/* One-time Tasks Section */}
           <div className="space-y-4">
             <div className="text-center mb-6">
              
-              <p className="text-gray-400 text-sm">Complete tasks to unlock daily tasks</p>
+              <p className="text-black text-sm">Complete tasks to unlock daily tasks</p>
             </div>
 
             {/* Tasks List */}
