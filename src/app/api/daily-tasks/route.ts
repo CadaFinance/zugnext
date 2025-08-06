@@ -57,11 +57,13 @@ export async function GET(request: NextRequest) {
           {
             user_id: userId,
             task_id: 'daily_1',
+            completed_at: null, // Explicitly set to null
             next_available_at: new Date().toISOString()
           },
           {
             user_id: userId,
             task_id: 'daily_2',
+            completed_at: null, // Explicitly set to null
             next_available_at: new Date().toISOString()
           }
         ])
