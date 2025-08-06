@@ -30,116 +30,47 @@ export async function GET(request: NextRequest) {
     if (!userData.tasks) {
       return NextResponse.json({
         tasks: {
-          daily_1: { available: false, completed: false, timeRemaining: '' },
-          daily_2: { available: false, completed: false, timeRemaining: '' }
+          daily_1: { available: true, completed: false, timeRemaining: '' },
+          daily_2: { available: true, completed: false, timeRemaining: '' }
         },
         nextReset: ''
       })
     }
 
-    // Initialize daily tasks for user if they don't exist
-    const { data: existingTasks, error: checkError } = await supabase
+    // Check if user has claimed daily rewards recently
+    const { data: dailyClaim, error: claimError } = await supabase
       .from('daily_tasks')
-      .select('task_id')
+      .select('claimed_at, next_available_at')
       .eq('user_id', userId)
-      .in('task_id', ['daily_1', 'daily_2'])
+      .eq('task_id', 'daily_claim')
+      .single()
 
-    if (checkError) {
-      console.error('Error checking existing daily tasks:', checkError)
-      return NextResponse.json({ error: 'Failed to check daily tasks' }, { status: 500 })
-    }
+    let isAvailable = true
+    let timeRemaining = ''
 
-    // If daily tasks don't exist, create them with 24 hour cooldown
-    if (!existingTasks || existingTasks.length === 0) {
-      const { error: insertError } = await supabase
-        .from('daily_tasks')
-        .insert([
-          {
-            user_id: userId,
-            task_id: 'daily_1',
-            completed_at: null, // Explicitly set to null
-            next_available_at: new Date().toISOString()
-          },
-          {
-            user_id: userId,
-            task_id: 'daily_2',
-            completed_at: null, // Explicitly set to null
-            next_available_at: new Date().toISOString()
-          }
-        ])
-
-      if (insertError) {
-        console.error('Error creating daily tasks:', insertError)
-        return NextResponse.json({ error: 'Failed to create daily tasks' }, { status: 500 })
+    if (dailyClaim && dailyClaim.claimed_at) {
+      const nextAvailable = new Date(dailyClaim.next_available_at)
+      const now = new Date()
+      
+      if (nextAvailable > now) {
+        isAvailable = false
+        const diff = nextAvailable.getTime() - now.getTime()
+        const hours = Math.floor(diff / (1000 * 60 * 60))
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+        timeRemaining = `${hours}h ${minutes}m`
       }
     }
-
-    // Get daily tasks status
-    const { data: dailyTasks, error: dailyError } = await supabase
-      .rpc('check_daily_tasks_available', { user_uuid: userId })
-
-    if (dailyError) {
-      console.error('Error fetching daily tasks:', dailyError)
-      return NextResponse.json({ error: 'Failed to fetch daily tasks' }, { status: 500 })
-    }
-
-    // Format the response
-    const tasks = {
-      daily_1: {
-        available: false,
-        completed: false,
-        timeRemaining: ''
-      },
-      daily_2: {
-        available: false,
-        completed: false,
-        timeRemaining: ''
-      }
-    }
-
-    let nextReset = ''
-
-    dailyTasks.forEach((task: { task_id: string; is_available: boolean; is_completed: boolean; time_remaining: string | null }) => {
-      if (task.task_id === 'daily_1') {
-        tasks.daily_1 = {
-          available: task.is_available,
-          completed: task.is_completed,
-          timeRemaining: task.time_remaining ? formatInterval(task.time_remaining) : ''
-        }
-      } else if (task.task_id === 'daily_2') {
-        tasks.daily_2 = {
-          available: task.is_available,
-          completed: task.is_completed,
-          timeRemaining: task.time_remaining ? formatInterval(task.time_remaining) : ''
-        }
-      }
-
-      if (task.time_remaining && task.time_remaining !== '0') {
-        nextReset = formatInterval(task.time_remaining)
-      }
-    })
 
     return NextResponse.json({
-      tasks,
-      nextReset
+      tasks: {
+        daily_1: { available: isAvailable, completed: false, timeRemaining },
+        daily_2: { available: isAvailable, completed: false, timeRemaining }
+      },
+      nextReset: timeRemaining
     })
 
   } catch (error) {
     console.error('Error in daily tasks API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
-}
-
-function formatInterval(interval: string): string {
-  // Parse PostgreSQL interval format and convert to readable format
-  const hours = Math.floor(parseInt(interval.split(':')[0]) || 0)
-  const minutes = Math.floor(parseInt(interval.split(':')[1]) || 0)
-  
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`
-  } else if (minutes > 0) {
-    return `${minutes}m`
-  } else {
-    return 'Ready'
   }
 } 

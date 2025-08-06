@@ -33,6 +33,7 @@ export default function Tasks() {
   const [allTasksCompleted, setAllTasksCompleted] = useState(false)
   const [dailyTasksCompleted, setDailyTasksCompleted] = useState(false)
   const [countdown, setCountdown] = useState<string>('')
+  const [dailyTasksAvailable, setDailyTasksAvailable] = useState(true)
 
   useEffect(() => {
     async function checkUserAuth() {
@@ -119,7 +120,7 @@ export default function Tasks() {
           id: 'daily_1',
           title: 'Daily: Follow ZUG on X',
           points: 50,
-          completed: data.tasks?.daily_1?.completed || false,
+          completed: false, // Always false, tracked in browser
           loading: false,
           type: 'daily',
           isAvailable: data.tasks?.daily_1?.available || false,
@@ -129,7 +130,7 @@ export default function Tasks() {
           id: 'daily_2',
           title: 'Daily: Like & RT ZUG post',
           points: 50,
-          completed: data.tasks?.daily_2?.completed || false,
+          completed: false, // Always false, tracked in browser
           loading: false,
           type: 'daily',
           isAvailable: data.tasks?.daily_2?.available || false,
@@ -138,7 +139,7 @@ export default function Tasks() {
       ]
       
       setDailyTasks(dailyTasksData)
-      setDailyTasksCompleted(dailyTasksData.every(task => task.completed))
+      setDailyTasksAvailable(data.tasks?.daily_1?.available || false)
       setCountdown(data.nextReset || '')
     } catch (error) {
       console.error('Error loading daily tasks:', error)
@@ -169,40 +170,24 @@ export default function Tasks() {
     // Simulate 15 second loading
     setTimeout(async () => {
       if (isDailyTask) {
-        // Complete daily task via API
-        try {
-          const response = await fetch('/api/daily-tasks/complete', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              userId: user?.id,
-              taskId: taskId
-            })
-          })
-
-          if (response.ok) {
-            setDailyTasks(prevTasks => 
-              prevTasks.map(task => 
-                task.id === taskId 
-                  ? { ...task, completed: true, loading: false }
-                  : task
-              )
-            )
-            
-            const updatedDailyTasks = dailyTasks.map(task => 
-              task.id === taskId 
-                ? { ...task, completed: true, loading: false }
-                : task
-            )
-            
-            const allDailyCompleted = updatedDailyTasks.every(task => task.completed)
-            setDailyTasksCompleted(allDailyCompleted)
-          }
-        } catch (error) {
-          console.error('Error completing daily task:', error)
-        }
+        // Complete daily task in browser
+        setDailyTasks(prevTasks => 
+          prevTasks.map(task => 
+            task.id === taskId 
+              ? { ...task, completed: true, loading: false }
+              : task
+          )
+        )
+        
+        // Check if both daily tasks are completed
+        const updatedDailyTasks = dailyTasks.map(task => 
+          task.id === taskId 
+            ? { ...task, completed: true, loading: false }
+            : task
+        )
+        
+        const allDailyCompleted = updatedDailyTasks.every(task => task.completed)
+        setDailyTasksCompleted(allDailyCompleted)
       } else {
         setTasks(prevTasks => 
           prevTasks.map(task => 
@@ -344,11 +329,11 @@ export default function Tasks() {
                 className={`bg-gradient-to-r from-[#132a13]/90 to-[#1a3a1a]/90 rounded-lg p-4 border transition-all duration-200 ${
                   task.completed 
                     ? 'border-[#D6E14E]/50 bg-[#D6E14E]/10' 
-                    : task.isAvailable
+                    : dailyTasksAvailable
                     ? 'border-[#D6E14E]/20 cursor-pointer hover:border-[#D6E14E]/40'
                     : 'border-gray-600/30 opacity-50 cursor-not-allowed'
                 }`}
-                onClick={() => task.isAvailable && !task.completed && !task.loading && handleTaskClick(task.id)}
+                onClick={() => dailyTasksAvailable && !task.completed && !task.loading && handleTaskClick(task.id)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -375,12 +360,12 @@ export default function Tasks() {
                         {task.loading && (
                           <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#D6E14E] border-t-transparent"></div>
                         )}
-                        {!task.completed && !task.loading && task.isAvailable && (
+                        {!task.completed && !task.loading && dailyTasksAvailable && (
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
                         )}
-                        {!task.completed && !task.loading && !task.isAvailable && (
+                        {!task.completed && !task.loading && !dailyTasksAvailable && (
                           <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
@@ -395,7 +380,7 @@ export default function Tasks() {
 
           {/* Daily Claim Button */}
           <div className="text-center mt-8">
-            {dailyTasksCompleted ? (
+            {dailyTasksCompleted && dailyTasksAvailable ? (
               <button
                 onClick={handleClaimDailyRewards}
                 className="bg-[#D6E14E] text-black font-bold py-3 px-8 rounded-lg hover:bg-[#b8c93e] transition-all duration-300 transform hover:scale-105"

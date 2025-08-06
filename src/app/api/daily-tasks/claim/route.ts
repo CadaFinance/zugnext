@@ -30,36 +30,56 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Complete one-time tasks first' }, { status: 403 })
     }
 
-    // Check if both daily tasks are completed
-    const { data: dailyTasks, error: dailyError } = await supabase
+    // Check if daily tasks are available (not claimed recently)
+    const { data: dailyClaim, error: dailyError } = await supabase
       .from('daily_tasks')
-      .select('task_id, completed_at, claimed_at')
+      .select('claimed_at, next_available_at')
       .eq('user_id', userId)
-      .in('task_id', ['daily_1', 'daily_2'])
+      .eq('task_id', 'daily_claim')
+      .single()
 
-    if (dailyError) {
-      console.error('Error checking daily tasks:', dailyError)
-      return NextResponse.json({ error: 'Failed to check daily tasks' }, { status: 500 })
+    if (dailyClaim && dailyClaim.claimed_at) {
+      const nextAvailable = new Date(dailyClaim.next_available_at)
+      const now = new Date()
+      
+      if (nextAvailable > now) {
+        return NextResponse.json({ error: 'Daily tasks not available yet' }, { status: 400 })
+      }
     }
 
-    const completedTasks = dailyTasks.filter(task => task.completed_at && !task.claimed_at)
-    
-    if (completedTasks.length < 2) {
-      return NextResponse.json({ error: 'Complete both daily tasks first' }, { status: 400 })
-    }
+    // Insert or update daily claim record
+    const { error: insertError } = await supabase
+      .from('daily_tasks')
+      .upsert({
+        user_id: userId,
+        task_id: 'daily_claim',
+        claimed_at: new Date().toISOString(),
+        next_available_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
+      })
 
-    // Claim daily rewards
-    const { data: claimData, error: claimError } = await supabase
-      .rpc('claim_daily_rewards', { user_uuid: userId })
-
-    if (claimError) {
-      console.error('Error claiming daily rewards:', claimError)
+    if (insertError) {
+      console.error('Error claiming daily rewards:', insertError)
       return NextResponse.json({ error: 'Failed to claim daily rewards' }, { status: 500 })
+    }
+
+    // Add points to user
+    const { error: pointsError } = await supabase
+      .from('user_points')
+      .insert({
+        user_id: userId,
+        points: 100,
+        usda_amount: 0,
+        source: 'daily_tasks'
+      })
+
+    if (pointsError) {
+      console.error('Error adding points:', pointsError)
+      return NextResponse.json({ error: 'Failed to add points' }, { status: 500 })
     }
 
     return NextResponse.json({ 
       success: true, 
-      points: claimData 
+      points: 100 
     })
 
   } catch (error) {
