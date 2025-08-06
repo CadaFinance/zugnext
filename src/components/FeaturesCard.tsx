@@ -39,8 +39,8 @@ const glowButtonActiveStyles = {
   boxShadow: '0 0 0.6em .25em var(--glow-color), 0 0 2.5em 2em var(--glow-spread-color), inset 0 0 .5em .25em var(--glow-color)'
 } as React.CSSProperties
 
-const ZUG_PRESALE_ADDRESS = '0x3B9ec42CE1D4B820Bfa0090101b8d5263FeB9dec'
-const ZUG_TOKEN_ADDRESS = '0xF8c4C4f266e5fF52b89d347Bb6A941b1dFf0fb03'
+const ZUG_PRESALE_ADDRESS = '0x1CA4a1029356540fb66f62403289bCB6804f352F'
+const ZUG_TOKEN_ADDRESS = '0xF5C0A842DCdd43b3A23e06EB6e49bAaE9B92b248'
 
 // Memoized countdown calculation
 const useCountdown = () => {
@@ -115,23 +115,69 @@ const FeaturesCard = memo(function FeaturesCard() {
     address: ZUG_PRESALE_ADDRESS as `0x${string}`,
     abi: ZUGPresaleABI.abi,
     functionName: 'tokenPriceUsd',
-    chainId: 17000,
+    chainId: 1,
   })
 
   // Memoized balance reads - only when connected
   const { data: ethBalance } = useBalance({
     address: address,
-    chainId: 17000,
+    chainId: 1,
   })
 
   const { data: zugBalance } = useBalance({
     address: address,
     token: ZUG_TOKEN_ADDRESS as `0x${string}`,
-    chainId: 17000,
+    chainId: 1,
   })
 
   const publicClient = usePublicClient()
   const { writeContract, isPending, error } = useWriteContract()
+
+  // ETH/USD price from Chainlink
+  const [ethUsdPrice, setEthUsdPrice] = useState<number>(0)
+  const [isLoadingPrice, setIsLoadingPrice] = useState(false)
+
+  // Fetch ETH/USD price from Chainlink
+  useEffect(() => {
+    const fetchEthPrice = async () => {
+      setIsLoadingPrice(true)
+      try {
+        const response = await publicClient.readContract({
+          address: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419' as `0x${string}`, // Chainlink ETH/USD Price Feed
+          abi: [
+            {
+              "inputs": [],
+              "name": "latestRoundData",
+              "outputs": [
+                { "internalType": "uint80", "name": "roundId", "type": "uint80" },
+                { "internalType": "int256", "name": "answer", "type": "int256" },
+                { "internalType": "uint256", "name": "startedAt", "type": "uint256" },
+                { "internalType": "uint256", "name": "updatedAt", "type": "uint256" },
+                { "internalType": "uint80", "name": "answeredInRound", "type": "uint80" }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            }
+          ],
+          functionName: 'latestRoundData',
+        })
+        
+        // Convert from 8 decimal places to USD
+        const ethPrice = Number(response[1]) / 1e8
+        setEthUsdPrice(ethPrice)
+      } catch (error) {
+        console.error('Error fetching ETH price:', error)
+        setEthUsdPrice(3000) // Fallback price
+      } finally {
+        setIsLoadingPrice(false)
+      }
+    }
+
+    fetchEthPrice()
+    // Refresh price every 30 seconds
+    const interval = setInterval(fetchEthPrice, 30000)
+    return () => clearInterval(interval)
+  }, [publicClient])
 
   // Memoized calculation function
   const calculateZugAmount = useCallback(async (ethValue: string) => {
@@ -141,15 +187,25 @@ const FeaturesCard = memo(function FeaturesCard() {
     }
 
     try {
-      const ethAmount = Math.max(0, parseFloat(ethValue)) // Ensure non-negative
-      const tokenPrice = tokenPriceUsd ? Number(tokenPriceUsd) / 1e8 : 0.012525
-      const zugAmount = ethAmount / tokenPrice
-      setZugAmount(Math.max(0, zugAmount).toFixed(0)) // Ensure non-negative result
+      // Calculate USD value of ETH
+      const ethAmount = parseFloat(ethValue)
+      const usdValue = ethAmount * ethUsdPrice
+      
+      // Calculate ZUG tokens based on USD value and token price
+      const zugTokenPriceUsd = tokenPriceUsd ? Number(tokenPriceUsd) / 1e18 : 0.000120 // 18 decimal places
+      const zugAmount = usdValue / zugTokenPriceUsd
+      
+      const finalAmount = Math.max(0, zugAmount)
+      if (isNaN(finalAmount)) {
+        setZugAmount('0')
+      } else {
+        setZugAmount(finalAmount.toFixed(0))
+      }
     } catch (error) {
       // console.error('Error calculating ZUG amount:', error)
       setZugAmount('0')
     }
-  }, [tokenPriceUsd])
+  }, [ethUsdPrice, tokenPriceUsd])
 
   // Memoized handlers
   const handleConnect = useCallback(() => {
@@ -160,16 +216,6 @@ const FeaturesCard = memo(function FeaturesCard() {
     if (!address || !ethBalance) return
 
     try {
-      // Check if balance is 0 or very low
-      const balanceInEth = Number(ethBalance.formatted)
-      
-      if (balanceInEth <= 0.001) {
-        // If balance is 0 or very low, set to 0.01 ETH
-        setEthAmount('0.01')
-        await calculateZugAmount('0.01')
-        return
-      }
-
       // Estimate gas for buyTokens function
       const gasEstimate = await publicClient.estimateGas({
         account: address,
@@ -193,12 +239,6 @@ const FeaturesCard = memo(function FeaturesCard() {
       // Ensure we don't have negative values
       const finalAmount = Math.max(0, availableEth)
       
-      // Gas estimation logs (commented for performance)
-      // console.log('Gas Estimate:', gasEstimate.toString())
-      // console.log('Gas Price:', gasPrice.toString())
-      // console.log('Gas Cost:', gasCost.toString())
-      // console.log('Available Amount:', availableEth)
-      
       // Set the input value to available amount
       const availableEthStr = finalAmount.toFixed(6)
       setEthAmount(availableEthStr)
@@ -206,46 +246,16 @@ const FeaturesCard = memo(function FeaturesCard() {
       
     } catch (error) {
       // console.error('Error estimating gas:', error)
-      // Fallback: use 90% of balance or 0.01 ETH if balance is too low
+      // Fallback: use 90% of balance
       const balanceInEth = Number(ethBalance.formatted)
-      const fallbackAmount = balanceInEth <= 0.001 ? 0.01 : balanceInEth * 0.9
+      const fallbackAmount = balanceInEth * 0.9
       const fallbackStr = fallbackAmount.toFixed(6)
       setEthAmount(fallbackStr)
       await calculateZugAmount(fallbackStr)
     }
   }, [address, ethBalance, publicClient, calculateZugAmount])
 
-  // Auto-fill MAX amount when wallet connects - optimized with ref
-  const maxClickTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  
-  useEffect(() => {
-    if (isConnected && address && ethBalance) {
-      // Clear any existing timeout
-      if (maxClickTimeoutRef.current) {
-        clearTimeout(maxClickTimeoutRef.current)
-      }
-      
-      maxClickTimeoutRef.current = setTimeout(() => {
-        // Check if balance is 0 or very low
-        const balanceInEth = Number(ethBalance.formatted)
-        
-        if (balanceInEth <= 0.001) {
-          // If balance is 0 or very low, set to 0.01 ETH
-          setEthAmount('0.01')
-          calculateZugAmount('0.01')
-        } else {
-          // Use normal MAX logic
-          handleMaxClick()
-        }
-      }, 1000)
-      
-      return () => {
-        if (maxClickTimeoutRef.current) {
-          clearTimeout(maxClickTimeoutRef.current)
-        }
-      }
-    }
-  }, [isConnected, address, ethBalance, handleMaxClick, calculateZugAmount])
+
 
   // Handle contract errors and success with toast
   useEffect(() => {
@@ -315,12 +325,13 @@ const FeaturesCard = memo(function FeaturesCard() {
   // Format data for display
   const formattedPrice = useMemo(() => {
     console.log('Raw tokenPriceUsd:', tokenPriceUsd)
-    if (!tokenPriceUsd) return '0.00'
-    // Price 6 decimal olarak set edilmiş
-    // 120 = 0.000120 USD (120 / 1,000,000)
-    const price = (Number(tokenPriceUsd) / 1000000).toFixed(6)
-    // Remove trailing zeros
-    return price.replace(/\.?0+$/, '')
+    if (!tokenPriceUsd) return '0.000120' // Default fallback price
+    // Price 18 decimal olarak set edilmiş (yeni kontrat)
+    // 120000000000000 = 0.00012 USD (120000000000000 / 10^18)
+    const price = (Number(tokenPriceUsd) / 1e18).toFixed(6)
+    // Remove trailing zeros but keep at least 6 decimal places
+    const cleanPrice = price.replace(/\.?0+$/, '')
+    return cleanPrice || '0.000120' // Fallback if empty
   }, [tokenPriceUsd])
 
   return (
@@ -481,11 +492,9 @@ const FeaturesCard = memo(function FeaturesCard() {
                 {/* RECEIVE ZUG and Price - Grid 2 */}
                 <div className="grid grid-cols-2 mb-0.5 gap-2">
                   <div className="text-sm text-gray-300 font-medium">RECEIVE ZUG</div>
-                                  <div className="text-sm font-bold text-right relative group">
-                  <span className="text-white">1 </span>
-                  <span className="text-[#D6E14E]">$ZUG</span>
-                  <span className="text-white"> = ${formattedPrice} USD</span>
-                  <span className="ml-1 text-[#D6E14E] cursor-help">ⓘ</span>
+                  <div className="text-sm font-bold text-right relative group">
+                    <span className="text-white">1 ZUG = ${formattedPrice} USD</span>
+                    <span className="ml-1 text-[#D6E14E] cursor-help">ⓘ</span>
                   
                   {/* Tooltip */}
                   <div className="absolute right-0 bottom-full mb-2 w-64 bg-gray-900 border border-[#D6E14E]/30 rounded-lg p-3 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus:opacity-100 group-focus:visible transition-all duration-200 z-50">
@@ -531,7 +540,10 @@ const FeaturesCard = memo(function FeaturesCard() {
                       type="number" 
                       placeholder="0" 
                       min="0"
-                      value={Math.max(0, Math.floor(Number(zugAmount)))}
+                      value={(() => {
+                        const num = Math.max(0, Math.floor(Number(zugAmount)))
+                        return isNaN(num) ? 0 : num
+                      })()}
                       readOnly
                       className="w-full bg-gray-700 text-xl font-bold text-white outline-none px-4 py-3 rounded-lg border border-gray-600 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none pr-16"
                     />
@@ -562,9 +574,9 @@ const FeaturesCard = memo(function FeaturesCard() {
             {isConnected && (
               <div className="mt-6 space-y-4">
               
-                {/* Check if user is on Holesky network */}
-                {chainId === 17000 ? (
-                  /* Buy Button - Show when on Holesky */
+                {/* Check if user is on Ethereum mainnet */}
+                {chainId === 1 ? (
+                  /* Buy Button - Show when on Ethereum mainnet */
                   <button
                     onClick={() => {
                       if (!ethAmount || Number(ethAmount) === 0) {
@@ -586,7 +598,7 @@ const FeaturesCard = memo(function FeaturesCard() {
                         abi: ZUGPresaleABI.abi,
                         functionName: 'buyTokens',
                         value: ethInWei,
-                        chainId: 17000, // Holesky testnet
+                        chainId: 1, // Ethereum mainnet
                       })
                     }}
                     disabled={!ethAmount || Number(ethAmount) === 0 || isPending || !hasSufficientBalance}
@@ -603,12 +615,12 @@ const FeaturesCard = memo(function FeaturesCard() {
                      'Buy ZUG Tokens'}
                   </button>
                 ) : (
-                  /* Switch to Holesky Button - Show when not on Holesky */
+                  /* Switch to Ethereum mainnet Button - Show when not on Ethereum mainnet */
                   <button
                     onClick={() => {
                       try {
-                        switchChain({ chainId: 17000 })
-                        toast.success('Switching to Holesky network...')
+                        switchChain({ chainId: 1 })
+                        toast.success('Switching to Ethereum mainnet...')
                       } catch (error) {
                         console.error('Error switching chain:', error)
                         toast.error('Failed to switch network')
@@ -621,7 +633,7 @@ const FeaturesCard = memo(function FeaturesCard() {
                     onMouseDown={() => setButtonStyle(glowButtonActiveStyles)}
                     onMouseUp={() => setButtonStyle(glowButtonHoverStyles)}
                   >
-                    Switch to Holesky
+                    Switch to Ethereum
                   </button>
                 )}
               </div>
