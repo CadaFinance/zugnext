@@ -13,19 +13,39 @@ serve(async (req: Request) => {
   }
 
   try {
+    console.log('Function started')
+    
     // Create Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabaseUrl = Deno.env.get('DB_URL')
+    const supabaseServiceKey = Deno.env.get('SERVICE_ROLE_KEY')
+    
+    console.log('Environment variables:', { 
+      hasUrl: !!supabaseUrl, 
+      hasKey: !!supabaseServiceKey 
+    })
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing environment variables')
+      return new Response(
+        JSON.stringify({ error: 'Missing environment variables' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
+    }
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    console.log('Supabase client created')
 
     // Refresh materialized view
+    console.log('Calling refresh_leaderboard RPC')
     const { error } = await supabase.rpc('refresh_leaderboard')
     
     if (error) {
       console.error('Error refreshing leaderboard:', error)
       return new Response(
-        JSON.stringify({ error: 'Failed to refresh leaderboard' }),
+        JSON.stringify({ error: 'Failed to refresh leaderboard', details: error }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -33,6 +53,7 @@ serve(async (req: Request) => {
       )
     }
 
+    console.log('Leaderboard refreshed successfully')
     return new Response(
       JSON.stringify({ success: true, message: 'Leaderboard refreshed successfully' }),
       { 
@@ -44,7 +65,7 @@ serve(async (req: Request) => {
   } catch (error) {
     console.error('Error in refresh leaderboard function:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error', details: error.message }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
