@@ -448,7 +448,7 @@ export default function Tasks() {
               {dailyTasksCompleted ? (
                 <button
                   onClick={handleClaimDailyRewards}
-                  className="bg-[#D6E14E] text-black w-full font-bold py-3 px-8 rounded-lg transition-all duration-300 transform hover:scale-105"
+                  className="bg-[#D6E14E] text-black w-full font-bold py-3 px-8 rounded-lg transition-all duration-300 transform "
                 >
                   Claim Daily Rewards (100 pts)
                 </button>
@@ -468,8 +468,8 @@ export default function Tasks() {
           {/* One-time Tasks Section */}
           <div className="space-y-4">
             <div className="text-center mb-6">
-              <h3 className="text-xl font-bold text-white mb-2">One-time Tasks</h3>
-              <p className="text-gray-400 text-sm">Complete these tasks to unlock daily tasks</p>
+             
+              <p className="text-gray-400 text-sm">Complete tasks to unlock daily tasks</p>
             </div>
 
             {/* Tasks List */}
@@ -522,14 +522,14 @@ export default function Tasks() {
               {completedTasks.length === 4 ? (
                 <button
                   onClick={handleClaimRewards}
-                  className="bg-[#D6E14E] text-black font-bold py-3 px-8 rounded-lg hover:bg-[#b8c93e] transition-all duration-300 transform hover:scale-105"
+                  className="bg-[#D6E14E] text-black w-full font-bold py-3 px-8 rounded-lg  transition-all duration-300 transform hover:scale-105"
                 >
                   Claim Rewards (650 pts)
                 </button>
               ) : (
                 <button
                   disabled
-                  className="bg-gray-600 text-gray-400 font-bold py-3 px-8 rounded-lg cursor-not-allowed"
+                  className="bg-gray-600 text-gray-400 w-full font-bold py-3 px-8 rounded-lg cursor-not-allowed"
                 >
                   Complete Tasks First ({completedTasks.length}/4)
                 </button>
