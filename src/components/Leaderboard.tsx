@@ -104,18 +104,12 @@ function UsdaBreakdownDropdown({
               USDZ Breakdown
             </div>
             
-            {/* Base USDZ */}
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300 text-xs">Base USDZ:</span>
-              <span className="text-white text-xs font-medium">
-                ${entry.baseUsda?.toFixed(2) || '0.00'}
-              </span>
-            </div>
+          
             
             {/* Points to USDZ */}
             <div className="flex justify-between items-center">
               <span className="text-gray-300 text-xs">
-                Points ({entry.points.toLocaleString()}) → USDZ:
+                 {entry.points.toLocaleString()} Points 
               </span>
               <span className="text-white text-xs font-medium">
                 ${entry.pointsToUsda?.toFixed(2) || '0.00'}
@@ -125,7 +119,7 @@ function UsdaBreakdownDropdown({
             {/* Tier Reward */}
             <div className="flex justify-between items-center">
               <span className="text-gray-300 text-xs">
-                Rank #{entry.rank} Tier Reward:
+                Rank #{entry.rank} 
               </span>
               <span className="text-white text-xs font-medium">
                 ${entry.tierReward?.toFixed(2) || '0.00'}
