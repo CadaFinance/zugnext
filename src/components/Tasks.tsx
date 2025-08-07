@@ -98,6 +98,10 @@ export default function Tasks() {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [modalPoints, setModalPoints] = useState(0)
   const [modalType, setModalType] = useState<'daily' | 'one_time'>('daily')
+  
+  // Claim button loading states
+  const [claimingRewards, setClaimingRewards] = useState(false)
+  const [claimingDailyRewards, setClaimingDailyRewards] = useState(false)
 
   useEffect(() => {
     async function checkUserAuth() {
@@ -342,8 +346,10 @@ export default function Tasks() {
   }
 
   const handleClaimRewards = async () => {
-    if (!user) return
+    if (!user || claimingRewards) return
 
+    setClaimingRewards(true)
+    
     try {
       const response = await fetch('/api/user/complete-tasks', {
         method: 'POST',
@@ -352,30 +358,34 @@ export default function Tasks() {
         },
         body: JSON.stringify({
           userId: user.id,
-          totalPoints: 650 // 3 tasks * 150 + 1 task * 200 points
+          totalPoints: 750 // 3 tasks * 150 + 1 task * 200 + 1 task * 100 points
         })
       })
 
       if (response.ok) {
         // Update local state
-        setUserPoints(prev => prev + 650)
+        setUserPoints(prev => prev + 750)
         setAllTasksCompleted(true)
         // Load daily tasks after claiming rewards
         loadDailyTasks(user.id)
         
         // Show success modal
-        setModalPoints(650)
+        setModalPoints(750)
         setModalType('one_time')
         setShowSuccessModal(true)
       }
     } catch (error) {
       console.error('Error claiming rewards:', error)
+    } finally {
+      setClaimingRewards(false)
     }
   }
 
   const handleClaimDailyRewards = async () => {
-    if (!user) return
+    if (!user || claimingDailyRewards) return
 
+    setClaimingDailyRewards(true)
+    
     try {
       const response = await fetch('/api/daily-tasks/claim', {
         method: 'POST',
@@ -411,6 +421,8 @@ export default function Tasks() {
       }
     } catch (error) {
       console.error('Error claiming daily rewards:', error)
+    } finally {
+      setClaimingDailyRewards(false)
     }
   }
 
@@ -506,9 +518,21 @@ export default function Tasks() {
               {dailyTasksCompleted ? (
                 <button
                   onClick={handleClaimDailyRewards}
-                  className="bg-[#D6E14E] text-black w-full font-bold py-3 px-8 rounded-lg transition-all duration-300 transform "
+                  disabled={claimingDailyRewards}
+                  className={`w-full font-bold py-3 px-8 rounded-lg transition-all duration-300 transform ${
+                    claimingDailyRewards 
+                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+                      : 'bg-[#D6E14E] text-black hover:bg-[#b8c93e]'
+                  }`}
                 >
-                  Claim Daily Rewards (100 pts)
+                  {claimingDailyRewards ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent mr-2"></div>
+                      Claiming...
+                    </div>
+                  ) : (
+                    'Claim Daily Rewards (100 pts)'
+                  )}
                 </button>
               ) : (
                 <button
@@ -577,9 +601,21 @@ export default function Tasks() {
               {completedTasks.length === 5 ? (
                 <button
                   onClick={handleClaimRewards}
-                  className="bg-[#D6E14E] text-black w-full font-bold py-3 px-8 rounded-lg  transition-all duration-300 transform hover:scale-105"
+                  disabled={claimingRewards}
+                  className={`w-full font-bold py-3 px-8 rounded-lg transition-all duration-300 transform ${
+                    claimingRewards 
+                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+                      : 'bg-[#D6E14E] text-black hover:bg-[#b8c93e] hover:scale-105'
+                  }`}
                 >
-                  Claim Rewards (750 pts)
+                  {claimingRewards ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent mr-2"></div>
+                      Claiming...
+                    </div>
+                  ) : (
+                    'Claim Rewards (750 pts)'
+                  )}
                 </button>
               ) : (
                 <button
