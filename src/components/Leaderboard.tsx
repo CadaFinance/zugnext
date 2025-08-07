@@ -22,6 +22,10 @@ interface LeaderboardEntry {
   isCurrentUser?: boolean;
   profileImage?: string;
   id: string;
+  // Add breakdown fields for current user
+  baseUsda?: number;
+  pointsToUsda?: number;
+  tierReward?: number;
 }
 
 // Define milestone tiers for calculation
@@ -70,10 +74,86 @@ function truncateText(text: string, maxLength: number): string {
   return text.substring(0, maxLength) + '...';
 }
 
+// USDA Breakdown Dropdown Component
+function UsdaBreakdownDropdown({ 
+  entry, 
+  isOpen, 
+  onToggle 
+}: { 
+  entry: LeaderboardEntry; 
+  isOpen: boolean; 
+  onToggle: (e: React.MouseEvent) => void; 
+}) {
+  if (!entry.isCurrentUser) return null;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={onToggle}
+        className="ml-1 h-3 w-3 sm:h-4 sm:w-4 text-gray-300 hover:text-[#D6E14E] transition-colors"
+      >
+        <svg fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+        </svg>
+      </button>
+      
+      {isOpen && (
+        <div className="absolute right-0 top-6 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 p-4">
+          <div className="space-y-3">
+            <div className="text-sm font-semibold text-[#D6E14E] mb-3">
+              USDA Breakdown
+            </div>
+            
+            {/* Base USDA */}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300 text-xs">Base USDA:</span>
+              <span className="text-white text-xs font-medium">
+                ${entry.baseUsda?.toFixed(2) || '0.00'}
+              </span>
+            </div>
+            
+            {/* Points to USDA */}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300 text-xs">
+                Points ({entry.points.toLocaleString()}) → USDA:
+              </span>
+              <span className="text-white text-xs font-medium">
+                ${entry.pointsToUsda?.toFixed(2) || '0.00'}
+              </span>
+            </div>
+            
+            {/* Tier Reward */}
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300 text-xs">
+                Rank #{entry.rank} Tier Reward:
+              </span>
+              <span className="text-white text-xs font-medium">
+                ${entry.tierReward?.toFixed(2) || '0.00'}
+              </span>
+            </div>
+            
+            {/* Divider */}
+            <div className="border-t border-gray-700 my-2"></div>
+            
+            {/* Total */}
+            <div className="flex justify-between items-center">
+              <span className="text-[#D6E14E] text-sm font-semibold">Total USDA:</span>
+              <span className="text-[#D6E14E] text-sm font-bold">
+                ${entry.usda}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Leaderboard() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -125,7 +205,11 @@ export default function Leaderboard() {
             usda: totalUsdaWithTier.toFixed(2),
             profileImage: user.profile_image_url,
             id: user.id,
-            isCurrentUser: user.isCurrentUser || false
+            isCurrentUser: user.isCurrentUser || false,
+            // Add breakdown fields for current user
+            baseUsda: baseUsda,
+            pointsToUsda: pointsToUsda,
+            tierReward: additionalUsda
           }
         });
         
@@ -139,6 +223,20 @@ export default function Leaderboard() {
 
     loadData();
   }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openDropdown !== null) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [openDropdown]);
 
   return (
     <div className=" rounded-lg   mt-10 ">
@@ -281,9 +379,14 @@ export default function Leaderboard() {
                       <span>${entry.usda}</span>
                     )}
                     {entry.isCurrentUser && (
-                      <svg className="ml-1 h-3 w-3 sm:h-4 sm:w-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                      </svg>
+                      <UsdaBreakdownDropdown
+                        entry={entry}
+                        isOpen={openDropdown === entry.rank}
+                        onToggle={(e) => {
+                          e.stopPropagation();
+                          setOpenDropdown(openDropdown === entry.rank ? null : entry.rank);
+                        }}
+                      />
                     )}
                   </div>
                 </div>
