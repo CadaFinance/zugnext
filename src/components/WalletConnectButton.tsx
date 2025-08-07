@@ -25,7 +25,7 @@ export default function WalletConnectButton() {
         </span>
         <button
           onClick={handleDisconnect}
-          className="bg-red-600 text-white px-3 py-1.5 rounded-lg font-semibold text-xs hover:bg-red-700 transition-colors"
+          className="bg-red-600 text-white px-3 py-1.5 rounded-lg font-semibold text-xs  transition-colors"
         >
           Disconnect
         </button>
@@ -37,7 +37,7 @@ export default function WalletConnectButton() {
     <>
       <button
         onClick={handleConnect}
-        className="bg-black text-[#D6E14E] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-gray-800 transition-colors"
+        className="bg-black text-[#D6E14E] px-4 py-2 rounded-lg font-semibold text-xs hover:bg-gray-800 transition-colors"
       >
         Connect your wallet
       </button>
