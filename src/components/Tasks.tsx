@@ -169,6 +169,14 @@ export default function Tasks() {
         completed: false,
         loading: false,
         type: 'one_time'
+      },
+      {
+        id: '5',
+        title: 'Join our Telegram group',
+        points: 100,
+        completed: false,
+        loading: false,
+        type: 'one_time'
       }
     ]
     setTasks(mockTasks)
