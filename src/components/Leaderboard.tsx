@@ -100,8 +100,8 @@ function UsdaBreakdownDropdown({
       {isOpen && (
         <div className="absolute right-0 top-6 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-[9999] p-4">
           <div className="space-y-3">
-            <div className="text-sm font-semibold text-[#D6E14E] mb-3">
-              USDZ Breakdown
+            <div className="text-sm text-left font-semibold text-[#D6E14E] mb-3">
+              $USDZ Breakdown
             </div>
             
           
@@ -131,7 +131,7 @@ function UsdaBreakdownDropdown({
             
             {/* Total */}
             <div className="flex justify-between items-center">
-              <span className="text-[#D6E14E] text-sm font-semibold">Total USDZ:</span>
+              <span className="text-[#D6E14E] text-sm font-semibold">Total $USDZ:</span>
               <span className="text-[#D6E14E] text-sm font-bold">
                 ${entry.usda}
               </span>
