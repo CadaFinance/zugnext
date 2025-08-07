@@ -39,7 +39,7 @@ export default function WalletConnectButton() {
         onClick={handleConnect}
         className="bg-black text-[#D6E14E] px-3 py-1.5 rounded-lg font-semibold text-xs  transition-colors"
       >
-        Connect your wallet
+        Connect Wallet
       </button>
       
       <WalletModal 
