@@ -98,24 +98,24 @@ function UsdaBreakdownDropdown({
       </button>
       
       {isOpen && (
-        <div className="absolute right-0 top-6 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-50 p-4">
+        <div className="absolute right-0 top-6 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-[9999] p-4">
           <div className="space-y-3">
             <div className="text-sm font-semibold text-[#D6E14E] mb-3">
-              USDA Breakdown
+              USDZ Breakdown
             </div>
             
-            {/* Base USDA */}
+            {/* Base USDZ */}
             <div className="flex justify-between items-center">
-              <span className="text-gray-300 text-xs">Base USDA:</span>
+              <span className="text-gray-300 text-xs">Base USDZ:</span>
               <span className="text-white text-xs font-medium">
                 ${entry.baseUsda?.toFixed(2) || '0.00'}
               </span>
             </div>
             
-            {/* Points to USDA */}
+            {/* Points to USDZ */}
             <div className="flex justify-between items-center">
               <span className="text-gray-300 text-xs">
-                Points ({entry.points.toLocaleString()}) → USDA:
+                Points ({entry.points.toLocaleString()}) → USDZ:
               </span>
               <span className="text-white text-xs font-medium">
                 ${entry.pointsToUsda?.toFixed(2) || '0.00'}
@@ -137,7 +137,7 @@ function UsdaBreakdownDropdown({
             
             {/* Total */}
             <div className="flex justify-between items-center">
-              <span className="text-[#D6E14E] text-sm font-semibold">Total USDA:</span>
+              <span className="text-[#D6E14E] text-sm font-semibold">Total USDZ:</span>
               <span className="text-[#D6E14E] text-sm font-bold">
                 ${entry.usda}
               </span>
@@ -267,7 +267,7 @@ export default function Leaderboard() {
               <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider sm:w-16 w-16">RANK</th>
               <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider ">USER</th>
               <th className="px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider w-20 sm:w-20">POINTS</th>
-              <th className="px-2 py-2 sm:px-4 sm:py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider sm:w-30 w-20">$USDA</th>
+              <th className="px-2 py-2 sm:px-4 sm:py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider sm:w-30 w-20">$USDZ</th>
             </tr>
           </thead>
         </table>
