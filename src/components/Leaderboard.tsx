@@ -253,8 +253,8 @@ export default function Leaderboard() {
           ))}
         </div>
       ) : (
-        <div className="overflow-x-auto">
-        <table className="w-full ">
+        <div className="w-full">
+        <table className="w-full">
           {/* Table Header */}
           <thead className="">
             <tr>
