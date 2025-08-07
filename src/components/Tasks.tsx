@@ -574,19 +574,19 @@ export default function Tasks() {
 
             {/* Claim Button */}
             <div className="text-center mt-8">
-              {completedTasks.length === 4 ? (
+              {completedTasks.length === 5 ? (
                 <button
                   onClick={handleClaimRewards}
                   className="bg-[#D6E14E] text-black w-full font-bold py-3 px-8 rounded-lg  transition-all duration-300 transform hover:scale-105"
                 >
-                  Claim Rewards (650 pts)
+                  Claim Rewards (750 pts)
                 </button>
               ) : (
                 <button
                   disabled
                   className="bg-gray-600 text-gray-400 w-full font-bold py-3 px-8 rounded-lg cursor-not-allowed"
                 >
-                  Complete Tasks First ({completedTasks.length}/4)
+                  Complete Tasks First ({completedTasks.length}/5)
                 </button>
               )}
             </div>
