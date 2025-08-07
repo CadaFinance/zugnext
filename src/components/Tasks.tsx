@@ -128,6 +128,17 @@ export default function Tasks() {
     loadTasks()
   }, [])
 
+  // Refresh countdown every minute
+  useEffect(() => {
+    if (!user || !allTasksCompleted) return
+
+    const interval = setInterval(() => {
+      loadDailyTasks(user.id)
+    }, 60000) // Refresh every minute
+
+    return () => clearInterval(interval)
+  }, [user, allTasksCompleted])
+
   const loadUserPoints = async (userId: string) => {
     try {
       const response = await fetch(`/api/user/points?userId=${userId}`)
@@ -188,16 +199,22 @@ export default function Tasks() {
 
   const loadDailyTasks = async (userId: string) => {
     try {
-      // Aggressive caching - cache for 30 minutes instead of 5
+      // Shorter cache for countdown accuracy - cache for 1 minute
       const cacheKey = `daily-tasks-${userId}`
       const cached = sessionStorage.getItem(cacheKey)
       
       if (cached) {
         const data = JSON.parse(cached)
-        setDailyTasks(data.tasks)
-        setDailyTasksAvailable(data.available)
-        setCountdown(data.nextReset)
-        return
+        const cacheTime = data.timestamp || 0
+        const now = Date.now()
+        
+        // Cache expires after 1 minute for countdown accuracy
+        if (now - cacheTime < 60000) {
+          setDailyTasks(data.tasks)
+          setDailyTasksAvailable(data.available)
+          setCountdown(data.nextReset)
+          return
+        }
       }
 
       // Show loading state immediately
@@ -250,11 +267,12 @@ export default function Tasks() {
         }
       ]
       
-      // Cache the data for 30 minutes (much longer cache)
+      // Cache the data for 1 minute for countdown accuracy
       const cacheData = {
         tasks: dailyTasksData,
         available: data.tasks?.daily_1?.available || false,
-        nextReset: data.nextReset || ''
+        nextReset: data.nextReset || '',
+        timestamp: Date.now()
       }
       sessionStorage.setItem(cacheKey, JSON.stringify(cacheData))
       
@@ -366,6 +384,11 @@ export default function Tasks() {
         // Update local state
         setUserPoints(prev => prev + 750)
         setAllTasksCompleted(true)
+        
+        // Clear daily tasks cache to force fresh data
+        const cacheKey = `daily-tasks-${user.id}`
+        sessionStorage.removeItem(cacheKey)
+        
         // Load daily tasks after claiming rewards
         loadDailyTasks(user.id)
         
