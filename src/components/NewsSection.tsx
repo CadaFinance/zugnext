@@ -30,8 +30,8 @@ export default function NewsSection() {
     }
   ];
 
-     return (
-     <div className="bg-gradient-to-t from-[#D6E14E] to-white py-16 relative overflow-hidden">
+  return (
+  <div className="bg-gradient-to-t from-[#D6E14E] to-white py-16 relative overflow-hidden">
              {/* Background Pattern */}
                <div className="absolute inset-0 opacity-15">
           <div className="absolute inset-0" style={{
@@ -43,7 +43,7 @@ export default function NewsSection() {
           }}></div>
         </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-2 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="text-center mb-12">
           <h2 className="text-4xl lg:text-5xl font-bold text-black mb-4" style={{ fontFamily: 'baumans' }}>
@@ -95,7 +95,7 @@ export default function NewsSection() {
          </div>
 
          {/* Mobile Scrolling Cards */}
-         <div className="md:hidden overflow-x-auto pb-4">
+          <div className="md:hidden overflow-x-auto pb-4">
            <div className="flex gap-4" style={{ width: 'max-content' }}>
              {newsItems.map((item) => (
                <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-xl border-4 border-[#132a13] w-80 flex-shrink-0">
@@ -115,9 +115,9 @@ export default function NewsSection() {
                                    </div>
 
                  {/* Content */}
-                 <div className="p-6">
-                   {/* Headline */}
-                   <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight" style={{ fontFamily: 'monospace' }}>
+                  <div className="p-6">
+                    {/* Headline */}
+                    <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight" style={{ fontFamily: 'baumans' }}>
                      {item.headline}
                    </h3>
 

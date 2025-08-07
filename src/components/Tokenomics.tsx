@@ -47,7 +47,7 @@ export default function Tokenomics() {
          }}></div>
        </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-2 lg:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Title */}
         <div className="text-center mb-12">
           <h2 className="text-4xl lg:text-5xl font-bold text-black mb-4" style={{ fontFamily: 'baumans' }}>

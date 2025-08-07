@@ -29,7 +29,7 @@ export default function Home() {
       <HeroSection />
       
       <Suspense fallback={<LoadingSpinner />}>
-        <div id="about">
+        <div id="about" className="scroll-mt-28 md:scroll-mt-40">
           <Features />
         </div>
       </Suspense>
@@ -39,7 +39,7 @@ export default function Home() {
       </Suspense>
       
       <Suspense fallback={<LoadingSpinner />}>
-        <div id="how-to-buy">
+        <div id="how-to-buy" className="scroll-mt-28 md:scroll-mt-40">
           <BitcoinLayer2 />
         </div>
       </Suspense>
@@ -53,13 +53,13 @@ export default function Home() {
       </Suspense>
       
       <Suspense fallback={<LoadingSpinner />}>
-        <div id="tokenomics">
+        <div id="tokenomics" className="scroll-mt-28 md:scroll-mt-40">
           <Tokenomics />
         </div>
       </Suspense>
       
       <Suspense fallback={<LoadingSpinner />}>
-        <div id="faq">
+        <div id="faq" className="scroll-mt-28 md:scroll-mt-40">
           <FAQ />
         </div>
       </Suspense>

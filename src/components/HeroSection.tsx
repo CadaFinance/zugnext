@@ -1,7 +1,7 @@
 export default function HeroSection() {
   return (
     <div className="bg-white pt-32 white-pattern-bg">
-      <div className="mx-auto max-w-7xl px-2 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Hero Banner */}
         <div 
           className="rounded-2xl shadow-2xl p-6 sm:p-8 relative"
@@ -20,14 +20,14 @@ export default function HeroSection() {
 
        
           <div className="text-center relative z-10 pt-4">
-            <h1 className="text-3xl font-bold tracking-tight text-black sm:text-5xl ">
+            <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-black">
               THE FASTEST ETHEREUM LAYER 2 CHAIN
             </h1>
-            <p className="text-lg text-black font-medium ">
+            <p className="text-base sm:text-lg text-black font-medium">
               SCALABILITY AND SPEED FOR ETHEREUM ARE FINALLY HERE
             </p>
             <div className="flex justify-center pt-4">
-              <button className="bg-[#132a13] text-white px-6 py-3 rounded-lg font-bold text-base hover:bg-gray-800 transition-colors animate-pulse">
+              <button className="bg-[#132a13] text-white px-6 py-3 rounded-lg font-bold text-base hover:bg-black transition-colors duration-300 animate-scale">
                 PRESALE IS LIVE
               </button>
             </div>
@@ -38,6 +38,15 @@ export default function HeroSection() {
           @keyframes swing {
             0%, 100% { transform: rotate(-6deg); }
             50% { transform: rotate(6deg); }
+          }
+          
+          @keyframes scale {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+          }
+          
+          .animate-scale {
+            animation: scale 2s ease-in-out infinite;
           }
         `}</style>
       </div>

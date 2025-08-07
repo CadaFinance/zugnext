@@ -2,9 +2,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useConnect, useAccount, type Connector } from 'wagmi';
 import { FaTimes } from 'react-icons/fa';
 import { FaWallet } from 'react-icons/fa6';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useRouter, usePathname } from 'next/navigation';
+import { createPortal } from 'react-dom';
 
 interface WalletModalProps {
   open: boolean;
@@ -16,6 +17,7 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
   const { address, isConnected } = useAccount();
   const router = useRouter();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
   // Filter connectors to show only WalletConnect and MetaMask
   const filteredConnectors = connectors.filter((connector: Connector) => 
@@ -31,6 +33,21 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
     }
   }, [isConnected, address, open, onClose]);
 
+  // Mount portal target and lock body scroll when open
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  useEffect(() => {
+    if (!mounted) return;
+    if (open) {
+      const original = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = original;
+      };
+    }
+  }, [open, mounted]);
+
   const handleSelect = async (connector: Connector) => {
     try {
       await connect({ connector });
@@ -41,11 +58,13 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
     }
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[60] flex items-center justify-center"
+          className="fixed inset-0 z-[100] flex items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -123,6 +142,7 @@ export default function WalletModal({ open, onClose }: WalletModalProps) {
            </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 } 

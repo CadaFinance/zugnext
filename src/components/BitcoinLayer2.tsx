@@ -38,7 +38,7 @@ export default function BitcoinLayer2() {
 
   return (
     <div className="bg-white py-16 white-pattern-bg">
-      <div className="mx-auto max-w-7xl px-2 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Title */}
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold text-black mb-4">
@@ -116,7 +116,7 @@ export default function BitcoinLayer2() {
 
         {/* HeroSection Clone */}
         <div className="bg-white pt-24 white-pattern-bg">
-          <div className="mx-auto max-w-7xl ">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Main Hero Banner */}
             <div 
               className="rounded-2xl shadow-2xl p-6 sm:p-8 relative"

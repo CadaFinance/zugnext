@@ -4,7 +4,11 @@ import { useState } from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
 import WalletModal from './WalletModal'
 
-export default function WalletConnectButton() {
+interface WalletConnectButtonProps {
+  fullWidth?: boolean;
+}
+
+export default function WalletConnectButton({ fullWidth = false }: WalletConnectButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
@@ -37,7 +41,9 @@ export default function WalletConnectButton() {
     <>
       <button
         onClick={handleConnect}
-        className="bg-black text-[#D6E14E] px-3 py-1.5 rounded-lg font-semibold text-xs  transition-colors"
+        className={`bg-black text-[#D6E14E] px-3 py-1.5 rounded-lg font-semibold text-xs transition-colors ${
+          fullWidth ? 'w-full' : ''
+        }`}
       >
         Connect Wallet
       </button>

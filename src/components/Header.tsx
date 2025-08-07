@@ -42,10 +42,22 @@ const generateWalletAddress = () => {
   return address;
 }
 
+// Format number with K, M, B suffixes
+const formatNumber = (num: number): string => {
+  if (num >= 1000000000) {
+    return (num / 1000000000).toFixed(1) + 'B';
+  } else if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M';
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  }
+  return num.toFixed(0);
+}
+
 // Generate random transaction data
 const generateTransactionData = () => {
   const transactions = [];
-  const zugPrice = 0.012525;
+  const zugPrice = 0.00012;
   
   for (let i = 0; i < 30; i++) {
     const usdAmount = Math.random() * (1021.82 - 82.23) + 82.23;
@@ -54,7 +66,7 @@ const generateTransactionData = () => {
     
     transactions.push({
       usd: usdAmount.toFixed(2),
-      zug: zugAmount.toFixed(0),
+      zug: formatNumber(zugAmount),
       wallet: walletAddress.substring(0, 6) + '...' + walletAddress.substring(36)
     });
   }
@@ -75,8 +87,8 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
     const generateTransactions = () => {
       const transactions = generateTransactionData();
       const transactionString = transactions.map(t => 
-        `[${t.wallet}] bought ${t.zug}K $ZUG worth $${t.usd}`
-      ).join(' ');
+        `[${t.wallet}] bought ${t.zug} <span class="text-[#D6E14E]">$ZUG</span> worth <span class="text-[#D6E14E]">$${t.usd}</span>`
+      ).join('     ');
       setTransactionData(transactionString);
     };
 
@@ -112,15 +124,16 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
 
     const animate = () => {
       position -= speed / 30; // Reduced from 60fps to 30fps for better performance
-      
-      // Reset position when content has scrolled completely
-      const containerWidth = scrollElement.parentElement?.offsetWidth || 0;
-      const contentWidth = scrollElement.offsetWidth;
-      
-      if (position <= -contentWidth) {
-        position = containerWidth;
+
+      // Seamless marquee: when one block fully leaves, shift by its width
+      const firstChild = scrollElement.firstElementChild as HTMLElement | null;
+      const singleWidth = firstChild?.offsetWidth || 0;
+
+      if (singleWidth > 0 && position <= -singleWidth) {
+        // Move the strip right by one block width to keep it continuous
+        position += singleWidth;
       }
-      
+
       scrollElement.style.transform = `translateX(${position}px)`;
       animationId = requestAnimationFrame(animate);
     };
@@ -173,7 +186,7 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
     <>
       {/* Scrolling Ticker Bar */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-black text-white py-2 overflow-hidden">
-        <div className="flex items-center">
+      <div className="flex items-center">
           <span className="inline-block px-4 font-bold text-sm whitespace-nowrap bg-black relative z-10">
             LATEST PURCHASES
           </span>
@@ -185,22 +198,19 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                 transform: 'translateX(0px)'
               }}
             >
-              <span className="inline-block px-4">
-                {transactionData}
+              <span className="inline-block px-4" dangerouslySetInnerHTML={{ __html: transactionData }}>
               </span>
-              <span className="inline-block px-4">
-                {transactionData}
+              <span className="inline-block px-4" dangerouslySetInnerHTML={{ __html: transactionData }}>
               </span>
-              <span className="inline-block px-4">
-                {transactionData}
+              <span className="inline-block px-4" dangerouslySetInnerHTML={{ __html: transactionData }}>
               </span>
             </div>
           </div>
         </div>
       </div>
       
-      <header className="fixed inset-x-0 top-8 z-50 bg-white shadow-sm">
-      <div className={`mx-auto px-2 lg:px-8 ${fullWidth ? '' : 'max-w-7xl'}`}>
+      <header className="fixed inset-x-0 top-8 z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm">
+      <div className={`mx-auto px-4 sm:px-6 lg:px-8 ${fullWidth ? '' : 'max-w-7xl'}`}>
         <nav aria-label="Global" className="flex items-center justify-between py-4">
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 p-1.5 flex items-center">
@@ -292,6 +302,8 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
             ))}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end gap-3">
+         
+            
             {!showOnlyX && (
               <WalletConnectButton />
             )}
@@ -335,7 +347,39 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                 )}
               </div>
             )}
+               {/* Social Media Buttons */}
+            <a 
+              href="https://twitter.com/ZUGToken" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-[#D6E14E] text-black p-2 rounded-lg hover:bg-[#cbd743] transition-colors flex items-center justify-center"
+              title="Follow us on Twitter"
+            >
+              <Image
+                src="/twitter.png"
+                alt="Twitter"
+                width={20}
+                height={20}
+                className="w-5 h-5"
+              />
+            </a>
+            <a 
+              href="https://t.me/ZUGToken" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-[#D6E14E] text-black p-2 rounded-lg hover:bg-[#cbd743] transition-colors flex items-center justify-center"
+              title="Join our Telegram"
+            >
+              <Image
+                src="/telegram.png"
+                alt="Telegram"
+                width={20}
+                height={20}
+                className="w-5 h-5"
+              />
+            </a>
           </div>
+          
         </nav>
       </div>
       <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
@@ -388,44 +432,43 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                   )
                 ))}
               </div>
-              <div className="py-6 space-y-3">
-                {!showOnlyX && (
-                  <div className="w-full">
-                    <WalletConnectButton />
-                  </div>
-                )}
-                {(showBothButtons || showOnlyX) && !user && (
-                  <button 
-                    onClick={handleConnectTwitter}
-                    className="w-full bg-[#132a13] text-white px-3 py-2.5 rounded-lg font-semibold text-base hover:bg-gray-800 transition-colors"
+              <div className="py-6 space-y-4">
+                {/* Social Media Buttons - Bottom */}
+                <div className="flex gap-3 justify-center">
+                  <a 
+                    href="https://twitter.com/ZUGToken" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-[#D6E14E] text-black px-4 py-3 rounded-lg hover:bg-[#b8c93e] transition-colors flex items-center gap-2 font-medium"
+                    title="Follow us on Twitter"
                   >
-                    Connect your X
-                  </button>
-                )}
-                {(showBothButtons || showOnlyX) && user && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 bg-[#132a13] text-white px-3 py-2.5 rounded-lg">
-                      {user.profile_image_url ? (
-                        <img 
-                          src={user.profile_image_url} 
-                          alt={user.display_name}
-                          className="w-5 h-5 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center">
-                          <div className="w-3 h-3 bg-yellow-400 rounded-sm"></div>
-                        </div>
-                      )}
-                      <span className="font-semibold">{user.display_name}</span>
-                    </div>
-                    <button 
-                      onClick={handleDisconnect}
-                      className="w-full bg-red-600 text-white px-3 py-2.5 rounded-lg font-semibold text-base hover:bg-red-700 transition-colors"
-                    >
-                      Disconnect
-                    </button>
-                  </div>
-                )}
+                    <Image
+                      src="/twitter.png"
+                      alt="Twitter"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                    />
+                    <span className="text-sm">Twitter</span>
+                  </a>
+                  <a 
+                    href="https://t.me/ZUGToken" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-[#D6E14E] text-black px-4 py-3 rounded-lg hover:bg-[#b8c93e] transition-colors flex items-center gap-2 font-medium"
+                    title="Join our Telegram"
+                  >
+                    <Image
+                      src="/telegram.png"
+                      alt="Telegram"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                    />
+                    <span className="text-sm">Telegram</span>
+                  </a>
+                </div>
+
               </div>
             </div>
           </div>

@@ -23,14 +23,13 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: "Baumans", system-ui, Arial, Helvetica, sans-serif;
+  scroll-behavior: smooth;
 }
 
 /* Dot pattern for white background sections */
 .white-pattern-bg {
-
-
-  background-image: radial-gradient(#0c8912 0.8px, #f9f9fd 0.8px);
-  background-size: 16px 16px;
+  background-image: radial-gradient(#254657 0.6px, #f9f9fd 0.6px);
+  background-size: 18px 18px;
 }
 
 @keyframes marquee {
