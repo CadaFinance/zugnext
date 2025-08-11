@@ -51,7 +51,7 @@ const useCountdown = () => {
   useEffect(() => {
     const targetDate = new Date('2025-08-28T12:00:00Z')
     const targetAmount = 150850.49
-    const startDate = new Date('2025-08-11T16:00:00Z')
+    const startDate = new Date('2025-08-11T02:00:00Z')
     
     const updateCountdown = () => {
       const now = new Date()
