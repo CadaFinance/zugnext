@@ -412,7 +412,7 @@ export default function MindsharePage() {
           {activeTab === 'leaderboard' ? (
             <Leaderboard />
           ) : (
-            <Tasks />
+            <Tasks referralLink={referralLink} />
           )}
         </div>
       </div>

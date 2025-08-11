@@ -83,7 +83,11 @@ function SuccessModal({ isOpen, onClose, points, type }: SuccessModalProps) {
   )
 }
 
-export default function Tasks() {
+interface TasksProps {
+  referralLink?: string
+}
+
+export default function Tasks({ referralLink }: TasksProps) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [tasks, setTasks] = useState<Task[]>([])
@@ -338,6 +342,18 @@ export default function Tasks() {
     // Redirect based on task type
     if (isDailyTask) {
       window.open('https://x.com/intent/follow?screen_name=ZugChain_org', '_blank')
+    } else if (taskId === '2') {
+      // Like & RT task
+      window.open('https://x.com/ZugChain_org/status/1954962688414486802', '_blank')
+    } else if (taskId === '3') {
+      // Share your invite link task
+      if (referralLink) {
+        const encodedText = encodeURIComponent(`🚀 Join the fastest Ethereum Layer 2 chain! $ZUG\n\n${referralLink}\n\n#ZUG #Ethereum #Layer2 #Crypto`);
+        window.open(`https://x.com/intent/tweet?text=${encodedText}`, '_blank')
+      } else {
+        // Fallback if no referral link
+        window.open('https://x.com/intent/tweet?text=🚀 Join the fastest Ethereum Layer 2 chain! $ZUG #ZUG #Ethereum #Layer2 #Crypto', '_blank')
+      }
     } else if (taskId === '5') {
       // Telegram task
       window.open('https://t.me/zugchain', '_blank')
