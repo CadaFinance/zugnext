@@ -337,7 +337,7 @@ export default function Tasks() {
 
     // Redirect based on task type
     if (isDailyTask) {
-      window.open('https://x.com/ZugChain_org', '_blank')
+      window.open('https://x.com/intent/follow?screen_name=ZugChain_org', '_blank')
     } else if (taskId === '5') {
       // Telegram task
       window.open('https://t.me/zugchain', '_blank')

@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       siteName: 'ZUG Chain',
       images: [
         {
-          url: '/Hiring training.png', // ZUG logo
+          url: '/invite.png', // ZUG logo
           width: 1200,
           height: 630,
           alt: 'ZUG Chain - Ethereum Layer 2',
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       card: 'summary_large_image',
       title: `Join ZUG Community - Invited by @${username}`,
       description: `You've been invited by @${username} to join the ZUG community! Connect your X account and earn 50 points.`,
-      images: ['/Hiring training.png'],
+      images: ['/invite.png'],
       creator: '@ZugChain_org',
       site: '@ZugChain_org',
     },
