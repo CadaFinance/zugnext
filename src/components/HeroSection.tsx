@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function HeroSection() {
   return (
     <div className="bg-white pt-32 white-pattern-bg">
@@ -27,9 +29,11 @@ export default function HeroSection() {
               SCALABILITY AND SPEED FOR ETHEREUM ARE FINALLY HERE
             </p>
             <div className="flex justify-center pt-4">
-              <button className="bg-[#132a13] text-white px-6 py-3 rounded-lg font-bold text-base hover:bg-black transition-colors duration-300 animate-scale">
-                PRESALE IS LIVE
-              </button>
+              <Link href="/Airdrop">
+                <button className="bg-[#132a13] text-white px-6 py-3 rounded-lg font-bold text-base hover:bg-black transition-colors duration-300 animate-scale">
+                  AIRDROP IS LIVE
+                </button>
+              </Link>
             </div>
           </div>
         </div>
