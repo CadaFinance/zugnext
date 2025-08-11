@@ -346,8 +346,15 @@ export default function Tasks({ referralLink }: TasksProps) {
       // Follow X task
       window.open('https://x.com/intent/follow?screen_name=ZugChain_org', '_blank')
     } else if (taskId === '2') {
-      // Like & RT task
-      window.open('https://x.com/ZugChain_org/status/1954962688414486802', '_blank')
+      // Like & RT task - Intent reply with referral link
+      if (referralLink) {
+        const encodedText = encodeURIComponent(`🚀 Join the fastest Ethereum Layer 2 chain! $ZUG\n\n${referralLink}\n\n#ZUG #Ethereum #Layer2 #Crypto`);
+        window.open(`https://x.com/intent/tweet?in_reply_to=1954962688414486802&text=${encodedText}`, '_blank')
+      } else {
+        // Fallback if no referral link
+        const encodedText = encodeURIComponent(`🚀 Join the fastest Ethereum Layer 2 chain! $ZUG #ZUG #Ethereum #Layer2 #Crypto`);
+        window.open(`https://x.com/intent/tweet?in_reply_to=1954962688414486802&text=${encodedText}`, '_blank')
+      }
     } else if (taskId === '3') {
       // Share your invite link task
       if (referralLink) {
