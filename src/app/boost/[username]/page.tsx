@@ -1,5 +1,4 @@
-'use client'
-
+import type { Metadata } from 'next'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 
@@ -19,6 +18,67 @@ interface PageProps {
   }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
+
+// SEO Metadata for social media sharing
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const resolvedParams = await params
+  const username = resolvedParams.username
+  
+  return {
+    title: `Join ZUG Community - Invited by @${username}`,
+    description: `You've been invited by @${username} to join the ZUG community! Connect your X account and earn 50 points. The fastest Ethereum Layer 2 chain with scalability and speed.`,
+    keywords: ['ZUG', 'Ethereum', 'Layer 2', 'Blockchain', 'Crypto', 'Referral', 'Rewards'],
+    authors: [{ name: 'ZUG Protocol' }],
+    creator: 'ZUG Protocol',
+    publisher: 'ZUG Protocol',
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
+    metadataBase: new URL('https://zug-opal.vercel.app'),
+    alternates: {
+      canonical: `/boost/${username}`,
+    },
+    openGraph: {
+      title: `Join ZUG Community - Invited by @${username}`,
+      description: `You've been invited by @${username} to join the ZUG community! Connect your X account and earn 50 points.`,
+      url: `https://zug-opal.vercel.app/boost/${username}`,
+      siteName: 'ZUG Protocol',
+      images: [
+        {
+          url: '/Group 5195.png', // ZUG logo
+          width: 1200,
+          height: 630,
+          alt: 'ZUG Protocol - Ethereum Layer 2',
+        },
+      ],
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Join ZUG Community - Invited by @${username}`,
+      description: `You've been invited by @${username} to join the ZUG community! Connect your X account and earn 50 points.`,
+      images: ['/Group 5195.png'],
+      creator: '@ZUGProtocol',
+      site: '@ZUGProtocol',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+  }
+}
+
+'use client'
 
 export default function BoostPage({ params }: PageProps) {
   const [referrer, setReferrer] = useState<User | null>(null)
