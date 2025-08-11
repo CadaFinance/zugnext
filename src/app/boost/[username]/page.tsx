@@ -141,7 +141,7 @@ export default function BoostPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
       {/* Animated Background */}
-      <div className="absolute inset-0 opacity-5">
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
         <div className="absolute inset-0" style={{
           backgroundImage: `
             radial-gradient(circle at 25% 25%, #D6E14E 1px, transparent 1px),
@@ -157,12 +157,12 @@ export default function BoostPage({ params }: PageProps) {
           <div className="flex items-center">
             <Image
               alt="Logo"
-              src="/Group 5195.png"
+              src="/zug_logo.svg"
               width={24}
               height={24}
               className="mr-2"
             />
-            <span className="text-lg font-bold text-[#D6E14E]">ZUG</span>
+            <span className="text-lg font-bold text-white">ZUG</span>
           </div>
           <div className="text-xs text-gray-400">
             Referral Program
@@ -171,7 +171,7 @@ export default function BoostPage({ params }: PageProps) {
       </div>
 
       {/* Main Content */}
-      <div className="pt-16 min-h-screen flex items-center justify-center px-4">
+      <div className="relative z-10 pt-16 min-h-screen flex items-center justify-center px-4">
         <div className="max-w-md w-full mx-auto">
           {/* Success Animation */}
           <div className="text-center mb-6 animate-fade-in">
