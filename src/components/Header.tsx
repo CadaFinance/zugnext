@@ -216,9 +216,9 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
             <Link href="/" className="-m-1.5 p-1.5 flex items-center">
               <Image
                 alt="Logo"
-                src="/Group 5195.png"
-                width={48}
-                height={48}
+                src="/zug_logo.svg"
+                width={32}
+                height={32}
                 className=" mr-2"
               />
               <span className="text-xl font-bold text-gray-900">ZUG</span>
