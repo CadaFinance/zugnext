@@ -349,7 +349,7 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
             )}
                {/* Social Media Buttons */}
             <a 
-              href="https://twitter.com/ZUGToken" 
+                              href="https://twitter.com/ZugChain_org" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-[#D6E14E] text-black p-2 rounded-lg hover:bg-[#cbd743] transition-colors flex items-center justify-center"
@@ -364,7 +364,7 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
               />
             </a>
             <a 
-              href="https://t.me/ZUGToken" 
+              href="https://t.me/zugchain" 
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-[#D6E14E] text-black p-2 rounded-lg hover:bg-[#cbd743] transition-colors flex items-center justify-center"
@@ -435,7 +435,7 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                 {/* Social Media Buttons - Bottom */}
                 <div className="flex gap-3 justify-center">
                   <a 
-                    href="https://twitter.com/ZUGToken" 
+                    href="https://twitter.com/ZugChain_org" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="bg-[#D6E14E] text-black px-4 py-3 rounded-lg hover:bg-[#b8c93e] transition-colors flex items-center gap-2 font-medium"
@@ -451,10 +451,10 @@ export default function Header({ fullWidth = false, showBothButtons = false, sho
                     <span className="text-sm">Twitter</span>
                   </a>
                   <a 
-                    href="https://t.me/ZUGToken" 
+                    href="https://t.me/zugchain" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="bg-[#D6E14E] text-black px-4 py-3 rounded-lg hover:bg-[#b8c93e] transition-colors flex items-center gap-2 font-medium"
+                    className="bg-[#D6E14E] text-black px-4 py-3 rounded-lg hover:bg-[#b8c93ed] transition-colors flex items-center gap-2 font-medium"
                     title="Join our Telegram"
                   >
                     <Image

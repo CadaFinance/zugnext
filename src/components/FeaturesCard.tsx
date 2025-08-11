@@ -49,9 +49,9 @@ const useCountdown = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    const targetDate = new Date('2025-08-09T12:00:00Z')
-    const targetAmount = 1502850.49
-    const startDate = new Date('2025-08-05T12:00:00Z')
+    const targetDate = new Date('2025-08-28T12:00:00Z')
+    const targetAmount = 150850.49
+    const startDate = new Date('2025-08-10T12:00:00Z')
     
     const updateCountdown = () => {
       const now = new Date()

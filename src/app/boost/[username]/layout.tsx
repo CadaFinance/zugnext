@@ -48,8 +48,8 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       title: `Join ZUG Community - Invited by @${username}`,
       description: `You've been invited by @${username} to join the ZUG community! Connect your X account and earn 50 points.`,
       images: ['/Hiring training.png'],
-      creator: '@ZUGProtocol',
-      site: '@ZUGProtocol',
+      creator: '@ZugChain_org',
+      site: '@ZugChain_org',
     },
     robots: {
       index: true,

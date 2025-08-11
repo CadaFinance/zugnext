@@ -175,7 +175,7 @@ export default function BitcoinLayer2() {
                   <div className="absolute top-4 right-4 w-6 h-6  rounded-full"></div>
                   <h3 className="text-xl font-bold text-black mb-3">STEP 1</h3>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    Get some ETH from your preferred exchange. If you don&apos;t yet have a wallet, consider using Trust Wallet or MetaMask. Then visit the $ZUG official website.
+                    Get some ETH from your preferred exchange. If you don&apos;t yet have a wallet, consider using Trust Wallet or MetaMask. Then visit the $ZUG website.
                   </p>
                 </div>
 
@@ -216,7 +216,7 @@ export default function BitcoinLayer2() {
                       <div className="absolute top-4 right-4 w-6 h-6 bg-white rounded-full"></div>
                       <h3 className="text-xl font-bold text-black mb-3">STEP 1</h3>
                       <p className="text-sm text-gray-700 leading-relaxed">
-                        Get some ETH from your preferred exchange. If you don&apos;t yet have a wallet, consider using Trust Wallet or MetaMask. Then visit the $ZUG official website.
+                        Get some ETH from your preferred exchange. If you don&apos;t yet have a wallet, consider using Trust Wallet or MetaMask. Then visit the $ZUG website.
                       </p>
                     </div>
                   </div>

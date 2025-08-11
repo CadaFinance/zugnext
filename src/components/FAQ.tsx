@@ -20,7 +20,7 @@ export default function FAQ() {
     {
       id: 4,
       question: "WHEN DOES THE PRESALE END?",
-      answer: "The $ZUG presale is limited and may end early based on demand. Follow our official channels for real-time updates on availability and pricing."
+      answer: "The $ZUG presale is limited and may end early based on demand. Follow our X account @ZugChain_org for real-time updates on availability and pricing."
     },
     {
       id: 5,

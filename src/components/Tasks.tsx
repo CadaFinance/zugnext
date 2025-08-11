@@ -187,7 +187,7 @@ export default function Tasks() {
       },
       {
         id: '5',
-        title: 'Join our Telegram group',
+        title: 'Join our Telegram group @zugchain',
         points: 100,
         completed: false,
         loading: false,
@@ -221,7 +221,7 @@ export default function Tasks() {
       setDailyTasks([
         {
           id: 'daily_1',
-          title: 'Daily: Visit ZUG on Coinsniper',
+          title: 'Daily: Follow @ZugChain_org on X',
           points: 100,
           completed: false,
           loading: true,
@@ -237,7 +237,7 @@ export default function Tasks() {
       const dailyTasksData: Task[] = [
         {
           id: 'daily_1',
-          title: 'Daily: Visit ZUG on Coinsniper',
+          title: 'Daily: Follow @ZugChain_org on X',
           points: 100,
           completed: false,
           loading: false,
@@ -337,7 +337,10 @@ export default function Tasks() {
 
     // Redirect based on task type
     if (isDailyTask) {
-      window.open('https://coinsniper.net/coin/84547', '_blank')
+      window.open('https://x.com/ZugChain_org', '_blank')
+    } else if (taskId === '5') {
+      // Telegram task
+      window.open('https://t.me/zugchain', '_blank')
     } else {
       window.open('https://x.com/settings/profile', '_blank')
     }

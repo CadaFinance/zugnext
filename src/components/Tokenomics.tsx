@@ -30,7 +30,7 @@ export default function Tokenomics() {
       id: 5,
       title: "DEVELOPMENT",
       percentage: "30%",
-      description: "Follow our regular Layer 2 development updates on the $ZUG official website."
+      description: "Follow our regular Layer 2 development updates on the $ZUG website and X account @ZugChain_org."
     }
   ];
 
