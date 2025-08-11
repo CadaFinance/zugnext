@@ -46,11 +46,56 @@ const ZUG_TOKEN_ADDRESS = '0xF5C0A842DCdd43b3A23e06EB6e49bAaE9B92b248'
 const useCountdown = () => {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [currentAmount, setCurrentAmount] = useState(0)
+  const [isLoadingAmount, setIsLoadingAmount] = useState(true)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Fetch total amount from API
+  const fetchTotalAmount = async () => {
+    console.log('🔄 Fetching total amount from API...')
+    try {
+      const response = await fetch('/api/total', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      
+      console.log('📡 API Response Status:', response.status)
+      console.log('📡 API Response Headers:', response.headers)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      console.log('📊 API Response Data:', data)
+      
+      if (data.total_amount) {
+        console.log('✅ Setting current amount to:', data.total_amount)
+        setCurrentAmount(data.total_amount)
+      } else {
+        console.log('⚠️ No total_amount in response')
+      }
+    } catch (error) {
+      console.error('❌ Error fetching total amount:', error)
+      // Fallback to time-based calculation if API fails
+      const now = new Date()
+      const targetDate = new Date('2025-08-28T12:00:00Z')
+      const startDate = new Date('2025-08-11T02:00:00Z')
+      const totalDuration = targetDate.getTime() - startDate.getTime()
+      const elapsed = now.getTime() - startDate.getTime()
+      const progress = Math.min(elapsed / totalDuration, 1)
+      const targetAmount = 150850.49
+      const fallbackAmount = progress * targetAmount
+      console.log('🔄 Using fallback amount:', fallbackAmount)
+      setCurrentAmount(fallbackAmount)
+    } finally {
+      setIsLoadingAmount(false)
+    }
+  }
 
   useEffect(() => {
     const targetDate = new Date('2025-08-28T12:00:00Z')
-    const targetAmount = 150850.49
     const startDate = new Date('2025-08-11T02:00:00Z')
     
     const updateCountdown = () => {
@@ -64,23 +109,8 @@ const useCountdown = () => {
         const seconds = Math.floor((difference % (1000 * 60)) / 1000)
         
         setCountdown({ days, hours, minutes, seconds })
-        
-        // Calculate progress with 5-minute intervals
-        const totalDuration = targetDate.getTime() - startDate.getTime()
-        const elapsed = now.getTime() - startDate.getTime()
-        const progress = Math.min(elapsed / totalDuration, 1)
-        
-        // Calculate 5-minute intervals
-        const fiveMinuteIntervals = Math.floor(elapsed / (5 * 60 * 1000))
-        const totalFiveMinuteIntervals = Math.floor(totalDuration / (5 * 60 * 1000))
-        const intervalProgress = Math.min(fiveMinuteIntervals / totalFiveMinuteIntervals, 1)
-        
-        const currentRaised = intervalProgress * targetAmount
-        
-        setCurrentAmount(currentRaised)
       } else {
         setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-        setCurrentAmount(targetAmount)
       }
     }
     
@@ -95,7 +125,15 @@ const useCountdown = () => {
     }
   }, [])
 
-  return { countdown, currentAmount }
+  // Fetch total amount on component mount and every 30 seconds
+  useEffect(() => {
+    fetchTotalAmount()
+    const amountInterval = setInterval(fetchTotalAmount, 30000) // Refresh every 30 seconds
+    
+    return () => clearInterval(amountInterval)
+  }, [])
+
+  return { countdown, currentAmount, isLoadingAmount }
 }
 
 const FeaturesCard = memo(function FeaturesCard() {
@@ -109,7 +147,7 @@ const FeaturesCard = memo(function FeaturesCard() {
   const { switchChain } = useSwitchChain()
   
   // Use memoized countdown
-  const { countdown, currentAmount } = useCountdown()
+  const { countdown, currentAmount, isLoadingAmount } = useCountdown()
 
   // Memoized contract reads - only when connected
   const { data: tokenPriceUsd } = useReadContract({
@@ -285,7 +323,7 @@ const FeaturesCard = memo(function FeaturesCard() {
 
   // Memoized progress calculation
   const progressPercentage = useMemo(() => {
-    const targetAmount = 1502850.49
+    const targetAmount = 1502850.49 // $1,502,850.49 hedef
     return Math.min((currentAmount / targetAmount) * 100, 100)
   }, [currentAmount])
 
@@ -305,7 +343,7 @@ const FeaturesCard = memo(function FeaturesCard() {
       currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(1502850.49)
+    }).format(1502850.49) // $1,502,850.49 hedef
   }, [])
 
   // Check if user has sufficient balance
@@ -395,7 +433,20 @@ const FeaturesCard = memo(function FeaturesCard() {
             {/* Progress Bar */}
             <div className="grid grid-cols-1 mb-6">
               <div className="text-center">
-                <div className="text-sm text-gray-300 mb-2">USD Raised: <span className='text-[#D6E14E] lg:text-xl font-bold text-lg'>{formattedCurrentAmount} / {formattedTargetAmount}</span> </div>
+                <div className="text-sm text-gray-300 mb-2">
+                  USD Raised: 
+                  {isLoadingAmount ? (
+                    <span className='text-[#D6E14E] lg:text-xl font-bold text-lg'>
+                      <div className="inline-block w-4 h-4 border-2 border-[#D6E14E] border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Loading...
+                    </span>
+                  ) : (
+                    <span className='text-[#D6E14E] lg:text-xl font-bold text-lg'>
+                      {formattedCurrentAmount} / {formattedTargetAmount}
+                    </span>
+                  )}
+
+                </div>
                 <div className="relative w-full bg-gray-700 rounded-full h-6 mb-2">
                   <div 
                     className="bg-gradient-to-r from-[#D6E14E] to-[#E8F15A] h-6 rounded-full transition-all duration-1000"

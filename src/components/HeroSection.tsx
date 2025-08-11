@@ -31,7 +31,7 @@ export default function HeroSection() {
             <div className="flex justify-center pt-4">
               <Link href="/Airdrop">
                 <button className="bg-[#132a13] text-white px-6 py-3 rounded-lg font-bold text-base hover:bg-black transition-colors duration-300 animate-scale">
-                  AIRDROP IS LIVE
+                  $1M Airdrop is Live ! 
                 </button>
               </Link>
             </div>
