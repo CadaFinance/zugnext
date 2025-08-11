@@ -225,7 +225,7 @@ export default function Tasks({ referralLink }: TasksProps) {
       setDailyTasks([
         {
           id: 'daily_1',
-          title: 'Daily: Follow @ZugChain_org on X',
+          title: 'Daily: Vote on Coinsniper',
           points: 100,
           completed: false,
           loading: true,
@@ -241,7 +241,7 @@ export default function Tasks({ referralLink }: TasksProps) {
       const dailyTasksData: Task[] = [
         {
           id: 'daily_1',
-          title: 'Daily: Follow @ZugChain_org on X',
+          title: 'Daily: Vote on Coinsniper',
           points: 100,
           completed: false,
           loading: false,
@@ -341,6 +341,9 @@ export default function Tasks({ referralLink }: TasksProps) {
 
     // Redirect based on task type
     if (isDailyTask) {
+      window.open('https://coinsniper.net/coin/84547', '_blank')
+    } else if (taskId === '1') {
+      // Follow X task
       window.open('https://x.com/intent/follow?screen_name=ZugChain_org', '_blank')
     } else if (taskId === '2') {
       // Like & RT task
