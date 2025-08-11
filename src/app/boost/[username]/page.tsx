@@ -25,6 +25,7 @@ export default function BoostPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState<string>('')
   const [isConnecting, setIsConnecting] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
     async function getParams() {
@@ -57,6 +58,7 @@ export default function BoostPage({ params }: PageProps) {
         setReferrer(null)
       } finally {
         setLoading(false)
+        setIsInitialized(true)
       }
     }
 
@@ -69,7 +71,8 @@ export default function BoostPage({ params }: PageProps) {
     window.location.href = `/api/auth/twitter?ref=${username}`
   }
 
-  if (loading) {
+  // Show loading until both username is set and API call is completed
+  if (loading || !isInitialized) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex items-center justify-center relative overflow-hidden">
         {/* Animated Background */}
@@ -94,7 +97,8 @@ export default function BoostPage({ params }: PageProps) {
     )
   }
 
-  if (!referrer) {
+  // Show error only after initialization is complete and no referrer found
+  if (isInitialized && !referrer) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex items-center justify-center relative overflow-hidden">
         {/* Animated Background */}
@@ -112,7 +116,7 @@ export default function BoostPage({ params }: PageProps) {
           <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-6 backdrop-blur-sm">
             <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L6 6l12 12" />
               </svg>
             </div>
             <h1 className="text-2xl font-bold mb-3 text-red-400">Invalid Invite Link</h1>
@@ -127,6 +131,11 @@ export default function BoostPage({ params }: PageProps) {
         </div>
       </div>
     )
+  }
+
+  // Ensure referrer exists before rendering main content
+  if (!referrer) {
+    return null
   }
 
   return (
