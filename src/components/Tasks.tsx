@@ -221,18 +221,8 @@ export default function Tasks() {
       setDailyTasks([
         {
           id: 'daily_1',
-          title: 'Daily: Follow ZUG on X',
-          points: 50,
-          completed: false,
-          loading: true,
-          type: 'daily',
-          isAvailable: false,
-          timeRemaining: ''
-        },
-        {
-          id: 'daily_2',
-          title: 'Daily: Like & RT ZUG post',
-          points: 50,
+          title: 'Daily: Visit ZUG on Coinsniper',
+          points: 100,
           completed: false,
           loading: true,
           type: 'daily',
@@ -247,23 +237,13 @@ export default function Tasks() {
       const dailyTasksData: Task[] = [
         {
           id: 'daily_1',
-          title: 'Daily: Follow ZUG on X',
-          points: 50,
+          title: 'Daily: Visit ZUG on Coinsniper',
+          points: 100,
           completed: false,
           loading: false,
           type: 'daily',
           isAvailable: data.tasks?.daily_1?.available || false,
           timeRemaining: data.tasks?.daily_1?.timeRemaining || ''
-        },
-        {
-          id: 'daily_2',
-          title: 'Daily: Like & RT ZUG post',
-          points: 50,
-          completed: false,
-          loading: false,
-          type: 'daily',
-          isAvailable: data.tasks?.daily_2?.available || false,
-          timeRemaining: data.tasks?.daily_2?.timeRemaining || ''
         }
       ]
       
@@ -316,9 +296,9 @@ export default function Tasks() {
               : task
           )
           
-          // Check if both daily tasks are completed
-          const allDailyCompleted = updatedTasks.every(task => task.completed)
-          setDailyTasksCompleted(allDailyCompleted)
+          // Check if daily task is completed
+          const dailyTaskCompleted = updatedTasks.every(task => task.completed)
+          setDailyTasksCompleted(dailyTaskCompleted)
           
           // Clear cache when daily tasks are completed to ensure fresh data
           if (user) {
@@ -357,7 +337,7 @@ export default function Tasks() {
 
     // Redirect based on task type
     if (isDailyTask) {
-      window.open('https://x.com/ZUG_Official', '_blank')
+      window.open('https://coinsniper.net/coin/84547', '_blank')
     } else {
       window.open('https://x.com/settings/profile', '_blank')
     }
@@ -554,7 +534,7 @@ export default function Tasks() {
                       Claiming...
                     </div>
                   ) : (
-                    'Claim Daily Rewards (100 pts)'
+                    'Claim Daily Reward (100 pts)'
                   )}
                 </button>
               ) : (
@@ -562,7 +542,7 @@ export default function Tasks() {
                   disabled
                   className="bg-gray-600 w-full text-gray-400 font-bold py-3 px-8 rounded-lg cursor-not-allowed"
                 >
-                  Complete Daily Tasks First ({dailyTasks.filter(t => t.completed).length}/2)
+                  Complete Daily Task First ({dailyTasks.filter(t => t.completed).length}/1)
                 </button>
               )}
             </div>
