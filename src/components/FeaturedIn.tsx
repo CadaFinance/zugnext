@@ -41,11 +41,11 @@ export default function FeaturedIn() {
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
         {/* Title */}
-        <div className="text-center my-4">
-          <h2 className="text-2xl lg:text-3xl font-bold text-white">
+        <div className="text-center mt-2 mb-4">
+          <h2 className="text-2xl mb-2 lg:text-2xl font-bold text-white">
             FEATURED IN
           </h2>
-        </div>
+        </div> 
 
                  {/* Platform Names */}
          <div className="hidden lg:flex flex-wrap justify-center items-center mb-4 gap-8 lg:gap-12">

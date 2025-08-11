@@ -23,14 +23,14 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
       address: false,
       telephone: false,
     },
-    metadataBase: new URL('https://zugnext.vercel.app'),
+    metadataBase: new URL('https://zugchain.org'),
     alternates: {
       canonical: `/boost/${username}`,
     },
     openGraph: {
       title: `Join ZUG Community - Invited by @${username}`,
       description: `You've been invited by @${username} to join the ZUG community! Connect your X account and earn 50 points.`,
-      url: `https://zugnext.vercel.app/boost/${username}`,
+      url: `https://zugchain.org/boost/${username}`,
       siteName: 'ZUG Chain',
       images: [
         {
