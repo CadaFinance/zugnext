@@ -66,9 +66,13 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/zug_logo.svg',
-    shortcut: '/zug_logo.svg',
-    apple: '/zug_logo.svg',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
 };
 
@@ -80,9 +84,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/zug_logo.svg" type="image/svg+xml" />
-        <link rel="shortcut icon" href="/zug_logo.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/zug_logo.svg" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Baumans&display=swap" rel="stylesheet" />

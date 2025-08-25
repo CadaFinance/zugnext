@@ -1,0 +1,4 @@
+# This is a placeholder for apple-touch-icon.png
+# You should convert your zug_logo.svg to actual PNG format
+# You can use online tools like favicon.io or convertio.co
+# Or use ImageMagick: magick convert zug_logo.svg -resize 180x180 apple-touch-icon.png
