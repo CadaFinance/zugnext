@@ -80,7 +80,7 @@ const useCountdown = () => {
       console.error('❌ Error fetching total amount:', error)
       // Fallback to time-based calculation if API fails
       const now = new Date()
-      const targetDate = new Date('2025-08-28T12:00:00Z')
+      const targetDate = new Date('2025-09-28T12:00:00Z')
       const startDate = new Date('2025-08-11T02:00:00Z')
       const totalDuration = targetDate.getTime() - startDate.getTime()
       const elapsed = now.getTime() - startDate.getTime()
@@ -95,7 +95,7 @@ const useCountdown = () => {
   }
 
   useEffect(() => {
-    const targetDate = new Date('2025-08-28T12:00:00Z')
+    const targetDate = new Date('2025-09-28T12:00:00Z')
     const startDate = new Date('2025-08-11T02:00:00Z')
     
     const updateCountdown = () => {
