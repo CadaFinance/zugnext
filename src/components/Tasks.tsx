@@ -358,7 +358,7 @@ export default function Tasks({ referralLink }: TasksProps) {
     } else if (taskId === '3') {
       // Share your invite link task
       if (referralLink) {
-        const encodedText = encodeURIComponent(`🚀 Join the fastest Ethereum Layer 2 chain! $ZUG\n\n${referralLink}\n\n#ZUG #Ethereum #Layer2 #Crypto`);
+        const encodedText = encodeURIComponent(`🚀 Don’t miss out on the $1,160,000 $USDZ airdrop!\n\n${referralLink}\n\nExperience the speed of @ZugChain_org, the fastest Ethereum Layer 2 network.\n\n#ZUG #Ethereum #Airdrop`);
         window.open(`https://x.com/intent/tweet?text=${encodedText}`, '_blank')
       } else {
         // Fallback if no referral link
