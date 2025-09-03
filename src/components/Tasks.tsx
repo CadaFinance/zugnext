@@ -353,7 +353,7 @@ export default function Tasks({ referralLink }: TasksProps) {
       } else {
         // Fallback if no referral link
         const encodedText = encodeURIComponent(`🚀 Join the fastest Ethereum Layer 2 chain! $ZUG #ZUG #Ethereum #Layer2 #Crypto`);
-        window.open(`https://x.com/intent/tweet?in_reply_to=1959613010617545139&text=${encodedText}`, '_blank')
+        window.open(`https://x.com/intent/tweet?in_reply_to=1963221290174517253&text=${encodedText}`, '_blank')
       }
     } else if (taskId === '3') {
       // Share your invite link task
