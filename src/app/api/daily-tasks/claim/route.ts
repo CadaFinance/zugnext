@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       .from('user_points')
       .insert({
         user_id: userId,
-        points: 200,
+        points: 300,
         usda_amount: 0,
         source: 'daily_tasks'
       })
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ 
       success: true, 
-      points: 200 
+      points: 300 
     })
 
   } catch (error) {

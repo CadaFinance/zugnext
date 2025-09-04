@@ -45,7 +45,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         tasks: {
           daily_1: { available: true, completed: false, timeRemaining: '' },
-          daily_2: { available: true, completed: false, timeRemaining: '' }
+          daily_2: { available: true, completed: false, timeRemaining: '' },
+          daily_3: { available: true, completed: false, timeRemaining: '' }
         },
         nextReset: ''
       })
@@ -70,7 +71,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       tasks: {
         daily_1: { available: isAvailable, completed: false, timeRemaining },
-        daily_2: { available: isAvailable, completed: false, timeRemaining }
+        daily_2: { available: isAvailable, completed: false, timeRemaining },
+        daily_3: { available: isAvailable, completed: false, timeRemaining }
       },
       nextReset: timeRemaining
     })
