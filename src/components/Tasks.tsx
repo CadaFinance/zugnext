@@ -232,6 +232,16 @@ export default function Tasks({ referralLink }: TasksProps) {
           type: 'daily',
           isAvailable: false,
           timeRemaining: ''
+        },
+        {
+          id: 'daily_2',
+          title: 'Daily: Vote on Coinmooner',
+          points: 100,
+          completed: false,
+          loading: true,
+          type: 'daily',
+          isAvailable: false,
+          timeRemaining: ''
         }
       ])
 
@@ -248,20 +258,30 @@ export default function Tasks({ referralLink }: TasksProps) {
           type: 'daily',
           isAvailable: data.tasks?.daily_1?.available || false,
           timeRemaining: data.tasks?.daily_1?.timeRemaining || ''
+        },
+        {
+          id: 'daily_2',
+          title: 'Daily: Vote on Coinmooner',
+          points: 100,
+          completed: false,
+          loading: false,
+          type: 'daily',
+          isAvailable: data.tasks?.daily_2?.available || false,
+          timeRemaining: data.tasks?.daily_2?.timeRemaining || ''
         }
       ]
       
       // Cache the data for 1 minute for countdown accuracy
       const cacheData = {
         tasks: dailyTasksData,
-        available: data.tasks?.daily_1?.available || false,
+        available: (data.tasks?.daily_1?.available || false) && (data.tasks?.daily_2?.available || false),
         nextReset: data.nextReset || '',
         timestamp: Date.now()
       }
       sessionStorage.setItem(cacheKey, JSON.stringify(cacheData))
       
       setDailyTasks(dailyTasksData)
-      setDailyTasksAvailable(data.tasks?.daily_1?.available || false)
+      setDailyTasksAvailable((data.tasks?.daily_1?.available || false) && (data.tasks?.daily_2?.available || false))
       setCountdown(data.nextReset || '')
     } catch (error) {
       console.error('Error loading daily tasks:', error)
@@ -341,7 +361,11 @@ export default function Tasks({ referralLink }: TasksProps) {
 
     // Redirect based on task type
     if (isDailyTask) {
-      window.open('https://coinsniper.net/coin/84547', '_blank')
+      if (taskId === 'daily_1') {
+        window.open('https://coinsniper.net/coin/84547', '_blank')
+      } else if (taskId === 'daily_2') {
+        window.open('https://coinmooner.com/coins/zugchain-zug', '_blank')
+      }
     } else if (taskId === '1') {
       // Follow X task
       window.open('https://x.com/intent/follow?screen_name=ZugChain_org', '_blank')
@@ -563,7 +587,7 @@ export default function Tasks({ referralLink }: TasksProps) {
                       Claiming...
                     </div>
                   ) : (
-                    'Claim Daily Reward (100 pts)'
+                    'Claim Daily Rewards (200 pts)'
                   )}
                 </button>
               ) : (
@@ -571,7 +595,7 @@ export default function Tasks({ referralLink }: TasksProps) {
                   disabled
                   className="bg-gray-600 w-full text-gray-400 font-bold py-3 px-8 rounded-lg cursor-not-allowed"
                 >
-                  Complete Daily Task First ({dailyTasks.filter(t => t.completed).length}/1)
+                  Complete Daily Tasks First ({dailyTasks.filter(t => t.completed).length}/2)
                 </button>
               )}
             </div>
