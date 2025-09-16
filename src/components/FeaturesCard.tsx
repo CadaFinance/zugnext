@@ -231,7 +231,7 @@ const FeaturesCard = memo(function FeaturesCard() {
       const usdValue = ethAmount * ethUsdPrice
       
       // Calculate ZUG tokens based on USD value and token price
-      const zugTokenPriceUsd = tokenPriceUsd ? Number(tokenPriceUsd) / 1e18 : 0.000120 // 18 decimal places
+      const zugTokenPriceUsd = tokenPriceUsd ? Number(tokenPriceUsd) / 1e18 : 0.000240 // 18 decimal places
       const zugAmount = usdValue / zugTokenPriceUsd
       
       const finalAmount = Math.max(0, zugAmount)
@@ -323,7 +323,7 @@ const FeaturesCard = memo(function FeaturesCard() {
 
   // Memoized progress calculation
   const progressPercentage = useMemo(() => {
-    const targetAmount = 1502850.49 // $1,502,850.49 hedef
+    const targetAmount = 2502850.49 // $1,502,850.49 hedef
     return Math.min((currentAmount / targetAmount) * 100, 100)
   }, [currentAmount])
 
