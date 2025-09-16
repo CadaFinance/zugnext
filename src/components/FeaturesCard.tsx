@@ -343,7 +343,7 @@ const FeaturesCard = memo(function FeaturesCard() {
       currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(1502850.49) // $1,502,850.49 hedef
+    }).format(2502850.49) // $1,502,850.49 hedef
   }, [])
 
   // Check if user has sufficient balance
