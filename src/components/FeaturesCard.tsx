@@ -364,13 +364,13 @@ const FeaturesCard = memo(function FeaturesCard() {
   // Format data for display
   const formattedPrice = useMemo(() => {
     console.log('Raw tokenPriceUsd:', tokenPriceUsd)
-    if (!tokenPriceUsd) return '0.00012' // Default fallback price
+    if (!tokenPriceUsd) return '0.00024' // Default fallback price
     // Price 18 decimal olarak set edilmiş (yeni kontrat)
     // 120000000000000 = 0.00012 USD (120000000000000 / 10^18)
     const price = (Number(tokenPriceUsd) / 1e18).toFixed(6)
     // Remove trailing zeros but keep at least 6 decimal places
     const cleanPrice = price.replace(/\.?0+$/, '')
-    return cleanPrice || '0.00012' // Fallback if empty
+    return cleanPrice || '0.00024' // Fallback if empty
   }, [tokenPriceUsd])
 
   return (
