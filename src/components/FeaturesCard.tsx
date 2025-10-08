@@ -49,54 +49,29 @@ const useCountdown = () => {
   const [isLoadingAmount, setIsLoadingAmount] = useState(true)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Fetch total amount from API
-  const fetchTotalAmount = async () => {
-    console.log('🔄 Fetching total amount from API...')
-    try {
-      const response = await fetch('/api/total', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      
-      console.log('📡 API Response Status:', response.status)
-      console.log('📡 API Response Headers:', response.headers)
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      console.log('📊 API Response Data:', data)
-      
-      if (data.total_amount) {
-        console.log('✅ Setting current amount to:', data.total_amount)
-        setCurrentAmount(data.total_amount)
-      } else {
-        console.log('⚠️ No total_amount in response')
-      }
-    } catch (error) {
-      console.error('❌ Error fetching total amount:', error)
-      // Fallback to time-based calculation if API fails
-      const now = new Date()
-      const targetDate = new Date('2025-09-28T12:00:00Z')
-      const startDate = new Date('2025-08-11T02:00:00Z')
-      const totalDuration = targetDate.getTime() - startDate.getTime()
-      const elapsed = now.getTime() - startDate.getTime()
-      const progress = Math.min(elapsed / totalDuration, 1)
-      const targetAmount = 150850.49
-      const fallbackAmount = progress * targetAmount
-      console.log('🔄 Using fallback amount:', fallbackAmount)
-      setCurrentAmount(fallbackAmount)
-    } finally {
-      setIsLoadingAmount(false)
-    }
+  // Calculate amount based on time progression (no API call)
+  const calculateAmountByTime = () => {
+    const now = new Date()
+    const targetDate = new Date('2025-11-05T23:59:59Z') // 5 November 2025
+    const startDate = new Date('2025-08-11T02:00:00Z') // Presale start date
+    const totalDuration = targetDate.getTime() - startDate.getTime()
+    const elapsed = now.getTime() - startDate.getTime()
+    const progress = Math.min(Math.max(elapsed / totalDuration, 0), 1) // Clamp between 0 and 1
+    const targetAmount = 2502850.49 // Target amount: $2,502,850.49
+    const currentAmount = progress * targetAmount
+    
+    console.log('📊 Time-based calculation:', {
+      progress: (progress * 100).toFixed(2) + '%',
+      currentAmount: currentAmount.toFixed(2),
+      targetAmount
+    })
+    
+    setCurrentAmount(currentAmount)
+    setIsLoadingAmount(false)
   }
 
   useEffect(() => {
-    const targetDate = new Date('2025-09-28T12:00:00Z')
-    const startDate = new Date('2025-08-11T02:00:00Z')
+    const targetDate = new Date('2025-11-05T23:59:59Z') // 5 November 2025
     
     const updateCountdown = () => {
       const now = new Date()
@@ -125,12 +100,9 @@ const useCountdown = () => {
     }
   }, [])
 
-  // Fetch total amount on component mount and every 30 seconds
+  // Calculate amount once on mount
   useEffect(() => {
-    fetchTotalAmount()
-    const amountInterval = setInterval(fetchTotalAmount, 30000) // Refresh every 30 seconds
-    
-    return () => clearInterval(amountInterval)
+    calculateAmountByTime()
   }, [])
 
   return { countdown, currentAmount, isLoadingAmount }
@@ -175,7 +147,7 @@ const FeaturesCard = memo(function FeaturesCard() {
   // ETH/USD price from Chainlink
   const [ethUsdPrice, setEthUsdPrice] = useState<number>(0)
   const [isLoadingPrice, setIsLoadingPrice] = useState(false)
-
+ 
   // Fetch ETH/USD price from Chainlink
   useEffect(() => {
     const fetchEthPrice = async () => {
@@ -323,7 +295,7 @@ const FeaturesCard = memo(function FeaturesCard() {
 
   // Memoized progress calculation
   const progressPercentage = useMemo(() => {
-    const targetAmount = 1502850.49 // $1,502,850.49 hedef
+    const targetAmount = 2502850.49 // $2,502,850.49 hedef
     return Math.min((currentAmount / targetAmount) * 100, 100)
   }, [currentAmount])
 
@@ -343,7 +315,7 @@ const FeaturesCard = memo(function FeaturesCard() {
       currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(1502850.49) // $1,502,850.49 hedef
+    }).format(2502850.49) // $2,502,850.49 hedef
   }, [])
 
   // Check if user has sufficient balance
