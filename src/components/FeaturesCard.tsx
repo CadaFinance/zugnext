@@ -52,12 +52,12 @@ const useCountdown = () => {
   // Calculate amount based on time progression (no API call)
   const calculateAmountByTime = () => {
     const now = new Date()
-    const targetDate = new Date('2025-11-05T23:59:59Z') // 5 November 2025
+    const targetDate = new Date('2025-12-05T23:59:59Z') // 5 November 2025
     const startDate = new Date('2025-08-11T02:00:00Z') // Presale start date
     const totalDuration = targetDate.getTime() - startDate.getTime()
     const elapsed = now.getTime() - startDate.getTime()
     const progress = Math.min(Math.max(elapsed / totalDuration, 0), 1) // Clamp between 0 and 1
-    const targetAmount = 2502850.49 // Target amount: $2,502,850.49
+    const targetAmount = 3102850 // Target amount: $2,502,850.49
     const currentAmount = progress * targetAmount
     
     console.log('📊 Time-based calculation:', {
@@ -71,7 +71,7 @@ const useCountdown = () => {
   }
 
   useEffect(() => {
-    const targetDate = new Date('2025-11-05T23:59:59Z') // 5 November 2025
+    const targetDate = new Date('2025-12-05T23:59:59Z') // 5 November 2025
     
     const updateCountdown = () => {
       const now = new Date()
@@ -295,7 +295,7 @@ const FeaturesCard = memo(function FeaturesCard() {
 
   // Memoized progress calculation
   const progressPercentage = useMemo(() => {
-    const targetAmount = 2502850.49 // $2,502,850.49 hedef
+    const targetAmount = 3102850 // $2,502,850.49 hedef
     return Math.min((currentAmount / targetAmount) * 100, 100)
   }, [currentAmount])
 
@@ -315,7 +315,7 @@ const FeaturesCard = memo(function FeaturesCard() {
       currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(2502850.49) // $2,502,850.49 hedef
+    }).format(3102850) // $2,502,850.49 hedef
   }, [])
 
   // Check if user has sufficient balance
@@ -367,7 +367,7 @@ const FeaturesCard = memo(function FeaturesCard() {
                 <span className="text-white">BUY </span>
                 <span className="text-[#D6E14E]">$ZUG</span>
                 <span className="text-white"> NOW</span>
-              </h3>
+              </h3> 
             </div>
             
             {/* Countdown Timer */} 
@@ -425,7 +425,7 @@ const FeaturesCard = memo(function FeaturesCard() {
                     style={{ width: `${progressPercentage}%` }}
                   ></div>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-white drop-shadow-lg">UNTIL PRICE RISE</span>
+                    <span className="text-xs font-bold text-black drop-shadow-lg">NEXT STAGE PRICE = $0.00048 USD</span>
                   </div>
                 </div>
               </div>
